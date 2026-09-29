@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       <main>
-        <Hero />
+        <Hero causes={causes} />
         <section id="causes" aria-labelledby="directory-title" className="mx-auto max-w-6xl scroll-mt-6 px-4 py-16">
           <div className="mb-8 flex items-baseline justify-between gap-4">
             <h2 id="directory-title" className="font-display text-3xl sm:text-4xl">

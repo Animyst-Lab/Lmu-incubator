@@ -116,9 +116,12 @@ export function keywordMatch(visitorMessages: string[], index: CauseIndexEntry[]
   scored.sort((a, b) => b.score - a.score || a.position - b.position);
   const [best, ...rest] = scored;
 
+  // Quote the visitor's own words where possible, not the synonyms they were expanded to.
+  const ownWords = best.matched.filter((t) => saidSet.has(t));
+  const quoted = (ownWords.length > 0 ? ownWords : best.matched).slice(0, 3);
   const reason =
-    best.matched.length > 0
-      ? `It connects to what you said about ${best.matched.slice(0, 3).join(", ")}.`
+    quoted.length > 0
+      ? `It connects to what you said about ${quoted.join(", ")}.`
       : best.score > 0
         ? "It fits the way you said you'd like to help."
         : "Nothing matched closely yet, so here's a good place to start.";

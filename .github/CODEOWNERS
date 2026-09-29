@@ -1,0 +1,9 @@
+# Maintainers own everything by default, so they're asked to review any change.
+*                             @CreatorGodMode @dmelloja
+
+# Students add their own folders in causes/, so it has no owner...
+/causes/
+
+# ...except the folders that are part of the site.
+/causes/_template/            @CreatorGodMode @dmelloja
+/causes/example-food-access/  @CreatorGodMode @dmelloja

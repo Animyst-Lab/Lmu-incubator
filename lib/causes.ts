@@ -191,3 +191,14 @@ export function relatedCauses(cause: Cause, all: Cause[], count = 3): Cause[] {
     .slice(0, count)
     .map((x) => x.c);
 }
+
+/** Counts for the home page. Names are compared case-insensitively. */
+export function siteStats(causes: Cause[]) {
+  const unique = (values: string[]) => new Set(values.map((v) => v.trim().toLowerCase())).size;
+  return {
+    causes: causes.length,
+    nonprofits: unique(causes.map((c) => c.nonprofitName)),
+    neighborhoods: unique(causes.map((c) => c.neighborhood)),
+    students: unique(causes.map((c) => c.author)),
+  };
+}

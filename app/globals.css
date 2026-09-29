@@ -4,15 +4,41 @@
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-ink: var(--ink);
+  --color-ink-card: var(--ink-card);
   --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
   --color-line: var(--border);
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
   --color-accent-strong: var(--accent-strong);
-  --radius-card: var(--radius);
-  --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-display: var(--font-fraunces), Georgia, serif;
+  --color-accent-from: var(--accent-from);
+  --color-accent-to: var(--accent-to);
+  --color-hero-from: var(--hero-from);
+  --color-hero-to: var(--hero-to);
+
+  --radius-card: var(--radius-card);
+  --radius-card-sm: var(--radius-card-sm);
+  --radius-control: var(--radius-control);
+
+  --font-sans: var(--font-onest), system-ui, sans-serif;
+  --font-display: var(--font-onest), system-ui, sans-serif;
+
+  --ease-spring: var(--ease-spring);
+  --ease-snap: var(--ease-snap);
+
+  --container-shell: 88rem;
+}
+
+@utility shell {
+  width: 100%;
+  max-width: 88rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (width >= 40rem) {
+    padding-inline: 2rem;
+  }
 }
 
 html {
@@ -25,8 +51,82 @@ body {
 }
 
 :focus-visible {
-  outline: 3px solid var(--accent-strong);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* ─── Scroll reveals ───────────────────────────────────────────────
+ * RevealObserver adds .is-in to [data-reveal] elements once they scroll
+ * into view. Everything stays visible without JS (no html.js class) and
+ * with reduced motion. [data-intro] elements also wait for the intro
+ * loader to leave (html.intro-done).
+ */
+html.js [data-reveal] {
+  --ry: 16px;
+  --rs: 1;
+  --rd: 0ms;
+}
+
+html.js .reveal {
+  transition:
+    opacity 0.8s var(--ease-spring) var(--rd),
+    transform 0.8s var(--ease-spring) var(--rd);
+}
+html.js .reveal:not(.is-in),
+html.js:not(.intro-done) .reveal[data-intro] {
+  opacity: 0;
+  transform: translateY(var(--ry)) scale(var(--rs));
+}
+
+/* Line reveal: each line slides up out of a clip. */
+.reveal-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+.reveal-line > span {
+  display: block;
+}
+html.js .reveal-lines .reveal-line > span {
+  transition:
+    transform 0.9s var(--ease-line) var(--rd),
+    opacity 0.9s var(--ease-line) var(--rd);
+}
+html.js .reveal-lines:not(.is-in) .reveal-line > span,
+html.js:not(.intro-done) .reveal-lines[data-intro] .reveal-line > span {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+/* Word reveal: each word rises in with a small stagger. */
+.reveal-word {
+  display: inline-block;
+}
+html.js .reveal-words .reveal-word {
+  transition:
+    transform 0.7s var(--ease-word) var(--rd),
+    opacity 0.7s var(--ease-word) var(--rd);
+}
+html.js .reveal-words:not(.is-in) .reveal-word,
+html.js:not(.intro-done) .reveal-words[data-intro] .reveal-word {
+  transform: translateY(24px);
+  opacity: 0;
+}
+
+/* ─── Intro loader ─────────────────────────────────────────────── */
+html.no-intro .intro-loader {
+  display: none;
+}
+/* Failsafe: never leave the loader up if its script doesn't run. */
+.intro-loader {
+  animation: intro-failsafe 0s linear 4s forwards;
+}
+@keyframes intro-failsafe {
+  to {
+    visibility: hidden;
+    pointer-events: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -38,5 +138,12 @@ body {
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+  html.js .reveal,
+  html.js .reveal-line > span,
+  html.js .reveal-word {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

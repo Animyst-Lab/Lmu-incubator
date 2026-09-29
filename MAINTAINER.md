@@ -77,7 +77,7 @@ Do this from a non-maintainer test account before class:
 | Variable | Required | Notes |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | For the AI chat | Without it the hero uses the keyword matcher. |
-| `ANTHROPIC_MODEL` | No | Defaults to `claude-haiku-4-5`. |
+| `ANTHROPIC_MODEL` | No | Defaults to `claude-sonnet-5-5` (see PR #3). `claude-haiku-4-5` is cheaper but less careful with facts. |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | For rate limiting | The Vercel Upstash integration's `KV_REST_API_URL` / `KV_REST_API_TOKEN` also work. |
 
 - Set a **monthly spend cap** in the Anthropic console. When it's hit, the chat falls back to keyword matching automatically.

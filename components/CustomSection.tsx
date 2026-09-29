@@ -38,7 +38,7 @@ export default function CustomSection({ src, title, heading }: { src: string; ti
 
   return (
     <section aria-labelledby="custom-heading">
-      <h2 id="custom-heading" className="mb-6 font-display text-3xl">
+      <h2 id="custom-heading" className="mb-6 text-3xl font-semibold tracking-tight sm:text-4xl">
         {heading}
       </h2>
       <iframe
@@ -51,7 +51,7 @@ export default function CustomSection({ src, title, heading }: { src: string; ti
         onLoad={() => setLoaded(true)}
         onError={() => setFailed(true)}
         style={{ height: height ?? PLACEHOLDER_HEIGHT }}
-        className="block w-full overflow-hidden rounded-card border border-line bg-surface"
+        className="block w-full overflow-hidden rounded-card bg-white ring-1 ring-line"
         scrolling={height === MAX_HEIGHT ? "yes" : "no"}
       />
     </section>

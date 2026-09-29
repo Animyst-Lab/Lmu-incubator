@@ -1,0 +1,57 @@
+# Student pull requests may only change files inside one folder in causes/.
+#
+# This uses pull_request_target, which GitHub always runs from the repo's
+# default branch: a pull request can't weaken the check by editing this file,
+# and nothing here runs until the file is on the default branch. It never
+# checks out or runs the pull request's code; it only reads the list of
+# changed files from the GitHub API.
+name: Student PR scope
+
+on:
+  pull_request_target:
+    branches: [main, dev]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Default branch only. Do not add a `ref:` pointing at the pull request.
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Is this a maintainer?
+        id: who
+        env:
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          if grep -qixF "$AUTHOR" .github/maintainers.txt; then
+            echo "maintainer=true" >> "$GITHUB_OUTPUT"
+            echo "$AUTHOR is a maintainer, so the student scope check doesn't apply."
+          fi
+
+      - uses: actions/setup-node@v5
+        if: steps.who.outputs.maintainer != 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - if: steps.who.outputs.maintainer != 'true'
+        run: npm ci
+
+      - name: List changed files
+        if: steps.who.outputs.maintainer != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: gh api --paginate "repos/$REPO/pulls/$PR/files" > "$RUNNER_TEMP/pr-files.json"
+
+      - name: Only one cause folder changed
+        if: steps.who.outputs.maintainer != 'true'
+        run: npx tsx scripts/check-pr-scope.ts "$RUNNER_TEMP/pr-files.json"

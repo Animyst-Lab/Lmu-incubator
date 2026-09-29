@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { CauseList } from "@/components/CauseGrid";
 import CauseTemplate from "@/components/CauseTemplate";
 import CustomSection from "@/components/CustomSection";
+import RevealText from "@/components/RevealText";
 import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from "@/components/SiteHeader";
 import { getAllCauses, getCause, relatedCauses, toSummary } from "@/lib/causes";
 
 // Only folders that exist at build time become pages. Anything else is a 404.
@@ -35,7 +37,8 @@ export default async function CausePage({ params }: PageProps<"/causes/[slug]">)
 
   return (
     <>
-      <main className="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-10">
+      <SiteHeader />
+      <main id="main" className="shell flex flex-col gap-20 pb-20 pt-4 lg:gap-28 lg:pb-28">
         <div>
           <CauseTemplate cause={cause} />
         </div>
@@ -48,9 +51,7 @@ export default async function CausePage({ params }: PageProps<"/causes/[slug]">)
 
         {more.length > 0 && (
           <section aria-labelledby="more-causes">
-            <h2 id="more-causes" className="mb-6 font-display text-3xl">
-              More causes
-            </h2>
+            <RevealText id="more-causes" lines={["More causes"]} className="mb-8 text-3xl font-semibold tracking-tight sm:text-4xl" />
             <CauseList causes={more} />
           </section>
         )}

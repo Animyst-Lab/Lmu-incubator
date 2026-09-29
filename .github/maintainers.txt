@@ -1,0 +1,6 @@
+# GitHub usernames of maintainers, one per line (case doesn't matter).
+# Pull requests from these accounts skip the student scope check.
+# Changes here only take effect once they're on the repo's default branch,
+# because the check reads this file from there.
+CreatorGodMode
+dmelloja

@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { CauseSummary } from "@/lib/causes";
+import { reveal } from "@/lib/reveal";
 import { filterCauses } from "@/lib/search";
 import CauseCard from "./CauseCard";
 import SearchBar from "./SearchBar";
@@ -12,8 +13,8 @@ const SEARCH_DEBOUNCE_MS = 150;
 export function CauseList({ causes }: { causes: CauseSummary[] }) {
   return (
     <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {causes.map((c) => (
-        <li key={c.slug} className="flex">
+      {causes.map((c, i) => (
+        <li key={c.slug} {...reveal({ y: 48, delay: (i % 3) * 90, className: "flex" })}>
           <CauseCard cause={c} />
         </li>
       ))}
@@ -56,11 +57,11 @@ export default function CauseGrid({ causes }: { causes: CauseSummary[] }) {
       {results.length > 0 ? (
         <CauseList causes={results} />
       ) : (
-        <div className="rounded-card border border-dashed border-line p-10 text-center">
-          <p className="font-display text-xl">No causes match that yet.</p>
+        <div className="rounded-card bg-surface p-12 text-center">
+          <p className="text-2xl font-medium tracking-tight">No causes match that yet.</p>
           <p className="mt-2 text-muted">
             Try a different word, or{" "}
-            <a href="#top" className="font-semibold text-accent-strong underline underline-offset-4">
+            <a href="#top" className="font-medium text-ink underline underline-offset-4 hover:text-accent">
               tell the chat above what you care about
             </a>
             .

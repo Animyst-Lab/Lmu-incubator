@@ -1,0 +1,20 @@
+/*
+ * Lion Share design tokens (placeholder until the brand direction is set).
+ * The site reads every color from here, and custom sections can link this
+ * file to match the site: <link rel="stylesheet" href="/tokens.css">
+ */
+:root {
+  --bg: #FBF9F5;
+  --surface: #FFFFFF;
+  --ink: #1C1A17;
+  --muted: #5E5A54;
+  --border: #E8E3DA;
+  --accent: #E4572E;
+  --accent-ink: #FFFFFF;
+  /* Darker accent for text and links: 4.5:1+ on --bg and --surface. */
+  --accent-strong: #B83A16;
+  --radius: 12px;
+
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+}

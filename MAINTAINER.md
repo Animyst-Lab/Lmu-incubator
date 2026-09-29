@@ -2,6 +2,10 @@
 
 How to run Lion Share: setting up a class, reviewing student pull requests, and deploying.
 
+## Node version
+
+Use Node 24 (see `.nvmrc`). CI and Vercel use it too. With older npm versions, `npm ci` fails on this lockfile, so don't run CI on anything older.
+
 ## House rules (in place of branch protection)
 
 The organization is on GitHub's free plan and the repo is private, so GitHub can't enforce branch protection. These rules are enforced by us, with CI as the safety net:

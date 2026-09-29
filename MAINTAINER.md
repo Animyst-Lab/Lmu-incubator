@@ -12,9 +12,9 @@ The organization is on GitHub's free plan and the repo is private, so GitHub can
 
 1. **Nobody pushes to `main` directly.** Every change reaches `main` through a pull request.
 2. **Maintainer work goes through `dev`.** Branch off `dev`, open a pull request into `dev`, and merge `dev` into `main` when it's ready to ship.
-3. **Students branch from `main` and open pull requests into `main`.** Their pages go live on merge.
+3. **Students branch from `dev` and open pull requests into `dev`.** Their pages go live when a maintainer merges `dev` into `main`.
 4. **Only merge when CI is green**, unless you've read the failure and know why it's safe.
-5. **After merging student pull requests, merge `main` back into `dev`** so maintainer branches include the new causes.
+5. **Only maintainers open the `dev` → `main` pull request.** Production deploys from `main`, and a maintainer's merge is what triggers it.
 
 Maintainers are listed in `.github/maintainers.txt` and `.github/CODEOWNERS`. Update both when that changes.
 
@@ -44,7 +44,7 @@ A **warning** (not a failure) appears when a student's pull request edits a caus
 
 Re-run it any time to add late students; existing branches are skipped. If two students would get the same branch (same first name and last initial), the script stops without creating anything. Add more of the last name to one of them, like `Maya Ro`.
 
-Branches are created from the latest `origin/main`. Use `--base <branch>` to change that.
+Branches are created from the latest `origin/dev`. Use `--base <branch>` to change that.
 
 ### 2. Invite students
 
@@ -57,7 +57,7 @@ Do this from a non-maintainer test account before class:
 1. In Claude Code, select the repo and a test `student/...` branch.
 2. Use the starter prompt from the README to create a cause.
 3. Check that Claude commits to the selected branch. If it creates a `claude/...` branch instead, note it: the scope check still works, but update the README so students know to expect it.
-4. Open a pull request into `main` and confirm both checks run, and that the Vercel preview works.
+4. Open a pull request into `dev` and confirm both checks run, and that the Vercel preview builds and opens without a login. On a private repo, Vercel may hold deployments from commit authors who aren't on the Vercel team; note whether it does.
 5. Try a bad change (edit `app/page.tsx`) and confirm the scope check fails with a clear message.
 6. Merge, and confirm the cause shows up in the directory and can be matched in the hero chat.
 
@@ -67,11 +67,12 @@ Do this from a non-maintainer test account before class:
 2. Open the Vercel preview: the card, the page, and the custom section all work, including on a phone.
 3. Spot-check facts and links against the nonprofit's official site. The nonprofit must be real and serve LA.
 4. The image is appropriate and the student has the right to use it.
-5. Merge. Then merge `main` into `dev`.
+5. Merge into `dev`. When you're ready to publish, open a `dev` → `main` pull request and merge it; that deploys production.
 
 ## Deploying (Vercel)
 
-- Connect the repo in Vercel. Production deploys from `main`; every pull request gets a preview.
+- The Vercel project is `lion-share` on the hello-1417's projects team. Production deploys from `main`; every pushed branch and pull request gets a preview.
+- Preview protection (Vercel Authentication) is off, so students can open their preview links without a Vercel account.
 - Environment variables, for both Preview and Production (see `.env.example`):
 
 | Variable | Required | Notes |

@@ -53,7 +53,7 @@ The student can ask for anything: a quiz, a calculator, a timeline, a map, a min
 
 1. Run `npm run validate` and fix every error it reports for the student's folder.
 2. Show the student what you changed and remind them to open every link and check every fact.
-3. Commit and push to the current branch, then help them open a pull request into `main`.
+3. Commit and push to the current branch, then help them open a pull request into `dev`. Never target `main`.
 
 ## Maintainers
 

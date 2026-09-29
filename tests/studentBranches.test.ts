@@ -30,16 +30,19 @@ beforeEach(() => {
   clone = path.join(root, "work");
   git(clone, "commit", "--quiet", "--allow-empty", "-m", "init");
   git(clone, "push", "--quiet", "origin", "HEAD:main");
+  git(clone, "commit", "--quiet", "--allow-empty", "-m", "dev work");
+  git(clone, "push", "--quiet", "origin", "HEAD:dev");
 });
 afterEach(() => fs.rmSync(root, { recursive: true, force: true }));
 
 describe("create-student-branches.sh", () => {
-  it("creates one branch per student, from main", () => {
+  it("creates one branch per student, from dev", () => {
     const out = run("# class of 2026\nMaya Rodriguez\n\n  Jay   Park  \nJosé Álvarez  # late add\nAna María López\n");
     expect(out.status, out.stderr).toBe(0);
     expect(remoteBranches()).toEqual(["student/ana-l", "student/jay-p", "student/jose-a", "student/maya-r"]);
-    const main = git(clone, "rev-parse", "origin/main").trim();
-    expect(git(clone, "ls-remote", "origin", "refs/heads/student/maya-r").split("\t")[0]).toBe(main);
+    const dev = git(clone, "rev-parse", "origin/dev").trim();
+    expect(git(clone, "ls-remote", "origin", "refs/heads/student/maya-r").split("\t")[0]).toBe(dev);
+    expect(dev).not.toBe(git(clone, "rev-parse", "origin/main").trim());
   });
 
   it("skips branches that already exist, so late students can be added", () => {

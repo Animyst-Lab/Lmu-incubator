@@ -17,158 +17,477 @@
       font-family: var(--font-sans);
       line-height: 1.5;
     }
+    section + section { margin-top: 48px; }
     h2 {
       font-family: var(--font-display);
       font-size: 1.5rem;
       line-height: 1.2;
       margin: 0 0 8px;
+      text-wrap: balance;
     }
     h3 { font-size: 1.1rem; margin: 0 0 6px; }
     p { margin: 0 0 16px; color: var(--muted); }
     .intro { max-width: 60ch; }
-
-    .timeline {
-      list-style: none;
-      margin: 0 0 32px;
-      padding: 0;
-      display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    .eyebrow {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-strong);
+      margin-bottom: 8px;
     }
-    .timeline li {
+    .source { font-size: 0.8rem; color: var(--muted); margin: 12px 0 0; }
+    button { font: inherit; }
+    button:focus-visible, input:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 2px; }
+
+    /* Why I made this page */
+    .why {
       background: var(--ink-card);
       color: #fff;
-      border-radius: var(--radius);
-      padding: 20px;
+      border-radius: var(--radius-card-sm);
+      padding: 24px;
     }
-    .timeline .big {
-      display: block;
-      font-family: var(--font-display);
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--accent-from);
-      line-height: 1.1;
-      margin-bottom: 6px;
+    .why .eyebrow { color: var(--accent-from); }
+    .why h2 { color: #fff; }
+    .why p { color: #d6d6d6; }
+    .why .lead { color: #fff; font-size: 1.15rem; font-weight: 500; }
+    .quote {
+      margin: 20px 0 0;
+      padding-left: 16px;
+      border-left: 4px solid var(--accent-from);
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: #fff;
     }
-    .timeline li p { color: #d6d6d6; margin: 0; font-size: 0.95rem; }
+    .quote cite { display: block; font-style: normal; font-size: 0.85rem; color: #bdbdbd; margin-top: 4px; }
 
-    .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 0 0 16px;
+    /* Social enterprise tree */
+    .tree { position: relative; padding-left: 28px; }
+    .tree::before {
+      content: "";
+      position: absolute;
+      left: 9px;
+      top: 28px;
+      bottom: 24px;
+      width: 3px;
+      border-radius: 3px;
+      background: linear-gradient(var(--accent), var(--accent-from) 40%, var(--surface-2));
     }
-    .tabs button {
-      font: inherit;
-      font-weight: 600;
+    .root, .branch { position: relative; }
+    .root::before, .branch::before {
+      content: "";
+      position: absolute;
+      left: -26px;
+      top: 14px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 3px solid var(--accent);
+    }
+    .root::before { background: var(--accent); }
+    .branch { margin-top: 16px; }
+    .branch-label {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      flex-wrap: wrap;
+      margin: 12px 0 8px;
+    }
+    .branch-label small { font-weight: 500; color: var(--muted); font-size: 0.85rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       border: 1px solid var(--border);
       background: var(--bg);
       color: var(--ink);
       border-radius: var(--radius-pill);
-      padding: 10px 18px;
+      padding: 6px 12px 6px 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      line-height: 1.25;
+      text-align: left;
+      max-width: 100%;
       cursor: pointer;
-      transition: background 0.2s var(--ease-snap), color 0.2s var(--ease-snap);
+      transition: background 0.2s var(--ease-snap), color 0.2s var(--ease-snap), transform 0.2s var(--ease-spring);
     }
-    .tabs button[aria-selected="true"] {
-      background: var(--accent);
-      border-color: var(--accent);
+    .chip:hover { transform: translateY(-1px); }
+    .chip svg {
+      width: 18px;
+      height: 18px;
+      flex: none;
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .chip[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
+    .chip[aria-pressed="true"] svg { stroke: var(--accent-from); }
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       color: var(--accent-ink);
+      background: var(--accent);
+      border-radius: var(--radius-pill);
+      padding: 2px 8px;
     }
-    .tabs button:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 2px; }
-    .panel {
+    .root .chip { font-size: 1rem; padding: 10px 16px 10px 12px; }
+    .root .chip svg { width: 26px; height: 26px; }
+    .detail {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 10px;
+    }
+    .detail h3 { margin-bottom: 4px; }
+    .detail p { margin: 0; }
+    .detail .where { font-size: 0.85rem; color: var(--ink); margin-top: 6px; }
+
+    /* Donation slider */
+    .give {
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 20px;
     }
-    .panel[hidden] { display: none; }
-    .panel p:last-child { margin-bottom: 0; }
-    .tag {
-      display: inline-block;
-      font-size: 0.85rem;
-      font-weight: 600;
+    .amount-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+    .amount {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 700;
       color: var(--accent-strong);
-      margin-bottom: 8px;
+      line-height: 1;
     }
-    .quote {
-      margin: 32px 0 0;
-      padding-left: 16px;
-      border-left: 4px solid var(--accent);
-      font-size: 1.15rem;
-      font-weight: 500;
+    input[type="range"] {
+      width: 100%;
+      margin: 16px 0 8px;
+      accent-color: var(--accent);
+      height: 28px;
     }
-    .quote cite { display: block; font-style: normal; font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
+    .ticks { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); }
+    .bar {
+      display: flex;
+      height: 44px;
+      border-radius: var(--radius-control);
+      overflow: hidden;
+      margin: 20px 0 16px;
+    }
+    .bar div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .split { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .split li {
+      display: grid;
+      grid-template-columns: 14px 1fr auto;
+      gap: 10px;
+      align-items: start;
+    }
+    .swatch { width: 14px; height: 14px; border-radius: 4px; margin-top: 4px; }
+    .split strong { display: block; }
+    .split small { color: var(--muted); font-size: 0.85rem; }
+    .dollars { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .callout {
+      margin: 16px 0 0;
+      padding: 12px 16px;
+      border-radius: var(--radius-control);
+      background: var(--surface);
+      font-weight: 600;
+    }
+    .big {
+      display: block;
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--accent-from);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .stats {
+      list-style: none;
+      margin: 16px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .stats li { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 12px 10px; min-width: 0; overflow-wrap: anywhere; }
+    .stats .big { font-size: clamp(1rem, 4.5vw, 1.6rem); }
+    .stats span:last-child { color: #d6d6d6; font-size: 0.8rem; line-height: 1.3; display: block; }
+    .visually-hidden { position: absolute; left: -9999px; }
+
+    @media (max-width: 359px) {
+      body { padding: 16px; }
+      .why, .give { padding: 18px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
   </style>
 </head>
 <body>
-  <h2>From one neighborhood to the world</h2>
-  <p class="intro">Homeboy Industries grew from a small effort in East Los Angeles into a model for others around the world.</p>
+  <section class="why" aria-labelledby="why-title">
+    <span class="eyebrow">Why I made this page · Dr. D'Mello</span>
+    <h2 id="why-title">An LMU story of second chances</h2>
+    <p class="lead">Father Greg Boyle, who founded Homeboy Industries, is an LMU alum and on our Entrepreneurship Wall of Honor.</p>
+    <p>Homeboy shows what entrepreneurship can do for a community. It runs real businesses where people leaving gangs and prison get paid job training, and in its own words, it is “in the business of second chances.”</p>
+    <blockquote class="quote">
+      “We imagine a world without prisons, and then we try to create that world.”
+      <cite>Father Greg Boyle, founder of Homeboy Industries</cite>
+    </blockquote>
+  </section>
 
-  <ol class="timeline">
-    <li>
-      <span class="big">1988</span>
-      <p>Began as a way of improving the lives of former gang members in East Los Angeles.</p>
-    </li>
-    <li>
-      <span class="big">18 months</span>
-      <p>The length of the program, with services like tattoo removal, mental health support and GED prep.</p>
-    </li>
-    <li>
-      <span class="big">250+</span>
-      <p>Organizations and social enterprises around the world that use Homeboy as a blueprint.</p>
-    </li>
-  </ol>
+  <section aria-labelledby="se-title">
+    <span class="eyebrow">Homeboy's social enterprises</span>
+    <h2 id="se-title">It all started with one bakery</h2>
+    <p class="intro">Homeboy began as a single bakery in Los Angeles. Today its businesses cook, grow, print, recycle and groom dogs, and every one is a training ground for a second chance. Tap any business to learn more.</p>
 
-  <h2>Find your way to help</h2>
-  <p>Homeboy has three ways to volunteer. Pick the one that fits you.</p>
+    <div class="tree" id="tree"></div>
+    <p class="source">Source: homeboyindustries.org and Homeboy's 2024 Annual Report.</p>
+  </section>
 
-  <div class="tabs" role="tablist" aria-label="Ways to volunteer">
-    <button role="tab" id="tab-event" aria-controls="panel-event" aria-selected="true">One day</button>
-    <button role="tab" id="tab-skill" aria-controls="panel-skill" aria-selected="false" tabindex="-1">I have a skill</button>
-    <button role="tab" id="tab-advocate" aria-controls="panel-advocate" aria-selected="false" tabindex="-1">On my own time</button>
-  </div>
+  <section aria-labelledby="give-title">
+    <h2 id="give-title">Where a donation goes</h2>
+    <p class="intro">Slide to pick an amount. We split it the same way Homeboy spent its whole budget in 2024.</p>
 
-  <div class="panel" role="tabpanel" id="panel-event" aria-labelledby="tab-event">
-    <span class="tag">Event-based volunteer</span>
-    <h3>Help at a big event</h3>
-    <p>A one-day commitment, mostly on Saturdays, supporting Homeboy's annual events and fundraisers, like its 5K, the Lo Maximo fundraiser and holiday events.</p>
-  </div>
-  <div class="panel" role="tabpanel" id="panel-skill" aria-labelledby="tab-skill" hidden>
-    <span class="tag">Specialized volunteer</span>
-    <h3>Share what you know</h3>
-    <p>1 to 4 hours on a weekday between 9am and 3:30pm, at least once a month, for at least a year. Tutors in math, language arts and computer basics are needed to help trainees prepare for the GED.</p>
-  </div>
-  <div class="panel" role="tabpanel" id="panel-advocate" aria-labelledby="tab-advocate" hidden>
-    <span class="tag">Volunteer advocate</span>
-    <h3>Spread the word</h3>
-    <p>Get involved on your own timing: learn about Homeboy's work and be a messenger for it in your community.</p>
-  </div>
+    <div class="give">
+      <div class="amount-row">
+        <span class="amount" id="amount">$100</span>
+        <span>if split like Homeboy's 2024 spending</span>
+      </div>
+      <label for="slider" class="visually-hidden">Donation amount</label>
+      <input type="range" id="slider" min="10" max="1000" step="10" value="100">
+      <div class="ticks" aria-hidden="true"><span>$10</span><span>$250</span><span>$500</span><span>$750</span><span>$1,000</span></div>
 
-  <blockquote class="quote">
-    “We imagine a world without prisons, and then we try to create that world.”
-    <cite>Father Greg Boyle, founder of Homeboy Industries and LMU alum</cite>
-  </blockquote>
+      <div class="bar" id="bar" aria-hidden="true"></div>
+      <ul class="split" id="split"></ul>
+      <p class="callout" id="callout"></p>
+    </div>
+
+    <h3 style="margin-top: 24px;">What the whole year made possible</h3>
+    <ul class="stats">
+      <li><span class="big">11,840</span><span>tattoo removal treatments</span></li>
+      <li><span class="big">3,680</span><span>therapy sessions</span></li>
+      <li><span class="big">21,500</span><span>class sessions</span></li>
+      <li><span class="big">390</span><span>trainees</span></li>
+      <li><span class="big">5,590</span><span>more community members supported</span></li>
+      <li><span class="big">76</span><span>solar panel training grads</span></li>
+    </ul>
+    <p class="source">Source: Homeboy's 2024 Annual Report ($51.1M in expenses) and its Our Results page. The split shows overall spending, not where one specific gift goes.</p>
+  </section>
 
   <script>
-    const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
-    function select(tab) {
-      tabs.forEach((t) => {
-        const on = t === tab;
-        t.setAttribute('aria-selected', on);
-        t.tabIndex = on ? 0 : -1;
-        document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
-      });
+    // ── Social enterprise tree ───────────────────────────
+    // Every description comes from homeboyindustries.org or Homeboy's 2024 Annual Report.
+    const icons = {
+      bread: '<path d="M4 12a8 5.5 0 0 1 16 0v7H4z"/><path d="M9 12v3M12 11v4M15 12v3"/>',
+      cup: '<path d="M5 9h11v4a5.5 5.5 0 0 1-11 0z"/><path d="M16 10h2a2 2 0 0 1 0 4h-2"/><path d="M8 3v3M12 3v3"/>',
+      platter: '<path d="M3 17h18"/><path d="M5 17a7 7 0 0 1 14 0"/><path d="M12 8v2"/>',
+      hall: '<path d="M12 3v3"/><path d="M8 6h8v14H8z"/><path d="M4 20h16"/><path d="M11 10h2M11 14h2"/>',
+      basket: '<path d="M4 10h16l-2 9H6z"/><path d="M8 10l4-6 4 6"/>',
+      heart: '<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>',
+      jar: '<path d="M7 8h10v11a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z"/><path d="M8 4h8v4H8z"/><path d="M7 13h10"/>',
+      sprout: '<path d="M12 20v-8"/><path d="M12 12C12 8 9 6 5 6c0 4 3 6 7 6z"/><path d="M12 12c0-4 3-6 7-6 0 4-3 6-7 6z"/>',
+      plane: '<path d="M3 14l18-7-5 14-4-5z"/><path d="M12 16l9-9"/>',
+      shirt: '<path d="M8 4l4 2 4-2 4 4-3 3v9H7v-9L4 8z"/>',
+      print: '<path d="M6 9V4h12v5"/><path d="M4 9h16v7H4z"/><path d="M7 14h10v6H7z"/>',
+      thread: '<circle cx="12" cy="12" r="7"/><path d="M5 12h14M12 5v14"/>',
+      chip: '<path d="M7 7h10v10H7z"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>',
+      paw: '<circle cx="8" cy="8" r="1.8"/><circle cx="16" cy="8" r="1.8"/><circle cx="5" cy="13" r="1.8"/><circle cx="19" cy="13" r="1.8"/><path d="M12 12c-3 0-5 4-4 6s3 1 4 1 3 1 4-1-1-6-4-6z"/>',
+      camera: '<path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/>',
+      bag: '<path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 0 1 6 0"/>'
+    };
+
+    const root = {
+      id: 'bakery', icon: 'bread', name: 'Homeboy Bakery', badge: 'Where it began',
+      text: 'Homeboy\'s first social enterprise. It started as a training ground for bakers and now bakes thousands of loaves, pastries and cakes for the LA region each day.',
+      where: '130 W. Bruno St., Los Angeles, inside Homegirl Café'
+    };
+
+    const branches = [
+      {
+        label: 'Food & dining', note: 'cafés, catering and fresh food',
+        items: [
+          { id: 'cafe', icon: 'cup', name: 'Homegirl Café', text: 'A safe space for on-the-job training, especially for women, many of whom have faced domestic violence and single parenthood.', where: '130 W. Bruno St. · Mon–Fri, 7am–2pm' },
+          { id: 'catering', icon: 'platter', name: 'Homegirl Catering', text: 'A women-run catering business for luncheons, corporate gatherings and special events, serving clients for over 10 years.' },
+          { id: 'diner', icon: 'hall', name: 'Homeboy Diner', text: 'Sandwiches, salads, desserts and specialty coffee on the second floor of LA City Hall since 2011.', where: '200 N. Spring St., Suite 210 · Mon–Fri, 8am–2:30pm' },
+          { id: 'lax', icon: 'plane', name: 'Café + Bakery @ LAX', text: 'Homeboy\'s café and bakery at Los Angeles International Airport.' },
+          { id: 'mlk', icon: 'cup', name: 'Homeboy Café @ MLK', text: 'One of the cafés listed among Homeboy\'s social enterprises.' },
+          { id: 'markets', icon: 'basket', name: 'Farmers Markets', text: 'Homeboy Bakery breads and pastries at farmers markets across LA County, from West Los Angeles to Panorama City.' },
+          { id: 'feedhope', icon: 'heart', name: 'Feed HOPE', text: 'Born during COVID-19, when café staff chose to keep cooking. It has delivered more than 350,000 fresh meals to vulnerable communities and created more than 50 jobs.' },
+          { id: 'grocery', icon: 'jar', name: 'Homeboy Grocery', text: 'Homeboy Salsa and Guacamole, sold in the deli section at Ralphs, Gelson\'s and Walmart.' },
+          { id: 'harvest', icon: 'sprout', name: 'Homeboy Harvest', text: 'Grows local produce for communities that lack access to healthy food, with hands-on job training for trainees.' }
+        ]
+      },
+      {
+        label: 'Made & sold', note: 'apparel and custom goods',
+        items: [
+          { id: 'merch', icon: 'bag', name: 'Homeboy Merchandise', text: 'T-shirts, sweatshirts, tote bags and mugs with inspirational quotes, at the headquarters store and online.', where: '130 W. Bruno St. · Mon–Fri, 8am–3:30pm' },
+          { id: 'silk', icon: 'print', name: 'Silkscreen & Embroidery', text: 'Custom printed and embroidered apparel and promo items for schools, businesses and nonprofits, from a fair-wage employer with over 30 years of work.', where: '1320 S. Santa Fe Ave., Los Angeles' },
+          { id: 'threads', icon: 'shirt', name: 'Homeboy Threads', text: 'One of the social enterprises listed in Homeboy\'s 2024 Annual Report.' }
+        ]
+      },
+      {
+        label: 'Services', note: 'skills for a changing economy',
+        items: [
+          { id: 'recycling', icon: 'chip', name: 'Electronics Recycling', text: 'Recycles computers, monitors and phones, and offers data destruction and repair. Every 75,000 lbs. of electronics collected can create a new job.', where: '8990 Atlantic Ave., South Gate' },
+          { id: 'puppy', icon: 'paw', name: 'Puppy Fades', badge: 'Newest', text: 'Dog grooming in Pasadena, added in 2024 as Homeboy\'s 14th social enterprise. The groomers have rebuilt their lives with Homeboy\'s support.', where: '446 S. Fair Oaks Ave., Pasadena' }
+        ]
+      },
+      {
+        label: 'Media', note: 'telling Homeboy\'s own stories',
+        items: [
+          { id: 'media', icon: 'camera', name: 'Homeboy Media', text: 'Established in 2024 to create content, train people for media careers, and open doors into LA\'s creative economy.' }
+        ]
+      }
+    ];
+
+    const tree = document.getElementById('tree');
+    const chips = [];
+    const details = [];
+
+    function makeChip(item) {
+      const b = document.createElement('button');
+      b.className = 'chip';
+      b.type = 'button';
+      b.setAttribute('aria-pressed', 'false');
+      b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + icons[item.icon] + '</svg>';
+      b.append(item.name);
+      if (item.badge) {
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.textContent = item.badge;
+        b.append(badge);
+      }
+      return b;
     }
-    tabs.forEach((tab, i) => {
-      tab.addEventListener('click', () => select(tab));
-      tab.addEventListener('keydown', (e) => {
-        const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-        if (!step) return;
-        const next = tabs[(i + step + tabs.length) % tabs.length];
-        select(next);
-        next.focus();
+
+    function makeGroup(container, items) {
+      const row = document.createElement('div');
+      row.className = 'chips';
+      const detail = document.createElement('div');
+      detail.className = 'detail';
+      detail.hidden = true;
+      detail.setAttribute('aria-live', 'polite');
+      items.forEach((item) => {
+        const b = makeChip(item);
+        b.addEventListener('click', () => select(item, b, detail));
+        chips.push(b);
+        row.append(b);
       });
+      details.push(detail);
+      container.append(row, detail);
+      return { row, detail };
+    }
+
+    function select(item, button, detail) {
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(c === button)));
+      details.forEach((d) => { d.hidden = d !== detail; });
+      detail.innerHTML = '';
+      const h = document.createElement('h3');
+      h.textContent = item.name;
+      const p = document.createElement('p');
+      p.textContent = item.text;
+      detail.append(h, p);
+      if (item.where) {
+        const w = document.createElement('p');
+        w.className = 'where';
+        w.textContent = '📍 ' + item.where;
+        detail.append(w);
+      }
+    }
+
+    const rootEl = document.createElement('div');
+    rootEl.className = 'root';
+    tree.append(rootEl);
+    const rootGroup = makeGroup(rootEl, [root]);
+
+    branches.forEach((br) => {
+      const el = document.createElement('div');
+      el.className = 'branch';
+      const label = document.createElement('div');
+      label.className = 'branch-label';
+      label.textContent = br.label;
+      const small = document.createElement('small');
+      small.textContent = br.note;
+      label.append(small);
+      el.append(label);
+      tree.append(el);
+      makeGroup(el, br.items);
     });
+
+    select(root, rootGroup.row.firstChild, rootGroup.detail);
+
+    // ── Donation slider ──────────────────────────────────
+    // Homeboy Industries 2024 Annual Report: expenses by category.
+    const spending = [
+      { label: 'Social enterprises', amount: 15826000, color: '#B15F2C', note: 'The businesses where trainees get job training' },
+      { label: 'Programs', amount: 15320000, color: '#CF8047', note: 'Free services like tattoo removal and therapy' },
+      { label: 'Client compensation', amount: 10959000, color: '#6aa6d8', note: 'Pay for clients in the program' },
+      { label: 'Administration', amount: 5796000, color: '#8D8D8D', note: '' },
+      { label: 'Fundraising', amount: 3246000, color: '#5F5F5F', note: '' }
+    ];
+    const total = spending.reduce((sum, s) => sum + s.amount, 0);
+    spending.forEach((s) => { s.share = s.amount / total; });
+
+    const slider = document.getElementById('slider');
+    const amountEl = document.getElementById('amount');
+    const bar = document.getElementById('bar');
+    const split = document.getElementById('split');
+    const callout = document.getElementById('callout');
+    const money = (n) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: n < 100 ? 2 : 0, maximumFractionDigits: n < 100 ? 2 : 0 });
+
+    const segs = spending.map((s) => {
+      const d = document.createElement('div');
+      d.style.background = s.color;
+      d.style.width = (s.share * 100) + '%';
+      d.textContent = Math.round(s.share * 100) + '%';
+      bar.append(d);
+
+      const li = document.createElement('li');
+      const sw = document.createElement('span');
+      sw.className = 'swatch';
+      sw.style.background = s.color;
+      const text = document.createElement('div');
+      const strong = document.createElement('strong');
+      strong.textContent = s.label + ' (' + Math.round(s.share * 100) + '%)';
+      const small = document.createElement('small');
+      small.textContent = s.note;
+      text.append(strong);
+      if (s.note) text.append(small);
+      const val = document.createElement('span');
+      val.className = 'dollars';
+      li.append(sw, text, val);
+      split.append(li);
+      return val;
+    });
+
+    const programShare = (spending[0].amount + spending[1].amount + spending[2].amount) / total;
+
+    function update() {
+      const v = Number(slider.value);
+      amountEl.textContent = money(v);
+      slider.setAttribute('aria-valuetext', money(v));
+      spending.forEach((s, i) => { segs[i].textContent = money(v * s.share); });
+      callout.textContent = 'About ' + money(v * programShare) + ' of ' + money(v) +
+        ' would go to the social enterprises, programs and client pay.';
+    }
+    slider.addEventListener('input', update);
+    update();
   </script>
 </body>
 </html>

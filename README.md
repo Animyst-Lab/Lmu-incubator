@@ -28,7 +28,7 @@ Once your page is merged, it shows up in the directory **and** the AI can match 
 5. **Build your custom section** in `custom.html` with Claude
 6. **Review** everything Claude changed
 7. **Commit and push** to your branch
-8. **Open a pull request** into `main`
+8. **Open a pull request** into `dev`
 9. **Check your preview link**
 10. **Go live** once it's merged
 
@@ -126,7 +126,7 @@ Then keep iterating: "make it more colorful", "add a second question", "make the
 
 ## Ground rules
 
-- **Your branch only.** Commit to `student/<you>`. Never commit to `main` or anyone else's branch.
+- **Your branch only.** Commit to `student/<you>`. Never commit to `main`, `dev`, or anyone else's branch.
 - **Your folder only.** Never edit someone else's folder, the template, the example, or any site code. Your PR will fail if you do.
 - **One cause per person.** Check `/causes/` first so you don't duplicate.
 - **Real and local.** The nonprofit must be real and serve Los Angeles.

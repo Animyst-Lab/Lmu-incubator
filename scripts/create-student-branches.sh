@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-BASE="main"
+BASE="dev"
 DRY_RUN=false
 ROSTER="roster.txt"
 REMOTE="origin"

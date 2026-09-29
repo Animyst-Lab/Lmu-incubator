@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    h2 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      line-height: 1.2;
+      margin: 0 0 8px;
+    }
+    h3 { font-size: 1.1rem; margin: 0 0 6px; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    .intro { max-width: 60ch; }
+
+    .timeline {
+      list-style: none;
+      margin: 0 0 32px;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+    .timeline li {
+      background: var(--ink-card);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .timeline .big {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent-from);
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .timeline li p { color: #d6d6d6; margin: 0; font-size: 0.95rem; }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 16px;
+    }
+    .tabs button {
+      font: inherit;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--ink);
+      border-radius: var(--radius-pill);
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: background 0.2s var(--ease-snap), color 0.2s var(--ease-snap);
+    }
+    .tabs button[aria-selected="true"] {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-ink);
+    }
+    .tabs button:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 2px; }
+    .panel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .panel[hidden] { display: none; }
+    .panel p:last-child { margin-bottom: 0; }
+    .tag {
+      display: inline-block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-strong);
+      margin-bottom: 8px;
+    }
+    .quote {
+      margin: 32px 0 0;
+      padding-left: 16px;
+      border-left: 4px solid var(--accent);
+      font-size: 1.15rem;
+      font-weight: 500;
+    }
+    .quote cite { display: block; font-style: normal; font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h2>From one neighborhood to the world</h2>
+  <p class="intro">Homeboy Industries grew from a small effort in East Los Angeles into a model for others around the world.</p>
+
+  <ol class="timeline">
+    <li>
+      <span class="big">1988</span>
+      <p>Began as a way of improving the lives of former gang members in East Los Angeles.</p>
+    </li>
+    <li>
+      <span class="big">18 months</span>
+      <p>The length of the program, with services like tattoo removal, mental health support and GED prep.</p>
+    </li>
+    <li>
+      <span class="big">250+</span>
+      <p>Organizations and social enterprises around the world that use Homeboy as a blueprint.</p>
+    </li>
+  </ol>
+
+  <h2>Find your way to help</h2>
+  <p>Homeboy has three ways to volunteer. Pick the one that fits you.</p>
+
+  <div class="tabs" role="tablist" aria-label="Ways to volunteer">
+    <button role="tab" id="tab-event" aria-controls="panel-event" aria-selected="true">One day</button>
+    <button role="tab" id="tab-skill" aria-controls="panel-skill" aria-selected="false" tabindex="-1">I have a skill</button>
+    <button role="tab" id="tab-advocate" aria-controls="panel-advocate" aria-selected="false" tabindex="-1">On my own time</button>
+  </div>
+
+  <div class="panel" role="tabpanel" id="panel-event" aria-labelledby="tab-event">
+    <span class="tag">Event-based volunteer</span>
+    <h3>Help at a big event</h3>
+    <p>A one-day commitment, mostly on Saturdays, supporting Homeboy's annual events and fundraisers, like its 5K, the Lo Maximo fundraiser and holiday events.</p>
+  </div>
+  <div class="panel" role="tabpanel" id="panel-skill" aria-labelledby="tab-skill" hidden>
+    <span class="tag">Specialized volunteer</span>
+    <h3>Share what you know</h3>
+    <p>1 to 4 hours on a weekday between 9am and 3:30pm, at least once a month, for at least a year. Tutors in math, language arts and computer basics are needed to help trainees prepare for the GED.</p>
+  </div>
+  <div class="panel" role="tabpanel" id="panel-advocate" aria-labelledby="tab-advocate" hidden>
+    <span class="tag">Volunteer advocate</span>
+    <h3>Spread the word</h3>
+    <p>Get involved on your own timing: learn about Homeboy's work and be a messenger for it in your community.</p>
+  </div>
+
+  <blockquote class="quote">
+    “We imagine a world without prisons, and then we try to create that world.”
+    <cite>Father Greg Boyle, founder of Homeboy Industries and LMU alum</cite>
+  </blockquote>
+
+  <script>
+    const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+    function select(tab) {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', on);
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+      });
+    }
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', (e) => {
+        const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!step) return;
+        const next = tabs[(i + step + tabs.length) % tabs.length];
+        select(next);
+        next.focus();
+      });
+    });
+  </script>
+</body>
+</html>

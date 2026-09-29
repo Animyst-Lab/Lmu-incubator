@@ -8,122 +8,144 @@ Built by LMU students, with AI, in one session.
 
 ---
 
-## How it works
+## How the site works
 
-1. **Pick a cause** you actually care about
-2. **Find a local LA nonprofit** working on it
-3. **Prompt Claude** to build your page
-4. **Review** what Claude made
-5. **Open a pull request**
-6. **Go live** once it's merged
+- **Home page:** visitors chat with our AI about what they care about, and it matches them to a cause. Below that is a directory of every cause.
+- **Your cause page** has two parts:
+  - **Required info:** generated automatically from your answers to a list of questions
+  - **Custom section:** anything you want to build with Claude
+
+Once your page is merged, it shows up in the directory **and** the AI can match visitors to it.
+
+---
+
+## Your workflow
+
+1. **Open your branch.** In Claude Code, select the Lion Share repo and your branch: `student/<your-first-name>-<last-initial>`
+2. **Copy the template.** Copy `/causes/_template/` to `/causes/<your-first-name>-<cause>/`
+3. **Answer the questions** in `answers.md`
+4. **Add your image** to your folder as `image.jpg`
+5. **Build your custom section** in `custom.html` with Claude
+6. **Review** everything Claude changed
+7. **Commit and push** to your branch
+8. **Open a pull request** into `main`
+9. **Check your preview link**
+10. **Go live** once it's merged
 
 You don't need to write code by hand. You need to be clear about what you want.
 
 ---
 
-## What every page includes
+## Your folder
 
-| Section | What goes in it |
+```
+/causes/maya-food-access/
+  answers.md     # Your answers → the required info
+  custom.html    # Your custom section
+  image.jpg      # Square, JPG or PNG, under 1 MB
+```
+
+The folder name becomes your page URL: `/causes/maya-food-access`
+
+---
+
+## Part 1: Answer the questions
+
+Open `answers.md`. Every question is numbered. Put your answer inside the quotes.
+
+| # | Question |
 |---|---|
-| **The cause** | Name of the cause, one line on why you care |
-| **The problem** | What's happening in LA, in 2 to 3 sentences |
-| **The nonprofit** | Name, what they do, neighborhood they serve |
-| **Volunteer** | Exact steps: where to sign up, time commitment, who can join |
-| **Donate** | Official donation link, and what a gift supports |
-| **Links** | Official website and socials |
+| 1 | Your name, as shown on the page |
+| 2 | The cause you care about |
+| 3 | A one-line tagline, 10 words or fewer |
+| 4 | Why you personally care |
+| 5 | The problem in Los Angeles |
+| 6 to 9 | The nonprofit: name, official website, neighborhood, what they do |
+| 10 to 13 | Volunteering: signup link, time needed, who can join, exact steps |
+| 14 to 15 | Donating: official link, what a donation makes possible |
+| 16 to 17 | Your image and a short description of it |
+| 18 | 3 to 5 interests that connect to your cause |
+| 19 | How people can help: time, money, skills |
+| 20 | Overall effort: low, medium, or high |
+
+Questions 18 to 20 are how the AI on the home page matches visitors to your cause. Choose them carefully.
+
+### Starter prompt
+
+```
+I'm working on my Lion Share cause page on my branch, student/[your-branch].
+Copy /causes/_template/ to /causes/[first-name]-[cause]/.
+
+Here are my answers:
+- Name: [...]
+- Cause: [...]
+- Why I care: [...]
+- LA nonprofit: [...]
+- Nonprofit website: [...]
+- How to volunteer: [...]
+- How to donate: [...]
+
+Fill in answers.md with these. Ask me for anything missing.
+Don't invent any facts or links. Run npm run validate when done.
+```
 
 ---
 
-## Repo structure
+## Part 2: Build your custom section
+
+This is yours. Ask Claude to build anything that helps people understand your cause or get involved.
+
+**Ideas**
+- An interactive timeline of the problem
+- A "what would your $10 do?" calculator
+- A quiz about the cause
+- A photo story you scroll through
+- A map of where the nonprofit works
+- A mini game
+
+### Starter prompt
 
 ```
-/causes/
-  food-insecurity.md
-  animal-rescue.md
-  youth-literacy.md
-  ...
-/public/causes/
-  food-insecurity.jpg
-  ...
-CLAUDE.md
-README.md
+Build my custom section in /causes/[my-folder]/custom.html.
+I want: [describe your idea].
+Keep it in one file, make it look good on a phone,
+and follow the custom section rules in CLAUDE.md.
 ```
 
-- One file per cause in `/causes/`
-- One image per cause in `/public/causes/`
-- The site builds every page automatically from this folder
+Then keep iterating: "make it more colorful", "add a second question", "make the text bigger on mobile".
 
----
+### Custom section rules
 
-## Getting started
-
-### Before class
-- GitHub account, username sent to hello@animystlab.com
-- Class invite accepted
-- Claude account, with GitHub connected in Claude Code
-- The **Lion Share** repo visible in Claude Code
-
-### In class
-1. Open **Claude**, go to **Code**, select the **Lion Share** repo
-2. Tell Claude about your cause (see the prompt below)
-3. Review the files Claude created
-4. Create the pull request
-5. Check your preview link
-6. Wait for merge, then share your live page
-
----
-
-## Starter prompt
-
-Copy this and fill in the blanks:
-
-```
-Create a new Lion Share cause page.
-
-Cause: [your cause]
-Why I care: [one sentence]
-LA nonprofit: [name]
-Nonprofit website: [official URL]
-How to volunteer: [what you found]
-How to donate: [official donation link]
-
-Follow the template and rules in CLAUDE.md.
-Only add new files in /causes/ and /public/causes/.
-```
-
-Then refine. Ask Claude to tighten the writing, fix the tone, or check every link works.
+- One file: HTML, CSS and JS together
+- External scripts only from `cdn.jsdelivr.net` or `cdnjs.cloudflare.com`
+- No forms asking for personal info, no tracking, no logins
+- Under 500 KB
+- Must work on a phone
 
 ---
 
 ## Ground rules
 
-- **Only add your own files.** Never edit someone else's page or shared files.
+- **Your branch only.** Commit to `student/<you>`. Never commit to `main` or anyone else's branch.
+- **Your folder only.** Never edit someone else's folder, the template, the example, or any site code. Your PR will fail if you do.
 - **One cause per person.** Check `/causes/` first so you don't duplicate.
 - **Real and local.** The nonprofit must be real and serve Los Angeles.
-- **Official links only.** Donation and volunteer links go to the nonprofit's own site.
+- **Official links only.** Volunteer and donate links go to the nonprofit's own site.
 - **Verify everything.** AI can be wrong. Open every link and confirm every fact before you submit.
 - **No personal info.** No phone numbers or emails of individuals.
 - **Respectful tone.** Write about the people served with dignity.
 
 ---
 
-## Branch naming
-
-```
-cause/your-name-cause
-```
-
-Example: `cause/maya-food-insecurity`
-
----
-
 ## Pull request checklist
 
-- [ ] My page follows the template
-- [ ] Only new files, in `/causes/` and `/public/causes/`
+- [ ] I committed to my own `student/` branch
+- [ ] I only changed files inside my one folder in `/causes/`
+- [ ] Every question in `answers.md` is answered
 - [ ] Every link opens and goes to the official source
-- [ ] Nonprofit is real and serves LA
-- [ ] Image is square, JPG or PNG, under 1 MB
+- [ ] The nonprofit is real and serves LA
+- [ ] My image is square, JPG or PNG, under 1 MB
+- [ ] My custom section works on a phone
 - [ ] I read everything Claude wrote before submitting
 
 ---

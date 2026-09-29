@@ -150,6 +150,12 @@ Then keep iterating: "make it more colorful", "add a second question", "make the
 
 ---
 
+## For maintainers
+
+Setting up a class, reviewing pull requests, and deploying: see [MAINTAINER.md](MAINTAINER.md).
+
+---
+
 ## Questions
 
 Email **hello@animystlab.com**

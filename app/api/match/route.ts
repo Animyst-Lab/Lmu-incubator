@@ -5,7 +5,9 @@ import { checkConversation, requestSchema, runMatch, type CallModel } from "@/li
 import { buildReplySchema, buildSystemPrompt } from "@/lib/matchPrompt";
 import { allowRequest, visitorIdFrom } from "@/lib/ratelimit";
 
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5";
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
+// Models that accept server-side refusal fallback (`fallbacks: "default"`).
+const SUPPORTS_FALLBACK = ["claude-sonnet-5-5", "claude-opus-5-5", "claude-opus-5", "claude-fable-5-1"].includes(MODEL);
 const TIMEOUT_MS = 8000;
 
 // The cause list is fixed at build time, so the index and schema are built once.
@@ -15,7 +17,7 @@ const replySchema = buildReplySchema(index.map((c) => c.slug));
 const client = process.env.ANTHROPIC_API_KEY ? new Anthropic({ timeout: TIMEOUT_MS, maxRetries: 0 }) : null;
 
 const callClaude: CallModel = async (messages, visitorTurns) => {
-  const response = await client!.messages.create({
+  const response = await client!.beta.messages.create({
     model: MODEL,
     max_tokens: 2048,
     system: buildSystemPrompt(index, visitorTurns),
@@ -25,6 +27,8 @@ const callClaude: CallModel = async (messages, visitorTurns) => {
       // Haiku 4.5 doesn't take an effort setting; newer models do, and low keeps them fast.
       ...(MODEL.startsWith("claude-haiku") ? {} : { effort: "low" as const }),
     },
+    // If the model declines for safety reasons, the API retries on its recommended fallback model.
+    ...(SUPPORTS_FALLBACK ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const } : {}),
   });
   if (response.stop_reason !== "end_turn") throw new Error(`stop_reason ${response.stop_reason}`);
   const text = response.content.find((b) => b.type === "text");

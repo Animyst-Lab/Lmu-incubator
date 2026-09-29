@@ -17,6 +17,7 @@
       font-family: var(--font-sans);
       line-height: 1.5;
     }
+    section + section { margin-top: 48px; }
     h2 {
       font-family: var(--font-display);
       font-size: 1.5rem;
@@ -26,149 +27,542 @@
     h3 { font-size: 1.1rem; margin: 0 0 6px; }
     p { margin: 0 0 16px; color: var(--muted); }
     .intro { max-width: 60ch; }
+    .source { font-size: 0.8rem; color: var(--muted); margin: 12px 0 0; }
+    button { font: inherit; }
+    button:focus-visible, input:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 2px; }
 
-    .timeline {
-      list-style: none;
-      margin: 0 0 32px;
-      padding: 0;
-      display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    }
-    .timeline li {
-      background: var(--ink-card);
-      color: #fff;
-      border-radius: var(--radius);
-      padding: 20px;
-    }
-    .timeline .big {
-      display: block;
-      font-family: var(--font-display);
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--accent-from);
-      line-height: 1.1;
-      margin-bottom: 6px;
-    }
-    .timeline li p { color: #d6d6d6; margin: 0; font-size: 0.95rem; }
-
-    .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 0 0 16px;
-    }
-    .tabs button {
-      font: inherit;
+    .pill {
       font-weight: 600;
       border: 1px solid var(--border);
       background: var(--bg);
       color: var(--ink);
       border-radius: var(--radius-pill);
-      padding: 10px 18px;
+      padding: 8px 16px;
       cursor: pointer;
       transition: background 0.2s var(--ease-snap), color 0.2s var(--ease-snap);
     }
-    .tabs button[aria-selected="true"] {
+    .pill[aria-pressed="true"], .pill[aria-selected="true"] {
       background: var(--accent);
       border-color: var(--accent);
       color: var(--accent-ink);
     }
-    .tabs button:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 2px; }
-    .panel {
+    .row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+
+    .big {
+      display: block;
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--accent-from);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    /* Map */
+    .map {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 55% 45%, rgba(207, 128, 71, 0.18), transparent 60%),
+        repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,0.06) 39px 40px),
+        repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,0.06) 39px 40px),
+        var(--ink-card);
+    }
+    .area {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.35);
+      white-space: nowrap;
+      pointer-events: none;
+      transition: left 0.6s var(--ease-spring), top 0.6s var(--ease-spring), opacity 0.3s;
+    }
+    .pin {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      margin: -28px 0 0 -14px;
+      padding: 0;
+      border: 0;
+      background: none;
+      cursor: pointer;
+      transition: left 0.6s var(--ease-spring), top 0.6s var(--ease-spring), opacity 0.3s, transform 0.2s var(--ease-spring);
+    }
+    .pin::before {
+      content: "";
+      position: absolute;
+      inset: 2px 4px 6px;
+      background: var(--accent-from);
+      border: 2px solid #fff;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+    }
+    .pin[data-kind="market"]::before { background: #7fb069; }
+    .pin[data-kind="service"]::before { background: #6aa6d8; }
+    .pin[aria-pressed="true"] { transform: scale(1.3); z-index: 2; }
+    .pin[aria-pressed="true"]::before { background: #fff; border-color: var(--accent-from); }
+    .pin.dim, .area.dim { opacity: 0; pointer-events: none; }
+    .map-foot {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 16px;
+      margin-top: 12px;
+    }
+    .zoom { display: flex; gap: 6px; }
+    .zoom .pill { padding: 6px 12px; font-size: 0.85rem; }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+      background: var(--c);
+    }
+    .card {
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 20px;
+      margin-top: 16px;
     }
-    .panel[hidden] { display: none; }
-    .panel p:last-child { margin-bottom: 0; }
+    .card p:last-child { margin-bottom: 0; }
+    .card ul { margin: 0 0 12px; padding-left: 20px; color: var(--muted); }
     .tag {
       display: inline-block;
       font-size: 0.85rem;
       font-weight: 600;
       color: var(--accent-strong);
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
+    .meta { font-size: 0.9rem; color: var(--ink); margin-bottom: 4px; }
+    .elsewhere { margin-top: 16px; }
+    .elsewhere h3 { font-size: 1rem; }
+    .elsewhere ul { margin: 0; padding-left: 20px; color: var(--muted); }
+
+    /* Donation slider */
+    .give {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .amount-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+    .amount {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--accent-strong);
+      line-height: 1;
+    }
+    input[type="range"] {
+      width: 100%;
+      margin: 16px 0 8px;
+      accent-color: var(--accent);
+      height: 28px;
+    }
+    .ticks { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); }
+    .bar {
+      display: flex;
+      height: 44px;
+      border-radius: var(--radius-control);
+      overflow: hidden;
+      margin: 20px 0 16px;
+    }
+    .bar div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .split { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .split li {
+      display: grid;
+      grid-template-columns: 14px 1fr auto;
+      gap: 10px;
+      align-items: start;
+    }
+    .swatch { width: 14px; height: 14px; border-radius: 4px; margin-top: 4px; }
+    .split strong { display: block; }
+    .split small { color: var(--muted); font-size: 0.85rem; }
+    .dollars { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .callout {
+      margin: 16px 0 0;
+      padding: 12px 16px;
+      border-radius: var(--radius-control);
+      background: var(--surface);
+      font-weight: 600;
+    }
+    .stats {
+      list-style: none;
+      margin: 16px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .stats li { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 12px; }
+    .stats .big { font-size: clamp(1.1rem, 4.5vw, 1.6rem); }
+    .stats span:last-child { color: #d6d6d6; font-size: 0.8rem; line-height: 1.3; display: block; }
+
     .quote {
-      margin: 32px 0 0;
+      margin: 0;
       padding-left: 16px;
       border-left: 4px solid var(--accent);
       font-size: 1.15rem;
       font-weight: 500;
     }
     .quote cite { display: block; font-style: normal; font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
   </style>
 </head>
 <body>
-  <h2>From one neighborhood to the world</h2>
-  <p class="intro">Homeboy Industries grew from a small effort in East Los Angeles into a model for others around the world.</p>
 
-  <ol class="timeline">
-    <li>
-      <span class="big">1988</span>
-      <p>Began as a way of improving the lives of former gang members in East Los Angeles.</p>
-    </li>
-    <li>
-      <span class="big">18 months</span>
-      <p>The length of the program, with services like tattoo removal, mental health support and GED prep.</p>
-    </li>
-    <li>
-      <span class="big">250+</span>
-      <p>Organizations and social enterprises around the world that use Homeboy as a blueprint.</p>
-    </li>
-  </ol>
+  <section aria-labelledby="map-title">
+    <h2 id="map-title">Where Homeboy does business</h2>
+    <p class="intro">Homeboy's social enterprises are real businesses where trainees get paid job training. Every coffee, loaf of bread or dog grooming you buy supports someone rebuilding their life. Tap a pin to learn more.</p>
 
-  <h2>Find your way to help</h2>
-  <p>Homeboy has three ways to volunteer. Pick the one that fits you.</p>
+    <div class="row" role="group" aria-label="Filter the map">
+      <button class="pill" data-filter="all" aria-pressed="true">All</button>
+      <button class="pill" data-filter="food" aria-pressed="false">Food</button>
+      <button class="pill" data-filter="service" aria-pressed="false">Services &amp; shops</button>
+      <button class="pill" data-filter="market" aria-pressed="false">Farmers markets</button>
+    </div>
 
-  <div class="tabs" role="tablist" aria-label="Ways to volunteer">
-    <button role="tab" id="tab-event" aria-controls="panel-event" aria-selected="true">One day</button>
-    <button role="tab" id="tab-skill" aria-controls="panel-skill" aria-selected="false" tabindex="-1">I have a skill</button>
-    <button role="tab" id="tab-advocate" aria-controls="panel-advocate" aria-selected="false" tabindex="-1">On my own time</button>
-  </div>
+    <div class="map" id="map">
+    </div>
+    <div class="map-foot">
+      <div class="legend" aria-hidden="true">
+        <span style="--c: var(--accent-from)">Food</span>
+        <span style="--c: #6aa6d8">Services &amp; shops</span>
+        <span style="--c: #7fb069">Markets</span>
+      </div>
+      <div class="zoom" role="group" aria-label="Map zoom">
+        <button class="pill" data-view="la" aria-pressed="true">All of LA</button>
+        <button class="pill" data-view="dt" aria-pressed="false">Downtown</button>
+      </div>
+    </div>
 
-  <div class="panel" role="tabpanel" id="panel-event" aria-labelledby="tab-event">
-    <span class="tag">Event-based volunteer</span>
-    <h3>Help at a big event</h3>
-    <p>A one-day commitment, mostly on Saturdays, supporting Homeboy's annual events and fundraisers, like its 5K, the Lo Maximo fundraiser and holiday events.</p>
-  </div>
-  <div class="panel" role="tabpanel" id="panel-skill" aria-labelledby="tab-skill" hidden>
-    <span class="tag">Specialized volunteer</span>
-    <h3>Share what you know</h3>
-    <p>1 to 4 hours on a weekday between 9am and 3:30pm, at least once a month, for at least a year. Tutors in math, language arts and computer basics are needed to help trainees prepare for the GED.</p>
-  </div>
-  <div class="panel" role="tabpanel" id="panel-advocate" aria-labelledby="tab-advocate" hidden>
-    <span class="tag">Volunteer advocate</span>
-    <h3>Spread the word</h3>
-    <p>Get involved on your own timing: learn about Homeboy's work and be a messenger for it in your community.</p>
-  </div>
+    <div class="card" id="detail" aria-live="polite"></div>
 
-  <blockquote class="quote">
-    “We imagine a world without prisons, and then we try to create that world.”
-    <cite>Father Greg Boyle, founder of Homeboy Industries and LMU alum</cite>
-  </blockquote>
+    <div class="elsewhere">
+      <h3>Not on the map</h3>
+      <ul>
+        <li><strong>Homeboy Salsa and Guacamole</strong> at Ralphs, Gelson's and Walmart.</li>
+        <li><strong>ShopHomeboy.com</strong>: each Feed HOPE purchase provides one meal to someone food-insecure in LA.</li>
+        <li><strong>Homeboy Café @ MLK</strong>, <strong>Homeboy Threads</strong>, <strong>Homeboy Harvest</strong> and <strong>Homeboy Media</strong>.</li>
+      </ul>
+    </div>
+    <p class="source">Source: homeboyindustries.org social enterprise pages. Pin positions are approximate. Farmers market times were last updated by Homeboy in 08/2022, so check before you go.</p>
+  </section>
+
+  <section aria-labelledby="give-title">
+    <h2 id="give-title">Where a donation goes</h2>
+    <p class="intro">Slide to pick an amount. We split it the same way Homeboy spent its whole budget in 2024.</p>
+
+    <div class="give">
+      <div class="amount-row">
+        <span class="amount" id="amount">$100</span>
+        <span>if split like Homeboy's 2024 spending</span>
+      </div>
+      <label for="slider" class="visually-hidden" style="position:absolute;left:-9999px">Donation amount</label>
+      <input type="range" id="slider" min="10" max="1000" step="10" value="100">
+      <div class="ticks" aria-hidden="true"><span>$10</span><span>$250</span><span>$500</span><span>$750</span><span>$1,000</span></div>
+
+      <div class="bar" id="bar" aria-hidden="true"></div>
+      <ul class="split" id="split"></ul>
+      <p class="callout" id="callout"></p>
+    </div>
+
+    <h3 style="margin-top: 24px;">What the whole year made possible</h3>
+    <ul class="stats">
+      <li><span class="big">11,840</span><span>tattoo removal treatments</span></li>
+      <li><span class="big">3,680</span><span>therapy sessions</span></li>
+      <li><span class="big">21,500</span><span>class sessions</span></li>
+      <li><span class="big">390</span><span>trainees</span></li>
+      <li><span class="big">5,590</span><span>more community members supported</span></li>
+      <li><span class="big">76</span><span>solar panel training grads</span></li>
+    </ul>
+    <p class="source">Source: Homeboy Industries 2024 Annual Report and the Our Results page on homeboyindustries.org. 2024 expenses totaled about $51.1 million, and the report says program expenses were 83% of them. The split shows how the overall budget was spent; it isn't a promise about where one specific gift goes.</p>
+  </section>
+
+
+  <section>
+    <blockquote class="quote">
+      “We imagine a world without prisons, and then we try to create that world.”
+      <cite>Father Greg Boyle, founder of Homeboy Industries and LMU alum</cite>
+    </blockquote>
+  </section>
 
   <script>
-    const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
-    function select(tab) {
-      tabs.forEach((t) => {
-        const on = t === tab;
-        t.setAttribute('aria-selected', on);
-        t.tabIndex = on ? 0 : -1;
-        document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
-      });
+    // ── Map ──────────────────────────────────────────────
+    // All details come from homeboyindustries.org. Coordinates are approximate.
+    const places = [
+      {
+        id: 'hq', kind: 'food', lat: 34.0626, lng: -118.2366,
+        name: 'Headquarters: Homeboy Bakery, Homegirl Café, Catering & Merch Store',
+        where: '130 W. Bruno St., Los Angeles (near Chinatown)',
+        hours: 'Mon–Fri. Café 7am–2pm, Bakery 7:30am–2:30pm, Store 8am–3:30pm.',
+        about: [
+          'The Bakery was Homeboy\'s first social enterprise and bakes thousands of loaves, pastries and cakes each day.',
+          'Homegirl Café and women-run Homegirl Catering offer on-the-job training, especially for women.'
+        ]
+      },
+      {
+        id: 'diner', kind: 'food', lat: 34.0537, lng: -118.2427,
+        name: 'Homeboy Diner at City Hall',
+        where: '200 N. Spring St., Suite 210 (2nd floor of LA City Hall)',
+        hours: 'Mon–Fri 8am–2:30pm, closed on observed holidays.',
+        about: ['Sandwiches, salads, desserts and specialty coffee, served since 2011, with food delivered fresh daily from Homeboy Bakery and Homegirl Café.']
+      },
+      {
+        id: 'lax', kind: 'food', lat: 33.9425, lng: -118.4081,
+        name: 'Homeboy Café + Bakery @ LAX',
+        where: 'Los Angeles International Airport',
+        hours: '',
+        about: ['One of Homeboy\'s social enterprises, listed on its website.']
+      },
+      {
+        id: 'silk', kind: 'service', lat: 34.0275, lng: -118.2302,
+        name: 'Homeboy Silkscreen & Embroidery',
+        where: '1320 S. Santa Fe Ave., Los Angeles',
+        hours: 'Mon–Fri 9am–5pm.',
+        about: ['Custom printed and embroidered apparel and promo items for schools, businesses and nonprofits. A fair-wage employer with over 30 years of work.']
+      },
+      {
+        id: 'recycle', kind: 'service', lat: 33.9530, lng: -118.1870,
+        name: 'Homeboy Electronics Recycling',
+        where: '8990 Atlantic Ave., South Gate',
+        hours: '',
+        about: ['Recycles computers, monitors and phones, and offers data destruction, repair and refurbished devices.', 'For every 75,000 lbs. of electronics collected, it can create a new job.']
+      },
+      {
+        id: 'puppy', kind: 'service', lat: 34.1378, lng: -118.1502,
+        name: 'Puppy Fades Dog Grooming',
+        where: '446 S. Fair Oaks Ave., Pasadena',
+        hours: '',
+        about: ['Homeboy\'s newest social enterprise. Groomers trained by West Coast Grooming Academy are people who have rebuilt their lives with Homeboy\'s support.']
+      },
+      {
+        id: 'fig', kind: 'market', lat: 34.0484, lng: -118.2593,
+        name: 'Farmers market: 7th and Fig',
+        where: '735 S. Figueroa St., Los Angeles',
+        hours: 'Thursdays 9am–2:30pm.',
+        about: ['Homeboy Bakery breads, pastries and specialty goods.']
+      },
+      {
+        id: 'panorama', kind: 'market', lat: 34.2190, lng: -118.4310,
+        name: 'Farmers market: Kaiser Panorama',
+        where: '13652 Cantara St., Panorama City',
+        hours: 'Wednesdays 9am–1:30pm.',
+        about: ['Homeboy Bakery breads, pastries and specialty goods.']
+      },
+      {
+        id: 'studio', kind: 'market', lat: 34.1437, lng: -118.3960,
+        name: 'Farmers market: Studio City',
+        where: '2052 Ventura Pl., Studio City',
+        hours: 'Sundays 8am–1pm.',
+        about: ['Homeboy Bakery breads, pastries and specialty goods.']
+      },
+      {
+        id: 'monrovia', kind: 'market', lat: 34.1440, lng: -118.0010,
+        name: 'Farmers market: Monrovia',
+        where: '612 S. Myrtle Ave., Monrovia',
+        hours: 'Fridays 5–9pm.',
+        about: ['Homeboy Bakery breads, pastries and specialty goods.']
+      }
+    ];
+
+    const areas = [
+      { name: 'Downtown LA', lat: 34.005, lng: -118.262 },
+      { name: 'Pasadena', lat: 34.112, lng: -118.150 },
+      { name: 'The Valley', lat: 34.195, lng: -118.380 },
+      { name: 'South Gate', lat: 33.935, lng: -118.190 },
+      { name: 'LAX', lat: 33.925, lng: -118.408 },
+      { name: 'Monrovia', lat: 34.118, lng: -118.030 },
+      { name: 'Chinatown', lat: 34.0685, lng: -118.252, zoomOnly: true },
+      { name: 'City Hall', lat: 34.0515, lng: -118.2420, zoomOnly: true },
+      { name: 'Fashion District', lat: 34.0335, lng: -118.2480, zoomOnly: true }
+    ];
+
+    const views = {
+      la: { n: 34.27, s: 33.91, w: -118.48, e: -117.96 },
+      dt: { n: 34.08, s: 34.018, w: -118.275, e: -118.215 }
+    };
+
+    const map = document.getElementById('map');
+    const detail = document.getElementById('detail');
+    let view = 'la';
+    let filter = 'all';
+    let selected = 'hq';
+
+    function project(lat, lng) {
+      const b = views[view];
+      const x = (lng - b.w) / (b.e - b.w);
+      const y = (b.n - lat) / (b.n - b.s);
+      return { x, y, inside: x > 0.03 && x < 0.97 && y > 0.06 && y < 0.97 };
     }
-    tabs.forEach((tab, i) => {
-      tab.addEventListener('click', () => select(tab));
-      tab.addEventListener('keydown', (e) => {
-        const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-        if (!step) return;
-        const next = tabs[(i + step + tabs.length) % tabs.length];
-        select(next);
-        next.focus();
-      });
+
+    const areaEls = areas.map((a) => {
+      const el = document.createElement('span');
+      el.className = 'area';
+      el.textContent = a.name;
+      map.appendChild(el);
+      return { a, el };
     });
+
+    const pinEls = places.map((p) => {
+      const el = document.createElement('button');
+      el.className = 'pin';
+      el.dataset.kind = p.kind;
+      el.setAttribute('aria-label', p.name);
+      el.setAttribute('aria-pressed', 'false');
+      el.addEventListener('click', () => { selected = p.id; render(); });
+      map.appendChild(el);
+      return { p, el };
+    });
+
+    function render() {
+      areaEls.forEach(({ a, el }) => {
+        const pt = project(a.lat, a.lng);
+        el.style.left = pt.x * 100 + '%';
+        el.style.top = pt.y * 100 + '%';
+        const show = pt.inside && (view === 'dt' ? a.zoomOnly : !a.zoomOnly);
+        el.classList.toggle('dim', !show);
+      });
+      pinEls.forEach(({ p, el }) => {
+        const pt = project(p.lat, p.lng);
+        el.style.left = pt.x * 100 + '%';
+        el.style.top = pt.y * 100 + '%';
+        const show = pt.inside && (filter === 'all' || filter === p.kind);
+        el.classList.toggle('dim', !show);
+        el.tabIndex = show ? 0 : -1;
+        el.setAttribute('aria-pressed', String(p.id === selected));
+      });
+      const p = places.find((x) => x.id === selected);
+      detail.innerHTML = '';
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = { food: 'Food', service: 'Services & shops', market: 'Farmers market' }[p.kind];
+      const h = document.createElement('h3');
+      h.textContent = p.name;
+      const where = document.createElement('p');
+      where.className = 'meta';
+      where.textContent = '📍 ' + p.where;
+      detail.append(tag, h, where);
+      if (p.hours) {
+        const hours = document.createElement('p');
+        hours.className = 'meta';
+        hours.textContent = '🕑 ' + p.hours;
+        detail.append(hours);
+      }
+      const ul = document.createElement('ul');
+      p.about.forEach((t) => { const li = document.createElement('li'); li.textContent = t; ul.append(li); });
+      detail.append(ul);
+    }
+
+    function pressOnly(group, btn) {
+      group.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+    }
+
+    const filterBtns = Array.from(document.querySelectorAll('[data-filter]'));
+    filterBtns.forEach((btn) => btn.addEventListener('click', () => {
+      filter = btn.dataset.filter;
+      pressOnly(filterBtns, btn);
+      const current = places.find((x) => x.id === selected);
+      if (filter !== 'all' && current.kind !== filter) {
+        const first = places.find((x) => x.kind === filter && project(x.lat, x.lng).inside)
+          || places.find((x) => x.kind === filter);
+        if (first) selected = first.id;
+      }
+      render();
+    }));
+
+    const viewBtns = Array.from(document.querySelectorAll('[data-view]'));
+    viewBtns.forEach((btn) => btn.addEventListener('click', () => {
+      view = btn.dataset.view;
+      pressOnly(viewBtns, btn);
+      render();
+    }));
+
+    render();
+
+    // ── Donation slider ──────────────────────────────────
+    // Homeboy Industries 2024 Annual Report: expenses by category.
+    const spending = [
+      { label: 'Social enterprises', amount: 15826000, color: '#B15F2C', note: 'Running the businesses where trainees get job training' },
+      { label: 'Programs', amount: 15320000, color: '#CF8047', note: 'Free services like tattoo removal, mental health, education and case management' },
+      { label: 'Client compensation', amount: 10959000, color: '#6aa6d8', note: 'Pay for clients in the program' },
+      { label: 'Administration', amount: 5796000, color: '#8D8D8D', note: 'Keeping the organization running' },
+      { label: 'Fundraising', amount: 3246000, color: '#5F5F5F', note: 'Raising the next round of support' }
+    ];
+    const total = spending.reduce((sum, s) => sum + s.amount, 0);
+    spending.forEach((s) => { s.share = s.amount / total; });
+
+    const slider = document.getElementById('slider');
+    const amountEl = document.getElementById('amount');
+    const bar = document.getElementById('bar');
+    const split = document.getElementById('split');
+    const callout = document.getElementById('callout');
+    const money = (n) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: n < 100 ? 2 : 0, maximumFractionDigits: n < 100 ? 2 : 0 });
+
+    const segs = spending.map((s) => {
+      const d = document.createElement('div');
+      d.style.background = s.color;
+      d.style.width = (s.share * 100) + '%';
+      d.textContent = Math.round(s.share * 100) + '%';
+      bar.append(d);
+
+      const li = document.createElement('li');
+      const sw = document.createElement('span');
+      sw.className = 'swatch';
+      sw.style.background = s.color;
+      const text = document.createElement('div');
+      const strong = document.createElement('strong');
+      strong.textContent = s.label + ' (' + Math.round(s.share * 100) + '%)';
+      const small = document.createElement('small');
+      small.textContent = s.note;
+      text.append(strong, small);
+      const val = document.createElement('span');
+      val.className = 'dollars';
+      li.append(sw, text, val);
+      split.append(li);
+      return val;
+    });
+
+    const programShare = (spending[0].amount + spending[1].amount + spending[2].amount) / total;
+
+    function update() {
+      const v = Number(slider.value);
+      amountEl.textContent = money(v);
+      slider.setAttribute('aria-valuetext', money(v));
+      spending.forEach((s, i) => { segs[i].textContent = money(v * s.share); });
+      callout.textContent = 'About ' + money(v * programShare) + ' of ' + money(v) +
+        ' would go to the social enterprises, programs and client pay.';
+    }
+    slider.addEventListener('input', update);
+    update();
+
   </script>
 </body>
 </html>

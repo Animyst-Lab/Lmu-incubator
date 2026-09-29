@@ -1,20 +1,54 @@
 /*
- * Lion Share design tokens (placeholder until the brand direction is set).
+ * Lion Share design tokens.
  * The site reads every color from here, and custom sections can link this
  * file to match the site: <link rel="stylesheet" href="/tokens.css">
+ *
+ * Student custom sections depend on these names, so never rename or remove
+ * one. Add new tokens instead.
  */
 :root {
-  --bg: #FBF9F5;
-  --surface: #FFFFFF;
-  --ink: #1C1A17;
-  --muted: #5E5A54;
-  --border: #E8E3DA;
-  --accent: #E4572E;
-  --accent-ink: #FFFFFF;
-  /* Darker accent for text and links: 4.5:1+ on --bg and --surface. */
-  --accent-strong: #B83A16;
-  --radius: 12px;
+  /* Surfaces */
+  --bg: #FFFFFF;
+  --surface: #F1F0EE;
+  --surface-2: #E3E2DF;
+  --ink-card: #0A0A0A;
 
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  /* Text */
+  --ink: #111111;
+  /* Secondary text. Darker than the reference palette's #8d8d8d so small text passes WCAG AA. */
+  --muted: #5F5F5F;
+  /* Decorative only (large type, icons, dividers). Fails AA for small text. */
+  --subtle: #8D8D8D;
+
+  /* Lines */
+  --border: #E6E5E2;
+
+  /* Accent: burnt orange */
+  --accent: #B15F2C;
+  --accent-ink: #FFFFFF;
+  --accent-strong: #97501F;
+  --accent-from: #CF8047;
+  --accent-to: #97501F;
+  --accent-gradient: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+
+  /* Hero base, revealed to color under the cursor */
+  --hero-from: #ECEBE9;
+  --hero-to: #C9C9C9;
+
+  /* Shape */
+  --radius: 1.25rem;
+  --radius-card: 2rem;
+  --radius-card-sm: 1.25rem;
+  --radius-control: 0.875rem;
+  --radius-pill: 9999px;
+
+  /* Type: Onest for everything */
+  --font-sans: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Motion: CSS stand-ins for the spring feel */
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-snap: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-line: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-word: cubic-bezier(0.165, 0.84, 0.44, 1);
 }

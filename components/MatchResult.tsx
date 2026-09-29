@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CauseSummary } from "@/lib/causes";
+import { PillButton } from "./ui";
 
 type Props = {
   cause: CauseSummary;
@@ -11,52 +12,49 @@ type Props = {
 
 export default function MatchResult({ cause, reason, alternates, onStartOver }: Props) {
   return (
-    <div className="flex flex-col gap-4">
-      <article className="flex flex-col overflow-hidden rounded-card border border-line bg-surface text-left sm:flex-row">
+    <div className="flex flex-col gap-2 text-left">
+      <div className="flex gap-2">
         <Image
           src={cause.imageUrl}
           alt={cause.imageAlt}
-          width={320}
-          height={320}
-          sizes="(min-width: 640px) 160px, 100vw"
-          className="aspect-square w-full object-cover sm:w-40"
+          width={192}
+          height={192}
+          sizes="96px"
+          className="aspect-square w-24 shrink-0 rounded-control object-cover"
         />
-        <div className="flex flex-1 flex-col gap-1 p-5">
-          <p className="text-xs font-semibold uppercase tracking-widest text-accent-strong">Your match</p>
-          <h3 className="font-display text-2xl leading-tight">{cause.cause}</h3>
-          <p className="text-muted">{cause.tagline}</p>
-          <p className="text-sm text-muted">
-            <span className="font-semibold text-ink">{cause.nonprofitName}</span> · {cause.neighborhood}
+        <div className="flex flex-1 flex-col justify-center rounded-control bg-surface/80 p-3">
+          <p className="text-[0.65rem] font-medium uppercase tracking-wider text-ink/60">Your match</p>
+          <h3 className="text-lg font-semibold leading-tight tracking-tight">{cause.cause}</h3>
+          <p className="mt-0.5 text-xs text-ink/65">
+            {cause.nonprofitName} · {cause.neighborhood}
           </p>
-          <p className="mt-2 rounded-lg bg-bg px-3 py-2 text-sm">
-            <span className="font-semibold">Why it fits: </span>
-            {reason}
-          </p>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <Link
-              href={`/causes/${cause.slug}`}
-              className="inline-flex items-center rounded-full bg-accent-strong px-5 py-2.5 font-semibold text-accent-ink transition-colors hover:bg-ink"
-            >
-              View cause
-            </Link>
-            <button
-              type="button"
-              onClick={onStartOver}
-              className="rounded-full px-4 py-2.5 font-semibold text-muted underline-offset-4 hover:text-ink hover:underline"
-            >
-              Start over
-            </button>
-          </div>
         </div>
-      </article>
+      </div>
+
+      <div className="rounded-control bg-surface/80 p-4">
+        <p className="text-sm text-ink/75">{cause.tagline}</p>
+        <p className="mt-3 border-t border-line pt-3 text-sm">
+          <span className="font-semibold">Why it fits: </span>
+          {reason}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 p-1">
+        <PillButton href={`/causes/${cause.slug}`} variant="dark" arrow="up-right">
+          View cause
+        </PillButton>
+        <PillButton variant="outline" onClick={onStartOver}>
+          Start over
+        </PillButton>
+      </div>
 
       {alternates.length > 0 && (
-        <p className="text-left text-sm text-muted">
+        <p className="px-2 pb-2 text-sm text-ink/65">
           Also consider:{" "}
           {alternates.map((alt, i) => (
             <span key={alt.slug}>
               {i > 0 && " · "}
-              <Link href={`/causes/${alt.slug}`} className="font-semibold text-accent-strong underline underline-offset-4">
+              <Link href={`/causes/${alt.slug}`} className="font-medium text-ink underline underline-offset-4 hover:text-accent">
                 {alt.cause}
               </Link>
             </span>

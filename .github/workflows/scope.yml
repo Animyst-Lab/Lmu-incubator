@@ -1,7 +1,8 @@
 # Student pull requests may only change files inside one folder in causes/.
 #
-# This uses pull_request_target so the check itself always comes from the
-# base branch: a pull request can't weaken it by editing this file. It never
+# This uses pull_request_target, which GitHub always runs from the repo's
+# default branch: a pull request can't weaken the check by editing this file,
+# and nothing here runs until the file is on the default branch. It never
 # checks out or runs the pull request's code; it only reads the list of
 # changed files from the GitHub API.
 name: Student PR scope
@@ -20,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      # Base branch only. Do not add a `ref:` pointing at the pull request.
+      # Default branch only. Do not add a `ref:` pointing at the pull request.
       - uses: actions/checkout@v5
         with:
           persist-credentials: false

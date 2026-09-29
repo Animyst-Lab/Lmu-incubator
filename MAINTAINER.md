@@ -29,7 +29,7 @@ Two workflows run on every pull request into `main` or `dev`:
 
 The scope check applies to every non-maintainer pull request, whatever the branch name. If Claude Code creates its own `claude/...` branch instead of using the student's branch, the check still works.
 
-The scope check runs with `pull_request_target`, so it always uses the version on the base branch. It only reads the list of changed files and never runs the pull request's code. That means changes to `scope.yml` or `maintainers.txt` only take effect after they're merged.
+The scope check runs with `pull_request_target`, which GitHub always runs from the repo's **default branch**. A pull request can't weaken it, and it never runs the pull request's code; it only reads the list of changed files. It also means the check does nothing until `scope.yml` is on the default branch, and changes to `scope.yml` or `maintainers.txt` only take effect once they're there.
 
 A **warning** (not a failure) appears when a student's pull request edits a cause folder that's already live. That's normal when a student fixes their own page, but check that the folder is theirs before merging.
 

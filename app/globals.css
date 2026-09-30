@@ -114,6 +114,52 @@ html.js:not(.intro-done) .reveal-words[data-intro] .reveal-word {
   opacity: 0;
 }
 
+/* ─── Hero glow ────────────────────────────────────────────────────
+ * Warm shapes that drift slowly behind the hero. Soft radial gradients
+ * rather than a blur filter, so it stays cheap on phones. Each shape moves
+ * on its own timing so the pattern never visibly repeats.
+ */
+.hero-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hero-glow span {
+  position: absolute;
+  border-radius: 9999px;
+  will-change: transform;
+  animation: hero-drift var(--dur) ease-in-out infinite alternate;
+}
+.hero-glow span:nth-child(1) {
+  width: 70vmax; height: 70vmax; left: -22vmax; top: -30vmax;
+  background: radial-gradient(closest-side, rgb(233 163 111 / 0.75), transparent);
+  --dur: 26s; --dx: 12vmax; --dy: 8vmax; --s: 1.1;
+}
+.hero-glow span:nth-child(2) {
+  width: 60vmax; height: 60vmax; right: -24vmax; top: -10vmax;
+  background: radial-gradient(closest-side, rgb(207 128 71 / 0.55), transparent);
+  --dur: 31s; --dx: -10vmax; --dy: 12vmax; --s: 0.9;
+}
+.hero-glow span:nth-child(3) {
+  width: 55vmax; height: 55vmax; left: 20vmax; bottom: -34vmax;
+  background: radial-gradient(closest-side, rgb(242 184 62 / 0.45), transparent);
+  --dur: 23s; --dx: 14vmax; --dy: -10vmax; --s: 1.15;
+}
+.hero-glow span:nth-child(4) {
+  width: 40vmax; height: 40vmax; right: 6vmax; bottom: -18vmax;
+  background: radial-gradient(closest-side, rgb(151 80 31 / 0.35), transparent);
+  --dur: 37s; --dx: -12vmax; --dy: -6vmax; --s: 1.05;
+}
+@keyframes hero-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(var(--dx), var(--dy), 0) scale(var(--s)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-glow span { animation: none; }
+}
+
 /* ─── Intro loader ─────────────────────────────────────────────── */
 html.no-intro .intro-loader {
   display: none;

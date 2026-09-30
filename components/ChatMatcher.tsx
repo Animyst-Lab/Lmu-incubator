@@ -77,7 +77,7 @@ export default function ChatMatcher({ causes }: Props) {
     requestAnimationFrame(() => inputRef.current?.focus());
   }
 
-  const card = "rounded-card-sm bg-white/75 p-2 shadow-sm ring-1 ring-line/70 backdrop-blur-xl";
+  const card = "rounded-card-sm bg-white/75 p-2 shadow-sm ring-1 ring-line/70 backdrop-blur-xl lg:p-3";
 
   if (match && matched) {
     return (
@@ -106,12 +106,27 @@ export default function ChatMatcher({ causes }: Props) {
 
       <div
         ref={threadRef}
-        className="flex max-h-72 min-h-40 flex-col gap-2.5 overflow-y-auto px-2 py-4"
+        className="flex max-h-80 min-h-44 flex-col gap-2.5 overflow-y-auto px-2 py-4 lg:max-h-[28rem] lg:min-h-60 lg:px-3 lg:py-5"
         role="log"
         aria-live="polite"
         aria-label="Chat with the cause matcher"
       >
         <Bubble role="assistant">{OPENING_QUESTION}</Bubble>
+        {messages.length === 0 && (
+          <div className="mt-1 flex flex-wrap gap-2">
+            {SUGGESTIONS.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => send(s)}
+                disabled={pending}
+                className="rounded-full border border-line bg-white px-3.5 py-2 text-sm transition-all duration-300 ease-snap hover:-translate-y-0.5 hover:border-ink/30 disabled:opacity-50"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
         {messages.map((m, i) => (
           <Bubble key={i} role={m.role}>
             {m.content}
@@ -125,22 +140,6 @@ export default function ChatMatcher({ causes }: Props) {
           </div>
         )}
       </div>
-
-      {messages.length === 0 && (
-        <div className="flex flex-wrap gap-2 px-2 pb-3">
-          {SUGGESTIONS.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => send(s)}
-              disabled={pending}
-              className="rounded-full border border-line bg-white px-3 py-1.5 text-sm transition-all duration-300 ease-snap hover:-translate-y-0.5 hover:border-ink/30 disabled:opacity-50"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
 
       {error && (
         <p role="alert" className="px-2 pb-2 text-sm font-medium text-accent-strong">
@@ -166,7 +165,7 @@ export default function ChatMatcher({ causes }: Props) {
           maxLength={MAX_MESSAGE_CHARS}
           autoComplete="off"
           placeholder="Type what you care about…"
-          className="min-w-0 flex-1 bg-transparent px-3 py-2 text-base placeholder:text-ink/50 focus:outline-none"
+          className="min-w-0 flex-1 bg-transparent px-3 py-2 text-base placeholder:text-ink/50 focus:outline-none lg:py-3"
         />
         <button
           type="submit"
@@ -186,7 +185,7 @@ function Bubble({ role, children }: { role: ChatMessage["role"]; children: React
   const mine = role === "user";
   return (
     <p
-      className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[0.9375rem] leading-snug ${
+      className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[0.9375rem] leading-snug lg:text-base ${
         mine ? "self-end rounded-br-md bg-ink-card text-white" : "self-start rounded-bl-md bg-surface text-ink"
       }`}
     >

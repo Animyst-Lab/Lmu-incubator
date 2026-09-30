@@ -12,7 +12,7 @@ Pick a cause you care about. Build a page for it with an AI helper. Help people 
 
 ## At a glance
 
-| | |
+| Topic | Details |
 |---|---|
 | **What you'll make** | A page about a cause and a real LA nonprofit: the problem, what they do, and exactly how to volunteer or donate. Plus one creative piece you design, like a quiz, a calculator, or a mini game. |
 | **What you need** | A GitHub account, a cause you care about, and a photo. No coding and no installing anything. |
@@ -102,7 +102,7 @@ When you're done, close the Codespace tab. It stops on its own.
 
 ## Ground rules
 
-| | |
+| Rule | What it means |
 |---|---|
 | **Your branch, your folder** | Your pull request fails if it changes anything else. |
 | **Real and local** | The nonprofit must be real and serve Los Angeles. |

@@ -8,7 +8,7 @@ Pick a cause you care about. Build a page for it with an AI helper. Help people 
 
 ![Built by LMU students](https://img.shields.io/badge/built%20by-LMU%20students-B15F2C?style=for-the-badge)
 ![For Los Angeles](https://img.shields.io/badge/for-Los%20Angeles-CF8047?style=for-the-badge)
-![No coding needed](https://img.shields.io/badge/no%20coding-needed-111111?style=for-the-badge)
+![No coding needed](https://img.shields.io/badge/no%20coding-needed-97501F?style=for-the-badge)
 
 </div>
 

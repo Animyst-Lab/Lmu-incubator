@@ -45,13 +45,13 @@ Ask each student for their GitHub username and the email address they'll use for
 
 Add each student as a collaborator with **Write** access, so they can create a branch, push to it, open pull requests, and open Codespaces. Invites expire after 7 days, so send them close to class and ask students to accept before they arrive.
 
-### 3. Turn on Codespaces for the org
+### 3. Codespaces: nothing to set up
 
-Organizations get no free Codespaces usage, so the Animyst-Lab org pays: about $0.18 an hour per student on the default 2-core machine, plus a little storage. Thirty students for two hours is roughly $11.
+The Animyst-Lab org is on GitHub's Free plan. On that plan, Codespaces is always available on the org's private repos, and each codespace is billed to the student who creates it, not the org (the org can't pay for Codespaces on Free, and the Codespaces settings pages only appear on paid plans).
 
-1. In the org's **Settings → Codespaces → General**, set Codespaces access to allow members **and outside collaborators** (students are collaborators).
-2. In the org's billing settings, add a payment method and a Codespaces budget (for example $25) so a forgotten codespace can't run up a bill.
-3. Optional, under **Settings → Codespaces → Policies**: limit machine types to 2-core, set a short idle timeout, and a short retention period.
+That costs students nothing: every personal GitHub account includes 120 core-hours a month (60 hours on the default 2-core machine). A student with no payment method who uses it all is blocked, not charged.
+
+If the org moves to a paid plan, see GitHub's docs on choosing who pays for codespaces before class, since the defaults change.
 
 ### 4. Set up Claude access
 
@@ -73,7 +73,7 @@ Do this from a non-maintainer test account before class:
 6. Say "Open my pull request" and confirm it targets `dev`, both checks run, and the Vercel preview builds and opens without a login. On a private repo, Vercel may hold deployments from commit authors who aren't on the Vercel team; note whether it does.
 7. Try a bad change (edit `app/page.tsx`) and confirm the scope check fails with a clear message.
 8. Merge, and confirm the cause shows up in the directory and can be matched in the hero chat.
-9. Check the Codespaces and Console usage pages to see what the dry run cost.
+9. Check the Console usage page to see what the dry run cost in Claude usage.
 
 ## Reviewing a student pull request
 
@@ -101,6 +101,6 @@ Do this from a non-maintainer test account before class:
 ## After class
 
 - Remove the students from the Claude Console organization.
-- Delete leftover codespaces (org **Settings → Codespaces**) so they stop costing storage.
+- Students can delete their codespace at [github.com/codespaces](https://github.com/codespaces) once their pull request is merged. Unused codespaces are also deleted automatically after a period of inactivity.
 - Student branches can be deleted once their pull requests are merged.
 - When there are enough causes, derive categories from everyone's `interests` (`docs/BUILD_SPEC.md`, section 15).

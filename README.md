@@ -11,10 +11,10 @@ You don't need to know how to code. You need to know what you care about.
 ## Before class (about 10 minutes)
 
 1. **Make a GitHub account** at [github.com/signup](https://github.com/signup). GitHub is where the site's code lives.
-2. **Send your GitHub username and email address** to your instructor.
-3. **Accept two invites** when they arrive by email:
-   - From **GitHub**, to the `Lmu-incubator` repository. Click **Accept invitation**.
-   - From **Anthropic**, to join the class's Claude account. Follow the link and create your login. This is how you'll sign in to Claude, the AI helper, in class. You don't need to pay for anything.
+2. **Send your GitHub username** to your instructor.
+3. **Accept the invite.** You'll get an email from GitHub inviting you to the `Lmu-incubator` repository. Click **Accept invitation**.
+
+That's the only account you need. The AI helper, Claude, is set up for you, and you don't need to pay for anything.
 
 Come to class with:
 - A cause you care about, and an LA nonprofit working on it if you know one (the AI can help you find one)
@@ -51,11 +51,12 @@ Click in the terminal, type this, and press Enter:
 claude
 ```
 
-The first time, it asks how to sign in:
+The first time, it asks a few setup questions. Use the arrow keys and Enter to answer:
 
-1. Choose **Anthropic Console account**, then **Sign in with your Console account**.
-2. Open the link it shows and sign in with the account from your invite.
-3. If the browser shows a code, copy it, paste it into the terminal, and press Enter.
+- When it asks whether to use the API key it found, choose **Yes**. (It's the class key.)
+- For everything else, the first option is fine, including "Yes, I trust this folder."
+
+If the terminal feels cramped, drag its top edge up to make it bigger.
 
 ### 4. Tell it: "Help me add my cause page."
 

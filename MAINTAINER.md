@@ -35,31 +35,34 @@ A **warning** (not a failure) appears when a student's pull request edits a caus
 
 ## Before class
 
-Students follow the README. They make their own GitHub account and, in class, their own `student/<first-name>-<last-initial>` branch from `dev` on GitHub.com; making the branch is part of the lesson. They work in a GitHub Codespace (set up by `.devcontainer/devcontainer.json`, with Node 24, Claude Code, and `gh` preinstalled and `npm ci` already run) and sign in to Claude Code with a Claude Console account you invite them to. Nothing gets installed on their laptops.
+Students follow the README. They make their own GitHub account and, in class, their own `student/<first-name>-<last-initial>` branch from `dev` on GitHub.com; making the branch is part of the lesson. They work in a GitHub Codespace (set up by `.devcontainer/devcontainer.json`, with Node 24, Claude Code, and `gh` preinstalled and `npm ci` already run) and Claude Code uses a class API key stored as a Codespaces secret. Students need only a GitHub account, and nothing gets installed on their laptops.
 
 ### 1. Collect details
 
-Ask each student for their GitHub username and the email address they'll use for Claude.
+Ask each student for their GitHub username.
 
 ### 2. Invite them to the repo
 
 Add each student as a collaborator with **Write** access, so they can create a branch, push to it, open pull requests, and open Codespaces. Invites expire after 7 days, so send them close to class and ask students to accept before they arrive.
 
-### 3. Codespaces: nothing to set up
+### 3. Turn on Codespaces
 
-The Animyst-Lab org is on GitHub's Free plan. On that plan, Codespaces is always available on the org's private repos, and each codespace is billed to the student who creates it, not the org (the org can't pay for Codespaces on Free, and the Codespaces settings pages only appear on paid plans).
+GitHub's docs say Codespaces is always on for private repos in Free-plan orgs, but for Animyst-Lab it was off until an org owner turned it on in the org's **Settings → Codespaces**. Check it's still enabled for this repo and for outside collaborators (students are collaborators): open the repo's **Code → Codespaces** tab and make sure you can create one.
 
-That costs students nothing: every personal GitHub account includes 120 core-hours a month (60 hours on the default 2-core machine). A student with no payment method who uses it all is blocked, not charged.
-
-If the org moves to a paid plan, see GitHub's docs on choosing who pays for codespaces before class, since the defaults change.
+In the same settings, check who pays:
+- **Each user pays** (the default on Free): free for students. Every personal GitHub account includes 120 core-hours a month (60 hours on the default 2-core machine), and a student with no payment method who uses it all is blocked, not charged.
+- **The organization pays**: about $0.18 an hour per student on the 2-core machine. Add a Codespaces budget under **Settings → Billing and licensing → Budgets and alerts** with **Stop usage when budget limit is reached**.
 
 ### 4. Set up Claude access
 
-Students sign in to Claude Code with the Claude Console, billed per use to your API account. Don't hand out an API key.
+Claude Code in every student's Codespace uses one class API key, billed per use to your Anthropic account. Students don't need a Claude account and never sign in.
 
-1. In the [Claude Console](https://platform.claude.com), go to **Settings → Members → Invite** and invite each student's email with the **Claude Code** role (they can only use Claude Code).
-2. Set a spend limit on the "Claude Code" workspace (created automatically the first time someone signs in). A class session is usually a few dollars per student; $250 is a safe cap for 30.
-3. Check your API rate-limit tier. Thirty people working at once is heavy concurrent use; if your tier is low, ask Anthropic for a temporary increase.
+1. In the [Claude Console](https://platform.claude.com), create a workspace for the class (for example "LMU class") and set a **spend limit** on it. A class session is usually a few dollars per student; $250 is a safe cap for 30.
+2. Create an API key in that workspace.
+3. In the repo, go to **Settings → Secrets and variables → Codespaces → New repository secret**. Name it `ANTHROPIC_API_KEY` and paste the key. Codespaces created after this get it automatically; existing ones don't.
+4. Check your API rate-limit tier. Thirty people working at once is heavy concurrent use; if your tier is low, ask Anthropic for a temporary increase.
+
+Anyone who can open a Codespace on this repo can read the key, so treat it as class-only: keep the workspace's spend limit low and revoke the key right after class.
 
 ### 5. Dry run
 
@@ -67,13 +70,13 @@ Do this from a non-maintainer test account before class:
 
 1. On GitHub.com, create a test `student/...` branch from `dev` using the README steps.
 2. Open a Codespace on that branch. Check that it builds, the terminal opens, and `claude --version` works.
-3. Run `claude`, sign in with a test Console account, and say "Help me add my cause page."
+3. Run `claude`, choose **Yes** when it asks to use the API key, and say "Help me add my cause page."
 4. Check that it interviews you one question at a time, fills the rest from the nonprofit's site, and commits to the selected branch.
 5. When it asks for a photo, drag one into the folder in the file list and check that it picks it up.
 6. Say "Open my pull request" and confirm it targets `dev`, both checks run, and the Vercel preview builds and opens without a login. On a private repo, Vercel may hold deployments from commit authors who aren't on the Vercel team; note whether it does.
 7. Try a bad change (edit `app/page.tsx`) and confirm the scope check fails with a clear message.
 8. Merge, and confirm the cause shows up in the directory and can be matched in the hero chat.
-9. Check the Console usage page to see what the dry run cost in Claude usage.
+9. Check the class workspace's usage in the Console to see what the dry run cost.
 
 ## Reviewing a student pull request
 
@@ -100,7 +103,7 @@ Do this from a non-maintainer test account before class:
 
 ## After class
 
-- Remove the students from the Claude Console organization.
+- Revoke the class API key in the Console and delete the `ANTHROPIC_API_KEY` Codespaces secret.
 - Students can delete their codespace at [github.com/codespaces](https://github.com/codespaces) once their pull request is merged. Unused codespaces are also deleted automatically after a period of inactivity.
 - Student branches can be deleted once their pull requests are merged.
 - When there are enough causes, derive categories from everyone's `interests` (`docs/BUILD_SPEC.md`, section 15).

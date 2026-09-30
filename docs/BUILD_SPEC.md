@@ -42,7 +42,7 @@ CAUSE PAGE  /causes/<slug>
 
 1. Before class, the student makes a GitHub account and accepts the repo invite
 2. On GitHub.com, the student creates `student/<first-name>-<last-initial>` from `dev`
-3. The student opens that branch in an AI coding agent and says "Help me add my cause page"
+3. The student opens a GitHub Codespace on that branch (`.devcontainer/` preinstalls Node and Claude Code), runs `claude`, and says "Help me add my cause page"
 4. The agent (following `AGENTS.md`) interviews them for what only they know: name, cause, nonprofit, why they care, a photo, and an idea for the custom section
 5. The agent copies `/causes/_template/`, fills the remaining answers from the nonprofit's official site, and confirms them with the student
 6. The agent builds `custom.html` with the student, runs `npm run validate`, commits, pushes, and opens a PR into `dev`
@@ -107,6 +107,8 @@ CAUSE PAGE  /causes/<slug>
   validate-causes.ts
   copy-cause-assets.ts       # Copies images + custom.html into /public at build
   check-pr-scope.ts          # CI: a student PR only touches one cause folder
+/.devcontainer
+  devcontainer.json          # Student Codespace: Node 24, Claude Code, gh
 /.github
   workflows/validate.yml
   workflows/scope.yml

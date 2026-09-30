@@ -1,0 +1,21 @@
+{
+  // The student workspace: a GitHub Codespace with everything already installed.
+  // Students open it on their branch, type `claude`, and start.
+  "name": "Lion Share",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+  "hostRequirements": { "cpus": 2 },
+  "postCreateCommand": "npm ci",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": { "label": "Lion Share preview", "onAutoForward": "notify" }
+  },
+  "customizations": {
+    "codespaces": {
+      "openFiles": ["README.md"]
+    }
+  }
+}

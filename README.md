@@ -11,13 +11,16 @@ You don't need to know how to code. You need to know what you care about.
 ## Before class (about 10 minutes)
 
 1. **Make a GitHub account** at [github.com/signup](https://github.com/signup). GitHub is where the site's code lives.
-2. **Send your GitHub username** to your instructor.
-3. **Accept the invite.** You'll get an email from GitHub inviting you to the `Lmu-incubator` repository. Click **Accept invitation**.
-4. **Sign in to Claude Code** at [claude.ai/code](https://claude.ai/code) and connect your GitHub account when it asks.
+2. **Send your GitHub username and email address** to your instructor.
+3. **Accept two invites** when they arrive by email:
+   - From **GitHub**, to the `Lmu-incubator` repository. Click **Accept invitation**.
+   - From **Anthropic**, to join the class's Claude account. Follow the link and create your login. This is how you'll sign in to Claude, the AI helper, in class. You don't need to pay for anything.
 
 Come to class with:
 - A cause you care about, and an LA nonprofit working on it if you know one (the AI can help you find one)
-- A photo for your page that you took or have permission to use (square is best)
+- A photo for your page, saved on your laptop, that you took or have permission to use (square is best)
+
+Everything else runs in your web browser. You don't need to install anything.
 
 ---
 
@@ -32,17 +35,35 @@ A **branch** is your own copy of the site to work on. Your changes stay there un
 3. Type your branch name: `student/` then your first name and last initial, e.g. `student/maya-r`
 4. Click **Create branch student/maya-r from dev**.
 
-### 2. Open your branch in Claude Code
+### 2. Open your Codespace
 
-At [claude.ai/code](https://claude.ai/code), choose the `Lmu-incubator` repository, then choose your branch.
+A **Codespace** is a computer in your browser with the site's code and your AI helper already set up.
 
-### 3. Tell it: "Help me add my cause page."
+1. On the repository page, check that the branch menu shows your branch.
+2. Click the green **Code** button, open the **Codespaces** tab, and click **Create codespace on student/maya-r**.
+3. Wait a minute or two while it sets up. You'll see files on the left and a **terminal** at the bottom: a place to type commands.
 
-It asks you a few questions, one at a time: your name, your cause and nonprofit, why you care, your photo, and your idea for the creative section. Then it looks up the rest on the nonprofit's official website and shows you what it found.
+### 3. Start Claude
+
+Click in the terminal, type this, and press Enter:
+
+```
+claude
+```
+
+The first time, it asks how to sign in:
+
+1. Choose **Anthropic Console account**, then **Sign in with your Console account**.
+2. Open the link it shows and sign in with the account from your invite.
+3. If the browser shows a code, copy it, paste it into the terminal, and press Enter.
+
+### 4. Tell it: "Help me add my cause page."
+
+It asks you a few questions, one at a time: your name, your cause and nonprofit, why you care, and your idea for the creative section. When it asks for your photo, drag it from your computer into your folder in the file list on the left. Then it looks up the rest on the nonprofit's official website and shows you what it found.
 
 **Check everything it found.** AI can be wrong. Open every link and make sure every fact matches the nonprofit's site.
 
-### 4. Build your creative section
+### 5. Build your creative section
 
 Describe what you want at the bottom of your page. Some ideas:
 
@@ -53,11 +74,13 @@ Describe what you want at the bottom of your page. Some ideas:
 
 Then keep going: "make it more colorful", "add a second question", "make the text bigger on phones".
 
-### 5. Submit it
+### 6. Submit it
 
 Say: **"Open my pull request."** A **pull request** asks the instructors to add your page to the real site.
 
 After a few minutes, a **preview link** appears on your pull request. Open it, including on your phone, to see your page. Once your instructor merges it, your page is live and the home page can match visitors to it.
+
+When you're done, close the Codespace tab. It stops on its own.
 
 ---
 

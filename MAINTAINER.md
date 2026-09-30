@@ -35,24 +35,45 @@ A **warning** (not a failure) appears when a student's pull request edits a caus
 
 ## Before class
 
-Students follow the README: they make their own GitHub account and, in class, their own `student/<first-name>-<last-initial>` branch from `dev` on GitHub.com. Making the branch is part of the lesson, so nothing is pre-created.
+Students follow the README. They make their own GitHub account and, in class, their own `student/<first-name>-<last-initial>` branch from `dev` on GitHub.com; making the branch is part of the lesson. They work in a GitHub Codespace (set up by `.devcontainer/devcontainer.json`, with Node 24, Claude Code, and `gh` preinstalled and `npm ci` already run) and sign in to Claude Code with a Claude Console account you invite them to. Nothing gets installed on their laptops.
 
-### 1. Invite students
+### 1. Collect details
 
-1. Collect each student's GitHub username.
-2. Add each one as a collaborator with **Write** access, so they can create a branch, push to it, and open pull requests. Invites expire after 7 days, so send them close to class and ask students to accept before they arrive.
+Ask each student for their GitHub username and the email address they'll use for Claude.
 
-### 2. Dry run
+### 2. Invite them to the repo
+
+Add each student as a collaborator with **Write** access, so they can create a branch, push to it, open pull requests, and open Codespaces. Invites expire after 7 days, so send them close to class and ask students to accept before they arrive.
+
+### 3. Turn on Codespaces for the org
+
+Organizations get no free Codespaces usage, so the Animyst-Lab org pays: about $0.18 an hour per student on the default 2-core machine, plus a little storage. Thirty students for two hours is roughly $11.
+
+1. In the org's **Settings → Codespaces → General**, set Codespaces access to allow members **and outside collaborators** (students are collaborators).
+2. In the org's billing settings, add a payment method and a Codespaces budget (for example $25) so a forgotten codespace can't run up a bill.
+3. Optional, under **Settings → Codespaces → Policies**: limit machine types to 2-core, set a short idle timeout, and a short retention period.
+
+### 4. Set up Claude access
+
+Students sign in to Claude Code with the Claude Console, billed per use to your API account. Don't hand out an API key.
+
+1. In the [Claude Console](https://platform.claude.com), go to **Settings → Members → Invite** and invite each student's email with the **Claude Code** role (they can only use Claude Code).
+2. Set a spend limit on the "Claude Code" workspace (created automatically the first time someone signs in). A class session is usually a few dollars per student; $250 is a safe cap for 30.
+3. Check your API rate-limit tier. Thirty people working at once is heavy concurrent use; if your tier is low, ask Anthropic for a temporary increase.
+
+### 5. Dry run
 
 Do this from a non-maintainer test account before class:
 
 1. On GitHub.com, create a test `student/...` branch from `dev` using the README steps.
-2. In Claude Code, select the repo and that branch, and say "Help me add my cause page."
-3. Check that it interviews you one question at a time, fills the rest from the nonprofit's site, and commits to the selected branch. If it creates a `claude/...` branch instead, note it: the scope check still works, but update the README so students know to expect it.
-4. Give it a photo and check that it lands in the cause folder. If the tool can't save attached images as files, it should walk you through uploading on GitHub.com instead; make sure that works.
-5. Say "Open my pull request" and confirm it targets `dev`, both checks run, and the Vercel preview builds and opens without a login. On a private repo, Vercel may hold deployments from commit authors who aren't on the Vercel team; note whether it does.
-6. Try a bad change (edit `app/page.tsx`) and confirm the scope check fails with a clear message.
-7. Merge, and confirm the cause shows up in the directory and can be matched in the hero chat.
+2. Open a Codespace on that branch. Check that it builds, the terminal opens, and `claude --version` works.
+3. Run `claude`, sign in with a test Console account, and say "Help me add my cause page."
+4. Check that it interviews you one question at a time, fills the rest from the nonprofit's site, and commits to the selected branch.
+5. When it asks for a photo, drag one into the folder in the file list and check that it picks it up.
+6. Say "Open my pull request" and confirm it targets `dev`, both checks run, and the Vercel preview builds and opens without a login. On a private repo, Vercel may hold deployments from commit authors who aren't on the Vercel team; note whether it does.
+7. Try a bad change (edit `app/page.tsx`) and confirm the scope check fails with a clear message.
+8. Merge, and confirm the cause shows up in the directory and can be matched in the hero chat.
+9. Check the Codespaces and Console usage pages to see what the dry run cost.
 
 ## Reviewing a student pull request
 
@@ -79,5 +100,7 @@ Do this from a non-maintainer test account before class:
 
 ## After class
 
+- Remove the students from the Claude Console organization.
+- Delete leftover codespaces (org **Settings → Codespaces**) so they stop costing storage.
 - Student branches can be deleted once their pull requests are merged.
 - When there are enough causes, derive categories from everyone's `interests` (`docs/BUILD_SPEC.md`, section 15).

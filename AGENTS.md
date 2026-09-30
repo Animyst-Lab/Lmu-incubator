@@ -45,8 +45,9 @@ Fill every other question in `answers.md` from the nonprofit's official website:
 
 The student provides the image. Never download images from other websites; the student may not have the rights to use them.
 
-- If they give you an image file you can access, save it in their folder as `image.jpg` or `image.png` and set question 16 to that name. It must be a JPG or PNG under 1 MB, ideally square. If it's too big, shrink it with whatever tool is available (for example `sips` on macOS, Python's Pillow, or ImageMagick); if nothing is, ask for a smaller one.
-- If you can see the image but can't save it as a file, push their folder first, then give them the link to their folder on GitHub.com (on their branch) and walk them through **Add file → Upload files**. Pull afterwards.
+- Create their folder first, then ask them to drag their photo from their computer into that folder in the file list on the left of the editor (in a Codespace, the Explorer panel). Wait for them to say it's there, then find it.
+- Rename it to `image.jpg` or `image.png` and set question 16 to that name. It must be a JPG or PNG under 1 MB, ideally square. If it's too big, shrink it with whatever tool is available (for example ImageMagick, Python's Pillow, or `sips` on macOS); if nothing is, ask for a smaller one.
+- If dragging doesn't work, push their folder, then give them the link to it on GitHub.com (on their branch) and walk them through **Add file → Upload files**. Pull afterwards.
 - Write question 17 (the image description) from what the image shows.
 
 ### 5. The creative section (`custom.html`)
@@ -66,7 +67,7 @@ Build what the student asks for, and keep iterating with them until they're happ
 
 1. Run `npm run validate` (run `npm ci` first if `node_modules` is missing) and fix every error it reports for the student's folder.
 2. Tell the student what you made, and ask them to open every link and check every fact on their page.
-3. Commit and push to their branch. Open a pull request into `dev` (never `main`) using the pull request template, and give them the link. Tell them a preview link will appear on the pull request in a few minutes.
+3. Commit and push to their branch. Open a pull request into `dev` (never `main`) using the pull request template, for example with `gh pr create --base dev`, and give them the link. Tell them a preview link will appear on the pull request in a few minutes.
 
 ### Where you can work
 

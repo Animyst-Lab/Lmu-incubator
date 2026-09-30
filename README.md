@@ -136,8 +136,7 @@ Your Codespace stops the preview when it sits idle. Tell Claude *"restart my pre
 <details>
 <summary><strong>Codespaces isn't working (backup route)</strong></summary>
 
-> [!WARNING]
-> Only use this if your instructor says so. It needs **your own Claude Pro or Max plan**; the class key only works in Codespaces.
+> ⚠️ **Only use this if your instructor says so.** It needs **your own Claude Pro or Max plan**; the class key only works in Codespaces.
 
 1. Go to [claude.ai/code](https://claude.ai/code) and sign in.
 2. Connect GitHub if it asks, choose **Animyst-Lab/Lmu-incubator**, and start from the **dev** branch.

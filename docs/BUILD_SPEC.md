@@ -15,7 +15,7 @@
 HOME  /
 ┌──────────────────────────────────────┐
 │  HERO: LLM search                     │
-│  Animated background                  │
+│  Gradient background                  │
 │  Chat: a few questions, then a match  │
 │  Result: a cause card + "View cause"  │
 ├──────────────────────────────────────┤
@@ -62,7 +62,7 @@ CAUSE PAGE  /causes/<slug>
 | Validation | `zod` schema + a Node script | One source of truth for the format |
 | LLM | Claude API via `@anthropic-ai/sdk`, server-side only | Powers the hero match |
 | Rate limiting | Upstash Redis + `@upstash/ratelimit` | Protects the public chat |
-| Background | Canvas / WebGL animation in a client component | The "dynamic and cool" hero |
+| Background | Static CSS gradient from the design tokens | Keeps the hero calm and readable |
 | Custom section | Sandboxed `<iframe>` rendering `custom.html` | Creative freedom, zero risk to the site |
 | Hosting | Vercel | Preview URL per PR, production on merge |
 | CI | GitHub Actions | Validates every cause folder on every PR |
@@ -80,7 +80,6 @@ CAUSE PAGE  /causes/<slug>
   not-found.tsx
 /components
   Hero.tsx
-  HeroBackground.tsx         # Animated background
   ChatMatcher.tsx            # Chat UI
   MatchResult.tsx            # Matched cause card
   SearchBar.tsx
@@ -129,7 +128,7 @@ docs/BUILD_SPEC.md
 
 ### Layout
 
-- Full-viewport hero with the animated background behind it
+- Full-viewport hero on a static gradient background
 - Headline: "Find where you give back."
 - Subline: "Tell us what you care about. We'll match you with an LA cause built by LMU students."
 - Chat panel: message thread plus an input, styled like an LLM chat
@@ -204,14 +203,10 @@ docs/BUILD_SPEC.md
 - No analytics on message content
 - Small line under the input: "Don't share personal info. Chats aren't saved."
 
-### Animated background (`HeroBackground.tsx`)
+### Background
 
-- **Default:** a slow flowing gradient mesh, subtle enough to read text over
-- Reacts gently while the visitor types (drifts or brightens slightly)
-- Pauses when the hero is off screen
-- Static gradient when `prefers-reduced-motion` is set
-- Lighter version on mobile to save battery
-- Built so the visual can be swapped once the brand direction is set
+- A static gray gradient (`--hero-from` to `--hero-to` in `public/tokens.css`), subtle enough to read text over
+- The animated cursor-trail background was removed; the hero content still fades in on load
 
 ---
 
@@ -413,7 +408,7 @@ Tells any AI agent, when working for a student:
 7. Build the keyword fallback matcher
 8. Build `/api/match` with Claude, rate limiting, and slug checks
 9. Build the chat UI and match result
-10. Build the animated background
+10. Style the hero background
 11. Add `not-found`, metadata, disclaimer
 12. Add `AGENTS.md`, PR template, CODEOWNERS
 13. Add CI and branch protection on `main`

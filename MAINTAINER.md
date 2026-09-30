@@ -70,13 +70,26 @@ Do this from a non-maintainer test account before class:
 
 1. On GitHub.com, create a test `student/...` branch from `dev` using the README steps.
 2. Open a Codespace on that branch. Check that it builds, the terminal opens, and `claude --version` works.
-3. Run `claude`, choose **Yes** when it asks to use the API key, and say "Help me add my cause page."
+3. Run `claude`. It should open straight to the prompt, with no theme, API key, terminal setup, or folder trust questions (`.devcontainer/claude-setup.mjs` answers them when the Codespace opens). Then say "Help me add my cause page."
 4. Check that it interviews you one question at a time, fills the rest from the nonprofit's site, and commits to the selected branch.
 5. When it asks for a photo, drag one into the folder in the file list and check that it picks it up.
 6. Say "Open my pull request" and confirm it targets `dev`, both checks run, and the Vercel preview builds and opens without a login. On a private repo, Vercel may hold deployments from commit authors who aren't on the Vercel team; note whether it does.
 7. Try a bad change (edit `app/page.tsx`) and confirm the scope check fails with a clear message.
 8. Merge, and confirm the cause shows up in the directory and can be matched in the hero chat.
 9. Check the class workspace's usage in the Console to see what the dry run cost.
+
+### 6. Backup route: Claude Code on the web
+
+If Codespaces fails for someone (an outage, or campus Wi-Fi blocking it), students with their **own Claude Pro or Max plan** can use Claude Code on the web instead. The README's "Codespaces isn't working" section walks them through it. The class API key can't be used there: cloud sessions always sign in with a personal Claude plan.
+
+- **Setup:** the Claude GitHub App needs access to this repo. It's installed on Animyst-Lab with selected repositories; confirm **Lmu-incubator** is listed under [the app's repository access](https://github.com/organizations/Animyst-Lab/settings/installations/166006297).
+- **What's different for the student:**
+  - The session works on a `claude/...` branch instead of `student/...`. The scope check and `AGENTS.md` allow it.
+  - There's no live preview. The agent opens the pull request early and uses its Vercel preview, so this route depends on Vercel deploying students' commits (see Deploying).
+  - Photos go in through GitHub.com (**Add file → Upload files**), since there's no file list to drag into.
+  - Cloud sessions have limited internet access by default, so the student may need to paste the nonprofit's links and text.
+- **Unchanged:** `.claude/settings.json` (no AI attribution) applies there too, and the pull request gets the same checks.
+- **Students without a plan:** run a session yourself at [claude.ai/code](https://claude.ai/code) and interview them there, or collect their answers and photo and build the page for them.
 
 ## Reviewing a student pull request
 

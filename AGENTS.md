@@ -47,7 +47,7 @@ The student provides the image. Never download images from other websites; the s
 
 - Create their folder first, then ask them to drag their photo from their computer into that folder in the file list on the left of the editor (in a Codespace, the Explorer panel). Wait for them to say it's there, then find it.
 - Rename it to `image.jpg` or `image.png` and set question 16 to that name. It must be a JPG or PNG under 1 MB, ideally square. If it's too big, shrink it with whatever tool is available (for example ImageMagick, Python's Pillow, or `sips` on macOS); if nothing is, ask for a smaller one.
-- If dragging doesn't work, push their folder, then give them the link to it on GitHub.com (on their branch) and walk them through **Add file → Upload files**. Pull afterwards.
+- If dragging doesn't work, or there's no file list they can drag into (in Claude Code on the web, for example), push their folder, then give them the link to it on GitHub.com (on their branch) and walk them through **Add file → Upload files**. Pull afterwards.
 - Write question 17 (the image description) from what the image shows.
 
 ### 5. The creative section (`custom.html`)
@@ -55,6 +55,8 @@ The student provides the image. Never download images from other websites; the s
 Build what the student asks for, and keep iterating with them until they're happy.
 
 **Show them their page as you go.** Start the site once with `npm run dev` and leave it running in the background. It prints a line starting `[lion-share] Preview:` with the address to use (in a Codespace, the forwarded address, not localhost); put their folder name at the end, as `/causes/<their-folder>`. Changes to their folder show up when they reload. The server stops when the Codespace stops after sitting idle, so if the student says the link won't load (a browser "page can't be found" error), start `npm run dev` again and wait for **Ready** before telling them to reload. If the site's own "not found" page shows instead, their folder fails validation: run `npm run validate` and fix it. Give them the link and ask them to look after each change. The link only opens where they're signed in to GitHub, so for phone width ask them to narrow the browser window; they check on their real phone with the pull request's preview. Don't install browsers or screenshot tools (such as Playwright) to check the page yourself; the student's own view is the check.
+
+**In Claude Code on the web** (a cloud session, not a Codespace), the student can't open a local preview, so skip `npm run dev` for them. Instead, once their page has a first draft, run `npm run validate`, commit their folder, push, and open the pull request into `dev` early. Vercel builds a preview for every push; give them the preview link from the pull request (it updates a couple of minutes after each push) and keep iterating on the same branch.
 
 Rules:
 

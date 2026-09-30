@@ -25,7 +25,7 @@ Two workflows run on every pull request into `main` or `dev`:
 | Workflow | What it checks |
 |---|---|
 | `Validate` (`.github/workflows/validate.yml`) | `npm run validate` (every cause folder), lint, tests, and a production build. Also runs on pushes to `main` and `dev`. |
-| `Student PR scope` (`.github/workflows/scope.yml`) | For anyone not in `.github/maintainers.txt`: the pull request only changes files inside one folder in `causes/`, and not `_template` or the example. |
+| `Student PR scope` (`.github/workflows/scope.yml`) | **scope**, for anyone not in `.github/maintainers.txt`: the pull request only changes files inside one folder in `causes/`, and not `_template` or the example. **attribution**, for everyone: no AI-tool co-author trailers in the pull request's commits and no "Generated with" footer in its title or description. `.claude/settings.json` turns that attribution off at the source. |
 
 The scope check applies to every non-maintainer pull request, whatever the branch name. If Claude Code creates its own `claude/...` branch instead of using the student's branch, the check still works.
 

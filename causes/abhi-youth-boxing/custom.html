@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    /* Mirrors the Lion Share cause page: Onest, 500/600 weights, tight headings, 2rem cards, pill shapes. */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    @media (min-width: 640px) { body { padding: 32px; } }
+    h2, h3, p, ul, dl, dd { margin: 0; }
+    ul { padding: 0; list-style: none; }
+    button { font: inherit; color: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+    svg { width: 1em; height: 1em; flex-shrink: 0; }
+
+    /* Type */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgb(17 17 17 / 0.7);
+    }
+    .eyebrow::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: var(--radius-pill);
+      background: rgb(17 17 17 / 0.5);
+    }
+    .display {
+      margin-top: 16px;
+      font-size: clamp(2.25rem, 7vw, 3.75rem);
+      font-weight: 600;
+      line-height: 0.98;
+      letter-spacing: -0.02em;
+      text-wrap: balance;
+    }
+    .lede { margin-top: 16px; max-width: 38rem; font-size: 1.25rem; color: rgb(17 17 17 / 0.75); }
+    .label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Flip cards */
+    .cards { display: grid; gap: 16px; margin-top: 32px; }
+    @media (min-width: 760px) { .cards { grid-template-columns: 1fr 1fr; } }
+    .flip {
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      perspective: 1600px;
+      border-radius: var(--radius-card);
+    }
+    .inner {
+      display: grid;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.8s var(--ease-spring);
+    }
+    .flip:hover .inner { transform: rotateY(-4deg); }
+    .flip[aria-pressed="true"] .inner { transform: rotateY(180deg); }
+    .face {
+      grid-area: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 420px;
+      border-radius: var(--radius-card);
+      padding: 24px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    @media (min-width: 640px) { .face { padding: 32px; } }
+    .back { transform: rotateY(180deg); background: var(--surface); color: var(--ink); }
+    .front-dark { background: var(--ink-card); color: #fff; }
+    .front-accent { background: var(--accent-gradient); color: #fff; }
+
+    /* Front */
+    .front .label { color: rgb(255 255 255 / 0.6); }
+    .front-accent .label { color: rgb(255 255 255 / 0.8); }
+    .front .h { display: block; margin-top: 12px; font-size: 1.875rem; font-weight: 600; letter-spacing: -0.025em; line-height: 1.15; }
+    .big { margin-top: auto; padding-top: 32px; }
+    .big strong {
+      display: block;
+      font-size: clamp(3.5rem, 12vw, 5rem);
+      font-weight: 600;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+    }
+    .big span { display: block; margin-top: 8px; font-size: 1.125rem; color: rgb(255 255 255 / 0.85); }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .tags span { border: 1px solid rgb(255 255 255 / 0.25); border-radius: var(--radius-pill); padding: 4px 12px; font-size: 0.875rem; }
+    .hint {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid rgb(255 255 255 / 0.15);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .badge {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-pill);
+      background: #fff;
+      color: var(--ink-card);
+      transition: transform 0.3s var(--ease-snap);
+    }
+    .flip:hover .badge { transform: rotate(-30deg); }
+
+    /* Back */
+    .back .label { color: var(--muted); }
+    .label, .stat, .stats, .bars, .bar, .chips, .gains, .note, .cite, .big, .big strong, .big span { display: block; }
+    .stats { display: grid; } .bars, .gains { display: grid; } .bar { display: grid; } .chips { display: flex; } .gains .li { display: flex; } .stat strong { display: block; }
+    .back .h { display: block; margin-top: 8px; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.025em; line-height: 1.25; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+    .stat { background: var(--bg); border-radius: var(--radius-card-sm); padding: 12px 14px; }
+    .stat strong { display: block; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
+    .stat span { font-size: 0.8125rem; color: var(--muted); }
+    .bars { display: grid; gap: 8px; margin-top: 16px; }
+    .bar { display: grid; grid-template-columns: 5.5rem 1fr 1.5rem; align-items: center; gap: 10px; font-size: 0.875rem; }
+    .bar i { display: block; height: 10px; border-radius: var(--radius-pill); background: var(--accent-gradient); width: 0; transition: width 0.9s var(--ease-spring) 0.35s; }
+    .flip[aria-pressed="true"] .bar i { width: var(--w); }
+    .bar b { font-weight: 600; text-align: right; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .chips .li {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: var(--radius-pill);
+      padding: 4px 12px;
+      font-size: 0.875rem;
+    }
+    .gains { display: grid; gap: 8px; margin-top: 12px; }
+    .gains .li { display: flex; gap: 12px; align-items: flex-start; font-size: 0.9375rem; color: rgb(17 17 17 / 0.85); }
+    .gains .li::before {
+      content: "";
+      flex: 0 0 8px;
+      height: 8px;
+      margin-top: 8px;
+      border-radius: var(--radius-pill);
+      background: var(--accent);
+    }
+    .gains strong { color: var(--ink); font-weight: 600; }
+    .note { margin-top: 16px; font-size: 0.8125rem; color: var(--muted); }
+    .cite { margin-top: auto; padding-top: 16px; font-size: 0.8125rem; color: var(--muted); border-top: 1px solid var(--border); }
+    .back-hint { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 0.8125rem; font-weight: 500; color: var(--ink); }
+    .sp { margin-top: 20px; }
+
+    /* Closing */
+    .closing {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+      border-radius: var(--radius-card);
+      background: var(--surface);
+      padding: 24px;
+    }
+    @media (min-width: 640px) { .closing { padding: 32px; } }
+    .closing h3 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.025em; line-height: 1.2; }
+    .closing p:not(.label) { font-size: 1.0625rem; line-height: 1.6; color: rgb(17 17 17 / 0.85); max-width: 46rem; }
+    .fine { margin-top: 20px; font-size: 0.8125rem; color: var(--muted); max-width: 52rem; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .inner { transition: none; }
+      .flip:hover .inner { transform: none; }
+      .flip[aria-pressed="true"] .inner { transform: rotateY(180deg); }
+      .bar i { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">What the research says</p>
+    <h2 class="display">What martial arts do for kids</h2>
+    <p class="lede">Two studies, two kinds of strength. Tap a card to flip it.</p>
+  </header>
+
+  <div class="cards">
+    <!-- Card 1: Stronger bodies -->
+    <button class="flip" type="button" aria-pressed="false">
+      <span class="inner">
+        <span class="face front front-dark">
+          <span class="label">Card 1 · Stronger bodies</span>
+          <span class="h">Martial arts helped kids get fitter</span>
+          <span class="tags"><span>Karate</span><span>Judo</span><span>Taekwondo</span><span>Aikido</span></span>
+          <span class="big">
+            <strong>1,615</strong>
+            <span>kids across 16 studies, ages 4 to 13</span>
+          </span>
+          <span class="hint">Tap to flip <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5"/></svg></span></span>
+        </span>
+
+        <span class="face back">
+          <span class="label">Stronger bodies</span>
+          <span class="h">A review of 16 studies on martial arts and kids' fitness</span>
+          <span class="stats">
+            <span class="stat"><strong>914</strong><span>kids did martial arts</span></span>
+            <span class="stat"><strong>701</strong><span>kids in comparison groups</span></span>
+          </span>
+          <span class="label sp">Studies by martial art</span>
+          <span class="bars">
+            <span class="bar">Karate <i style="--w:100%"></i><b>8</b></span>
+            <span class="bar">Judo <i style="--w:50%"></i><b>4</b></span>
+            <span class="bar">Taekwondo <i style="--w:25%"></i><b>2</b></span>
+            <span class="bar">Aikido <i style="--w:25%"></i><b>2</b></span>
+          </span>
+          <span class="label sp">Where kids improved most</span>
+          <span class="chips">
+            <span class="li">Heart and lung fitness</span>
+            <span class="li">Speed</span>
+            <span class="li">Agility</span>
+            <span class="li">Strength</span>
+            <span class="li">Flexibility</span>
+            <span class="li">Coordination</span>
+            <span class="li">Balance</span>
+          </span>
+          <span class="cite">
+            Stamenković et al., "Effects of Participating in Martial Arts in Children: A Systematic Review," <em>Children</em>, 2022.
+            <span class="back-hint">Tap to flip back</span>
+          </span>
+        </span>
+      </span>
+    </button>
+
+    <!-- Card 2: Sharper minds -->
+    <button class="flip" type="button" aria-pressed="false">
+      <span class="inner">
+        <span class="face front front-accent">
+          <span class="label">Card 2 · Sharper minds</span>
+          <span class="h">Martial arts helped at-risk teens think sharper</span>
+          <span class="tags"><span>49 teen boys</span><span>2 schools</span><span>vs. regular sports</span></span>
+          <span class="big">
+            <strong>6 months</strong>
+            <span>of training, twice a week</span>
+          </span>
+          <span class="hint">Tap to flip <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5"/></svg></span></span>
+        </span>
+
+        <span class="face back">
+          <span class="label">Sharper minds</span>
+          <span class="h">A study of teen boys at schools for at-risk youth</span>
+          <span class="stats">
+            <span class="stat"><strong>24</strong><span>boys did martial arts</span></span>
+            <span class="stat"><strong>25</strong><span>boys did regular sports lessons</span></span>
+          </span>
+          <span class="label sp">The martial arts group improved in</span>
+          <span class="gains">
+            <span class="li"><span><strong>Self-control:</strong> holding back an impulse</span></span>
+            <span class="li"><span><strong>Mental flexibility:</strong> switching between tasks</span></span>
+            <span class="li"><span><strong>Thinking speed:</strong> how fast they process information</span></span>
+          </span>
+          <span class="note">The boys went to two schools for at-risk youth in low-income areas, and trained on top of their regular classes.</span>
+          <span class="cite">
+            Harwood-Gross et al., "The Effect of Martial Arts Training on Cognitive and Psychological Functions in At-Risk Youths," <em>Frontiers in Pediatrics</em>, 2021.
+            <span class="back-hint">Tap to flip back</span>
+          </span>
+        </span>
+      </span>
+    </button>
+  </div>
+
+  <section class="closing" aria-labelledby="closing-title">
+    <p class="label" style="color:var(--accent-strong)">Why it matters here</p>
+    <h3 id="closing-title">Ring of Hope LA brings training like this to kids across Los Angeles</h3>
+    <p>Through boxing, fitness, and mentorship, Ring of Hope LA gives kids a safe, structured place to grow, with free or low-cost training so no child is turned away because of income.</p>
+  </section>
+
+  <p class="fine">These studies looked at karate, judo, taekwondo, aikido, and other martial arts, not boxing specifically. Numbers come from the two published studies named on each card.</p>
+
+  <script>
+    Array.prototype.forEach.call(document.querySelectorAll(".flip"), function (card) {
+      var front = card.querySelector(".front");
+      var back = card.querySelector(".back");
+      function sync() {
+        var flipped = card.getAttribute("aria-pressed") === "true";
+        front.setAttribute("aria-hidden", flipped ? "true" : "false");
+        back.setAttribute("aria-hidden", flipped ? "false" : "true");
+      }
+      card.addEventListener("click", function () {
+        card.setAttribute("aria-pressed", card.getAttribute("aria-pressed") === "true" ? "false" : "true");
+        sync();
+      });
+      sync();
+    });
+  </script>
+</body>
+</html>

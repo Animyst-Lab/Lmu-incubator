@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { relatedCauses, type Cause, type CauseSummary } from "@/lib/causes";
 import { CUSTOM_SECTION_CSP, HEIGHT_MESSAGE, prepareCustomHtml } from "@/lib/customSection";
@@ -45,6 +47,21 @@ describe("custom section preparation", () => {
 
   it("handles files without a <head>", () => {
     expect(prepareCustomHtml("<p>hi</p>")).toMatch(/^<!doctype html>\n<head>\n<meta http-equiv="Content-Security-Policy"/);
+  });
+
+  it("inlines the design tokens in place of the /tokens.css link, before the section's own styles", () => {
+    const tokens = fs.readFileSync(path.join(__dirname, "..", "public", "tokens.css"), "utf8");
+    const html = fs.readFileSync(path.join(__dirname, "..", "causes", "_template", "custom.html"), "utf8");
+    expect(html).toContain('href="/tokens.css"');
+
+    const out = prepareCustomHtml(html, tokens);
+    expect(out).not.toMatch(/tokens\.css"/);
+    expect(out).toContain("--accent: #B15F2C;");
+    expect(out.indexOf("--accent:")).toBeLessThan(out.indexOf("background: var(--surface)"));
+  });
+
+  it("inlines the tokens even when the section never linked them", () => {
+    expect(prepareCustomHtml("<p>hi</p>", ":root { --ink: #111; }")).toContain("<style>\n:root { --ink: #111; }\n</style>");
   });
 
   it("blocks forms and unknown script hosts in the browser too", () => {

@@ -52,27 +52,41 @@ The student provides the image. Never download images from other websites; the s
 
 ### 5. The creative section (`custom.html`)
 
-Build what the student asks for, and keep iterating with them until they're happy. Rules:
+Build what the student asks for, and keep iterating with them until they're happy.
+
+**Show them their page as you go.** Start the site once with `npm run dev` and leave it running in the background. It prints a line starting `[lion-share] Preview:` with the address to use (in a Codespace, the forwarded address, not localhost); put their folder name at the end, as `/causes/<their-folder>`. Changes to their folder show up when they reload. The server stops when the Codespace stops after sitting idle, so if the student says the link won't load (a browser "page can't be found" error), start `npm run dev` again and wait for **Ready** before telling them to reload. If the site's own "not found" page shows instead, their folder fails validation: run `npm run validate` and fix it. Give them the link and ask them to look after each change. The link only opens where they're signed in to GitHub, so for phone width ask them to narrow the browser window; they check on their real phone with the pull request's preview. Don't install browsers or screenshot tools (such as Playwright) to check the page yourself; the student's own view is the check.
+
+Rules:
 
 - One file: HTML, CSS, and JavaScript together. No other files.
 - External scripts only from `https://cdn.jsdelivr.net` or `https://cdnjs.cloudflare.com`. Anything else is blocked in the browser.
 - No `<form>`, no collecting personal info, no tracking or analytics, no logins, no network requests except to those two CDNs.
 - Under 500 KB. Prefer drawing with CSS or SVG over embedding large images.
 - Must work and look good at phone width (about 360px).
-- Keep the `<link rel="stylesheet" href="/tokens.css">` line and use its variables (`--bg`, `--surface`, `--ink`, `--muted`, `--border`, `--accent`, `--radius`, `--font-sans`, and so on) so the section matches the site.
 - Don't use `100vh` or `height: 100%` on the page: the section is sized to its content automatically.
 - Numbers and facts follow the same rule as `answers.md`: only from the student or the nonprofit's official website.
+
+**Match the site's design.** Start from the template's `custom.html` and keep its `<head>`, including the `<link rel="stylesheet" href="/tokens.css">` line: when the section is served, that line is replaced with the site's design tokens, so every `var(--…)` below works. Reuse the template's starter classes (`.eyebrow`, `.card`, `.card-dark`, `.btn`, `.btn-light`, `.chip`) before writing new styles. Use the tokens, never hard-coded colors, fonts, or corner sizes. For a finished example, read `causes/dmello-homeboy/custom.html`.
+
+- **Type:** `font-family: var(--font-sans)` everywhere (Onest). Headings are semibold (600) with slightly tight letter-spacing (`-0.02em`). Body text is `var(--ink)`; secondary text is `var(--muted)`. Never use `var(--subtle)` for text people need to read.
+- **Eyebrow labels** above headings: small (`0.75rem`), uppercase, semibold, `letter-spacing: 0.08em`, color `var(--accent-strong)` (on dark cards, `var(--accent-from)`).
+- **Surfaces:** the page background is `var(--surface)`; cards are `var(--bg)` with a `1px solid var(--border)` edge, or `var(--ink-card)` with white text for one standout card. Use `var(--accent-gradient)` for at most one highlight block.
+- **Corners:** cards `var(--radius-card-sm)` (large panels `var(--radius-card)`), inputs and small controls `var(--radius-control)`, buttons and chips `var(--radius-pill)`.
+- **Buttons:** pills. Main action: `var(--ink-card)` background, white text; secondary: `var(--surface)` or a `var(--border)` outline. Weight 500, about `0.875rem`, generous padding (`14px 28px`). On hover, grow slightly (`transform: scale(1.04)`) with `transition: transform 0.3s var(--ease-snap)`.
+- **Chips and toggles:** pills with a `1px solid var(--border)` edge; the selected state is `var(--ink-card)` with white text.
+- **Accent:** `var(--accent)` is for small highlights (numbers, icons, a progress bar), not large backgrounds or body text.
+- **Motion and focus:** ease with `var(--ease-spring)` or `var(--ease-snap)`, keep it subtle, and turn it off under `@media (prefers-reduced-motion: reduce)`. Keep a visible focus ring: `outline: 2px solid var(--accent); outline-offset: 2px`.
 
 ### 6. Check and submit
 
 1. Run `npm run validate` (run `npm ci` first if `node_modules` is missing) and fix every error it reports for the student's folder.
 2. Tell the student what you made, and ask them to open every link and check every fact on their page.
-3. Commit and push to their branch. Open a pull request into `dev` (never `main`) using the pull request template, for example with `gh pr create --base dev`, and give them the link. Tell them a preview link will appear on the pull request in a few minutes.
+3. Commit only their folder: `git add causes/<their-folder>`. Don't add co-author trailers or a "Generated with" line to commits or the pull request description; CI fails a pull request that has them. Never `git add -A` or `git add .`; other files can change on their own and would fail the pull request check. Push to their branch, open a pull request into `dev` (never `main`) using the pull request template, for example with `gh pr create --base dev`, and give them the link. Tell them a preview link will appear on the pull request in a few minutes.
 
 ### Where you can work
 
 - **Only** inside the student's own folder: `causes/<first-name>-<cause>/`.
-- Never edit app code, config, `package.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `.github/`, `causes/_template/`, `causes/example-food-access/`, or another student's folder. If something outside their folder seems broken, tell the student to ask their instructor instead of fixing it.
+- Never edit app code, config, `package.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `.github/`, `.claude/`, `.devcontainer/`, `causes/_template/`, `causes/example-food-access/`, or another student's folder. If something outside their folder seems broken, tell the student to ask their instructor instead of fixing it.
 
 ## Maintainers
 

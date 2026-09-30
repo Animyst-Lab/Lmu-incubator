@@ -1,16 +1,18 @@
-# Student pull requests may only change files inside one folder in causes/.
+# Student pull requests may only change files inside one folder in causes/,
+# and no pull request (maintainers included) may credit an AI tool in its
+# commits or description.
 #
 # This uses pull_request_target, which GitHub always runs from the repo's
 # default branch: a pull request can't weaken the check by editing this file,
 # and nothing here runs until the file is on the default branch. It never
-# checks out or runs the pull request's code; it only reads the list of
-# changed files from the GitHub API.
+# checks out or runs the pull request's code; it only reads the changed
+# files, commits, title, and description from the GitHub API and the event.
 name: Student PR scope
 
 on:
   pull_request_target:
     branches: [main, dev]
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, edited]
 
 permissions:
   contents: read
@@ -55,3 +57,29 @@ jobs:
       - name: Only one cause folder changed
         if: steps.who.outputs.maintainer != 'true'
         run: npx tsx scripts/check-pr-scope.ts "$RUNNER_TEMP/pr-files.json"
+
+  attribution:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Default branch only. Do not add a `ref:` pointing at the pull request.
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      - name: Read the title, description, and commits
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          jq '{title: .pull_request.title, body: .pull_request.body}' "$GITHUB_EVENT_PATH" > "$RUNNER_TEMP/pr.json"
+          gh api --paginate "repos/$REPO/pulls/$PR/commits" > "$RUNNER_TEMP/pr-commits.json"
+
+      - name: No tool attribution
+        run: npx tsx scripts/check-attribution.ts "$RUNNER_TEMP/pr.json" "$RUNNER_TEMP/pr-commits.json"

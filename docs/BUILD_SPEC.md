@@ -15,7 +15,7 @@
 HOME  /
 ┌──────────────────────────────────────┐
 │  HERO: LLM search                     │
-│  Animated background                  │
+│  Gradient background                  │
 │  Chat: a few questions, then a match  │
 │  Result: a cause card + "View cause"  │
 ├──────────────────────────────────────┤
@@ -62,7 +62,7 @@ CAUSE PAGE  /causes/<slug>
 | Validation | `zod` schema + a Node script | One source of truth for the format |
 | LLM | Claude API via `@anthropic-ai/sdk`, server-side only | Powers the hero match |
 | Rate limiting | Upstash Redis + `@upstash/ratelimit` | Protects the public chat |
-| Background | Canvas / WebGL animation in a client component | The "dynamic and cool" hero |
+| Background | Static CSS gradient from the design tokens | Keeps the hero calm and readable |
 | Custom section | Sandboxed `<iframe>` rendering `custom.html` | Creative freedom, zero risk to the site |
 | Hosting | Vercel | Preview URL per PR, production on merge |
 | CI | GitHub Actions | Validates every cause folder on every PR |
@@ -80,7 +80,6 @@ CAUSE PAGE  /causes/<slug>
   not-found.tsx
 /components
   Hero.tsx
-  HeroBackground.tsx         # Animated background
   ChatMatcher.tsx            # Chat UI
   MatchResult.tsx            # Matched cause card
   SearchBar.tsx
@@ -129,7 +128,7 @@ docs/BUILD_SPEC.md
 
 ### Layout
 
-- Full-viewport hero with the animated background behind it
+- Full-viewport hero on a static gradient background
 - Headline: "Find where you give back."
 - Subline: "Tell us what you care about. We'll match you with an LA cause built by LMU students."
 - Chat panel: message thread plus an input, styled like an LLM chat
@@ -204,14 +203,10 @@ docs/BUILD_SPEC.md
 - No analytics on message content
 - Small line under the input: "Don't share personal info. Chats aren't saved."
 
-### Animated background (`HeroBackground.tsx`)
+### Background
 
-- **Default:** a slow flowing gradient mesh, subtle enough to read text over
-- Reacts gently while the visitor types (drifts or brightens slightly)
-- Pauses when the hero is off screen
-- Static gradient when `prefers-reduced-motion` is set
-- Lighter version on mobile to save battery
-- Built so the visual can be swapped once the brand direction is set
+- A static gray gradient (`--hero-from` to `--hero-to` in `public/tokens.css`), subtle enough to read text over
+- The animated cursor-trail background was removed; the hero content still fades in on load
 
 ---
 
@@ -353,24 +348,13 @@ A single self-contained HTML file the student builds with an AI agent.
 
 ---
 
-## 11. Design tokens (placeholder)
+## 11. Design tokens
 
-Brand direction is still open. Everything reads from one token set.
+The site reads every color, font, radius, and easing from `public/tokens.css` (burnt-orange accent, Onest type). That file is the source of truth; don't copy values from here.
 
-```css
-:root {
-  --bg: #FBF9F5;
-  --surface: #FFFFFF;
-  --ink: #1C1A17;
-  --muted: #5E5A54;
-  --border: #E8E3DA;
-  --accent: #E4572E;
-  --accent-ink: #FFFFFF;
-  --radius: 12px;
-}
-```
-
-- Also published as `/tokens.css` so custom sections can match the site
+- Custom sections keep a `<link rel="stylesheet" href="/tokens.css">` line. When a section is copied into `/public`, that line is replaced with the tokens themselves, so sections match the site even where `/tokens.css` can't be fetched from the sandboxed frame (a private Codespaces preview).
+- `tests/design.test.ts` fails if a token that custom sections depend on is renamed or removed. Add tokens; never rename them.
+- `causes/_template/custom.html` has starter classes (eyebrow, cards, pill buttons, chips) built on the tokens, and `AGENTS.md` spells out the design rules for agents.
 - WCAG AA contrast, visible focus states, `prefers-reduced-motion` respected
 
 ---
@@ -424,7 +408,7 @@ Tells any AI agent, when working for a student:
 7. Build the keyword fallback matcher
 8. Build `/api/match` with Claude, rate limiting, and slug checks
 9. Build the chat UI and match result
-10. Build the animated background
+10. Style the hero background
 11. Add `not-found`, metadata, disclaimer
 12. Add `AGENTS.md`, PR template, CODEOWNERS
 13. Add CI and branch protection on `main`

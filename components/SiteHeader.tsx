@@ -48,7 +48,7 @@ export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
               aria-haspopup="dialog"
               className={`transition-colors hover:bg-white/70 ${chip}`}
             >
-              <span className="flex items-center gap-2 px-4 py-2 text-xs font-medium uppercase tracking-wider transition-transform duration-300 ease-snap hover:scale-105">
+              <span className="flex items-center gap-2 px-4 py-3.5 text-xs font-medium uppercase sm:py-2 tracking-wider transition-transform duration-300 ease-snap hover:scale-105">
                 <MenuIcon className="text-sm" />
                 <span className="sr-only sm:not-sr-only">Menu</span>
               </span>

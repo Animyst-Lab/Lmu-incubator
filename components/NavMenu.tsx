@@ -98,7 +98,7 @@ export default function NavMenu({ open, onClose, returnFocusRef }: Props) {
 
       <div className="shell flex flex-col gap-3 border-t border-white/10 py-6 text-xs uppercase tracking-wide text-white/55 sm:flex-row sm:justify-between">
         <span>Los Angeles{clock ? ` — ${clock.time}` : ""}</span>
-        <Link href="/#top" onClick={onClose} className="text-white/75 hover:text-white hover:underline">
+        <Link href="/#top" onClick={onClose} className="-my-3.5 inline-flex py-3.5 text-white/75 hover:text-white hover:underline">
           Find your match →
         </Link>
       </div>

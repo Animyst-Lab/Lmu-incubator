@@ -1,8 +1,18 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { SearchIcon } from "./icons";
 
+// The full hint is cut off on a phone, so narrow screens get a short one.
+const WIDE = "(min-width: 640px)";
+const subscribe = (onChange: () => void) => {
+  const query = window.matchMedia(WIDE);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+};
+
 export default function SearchBar({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const wide = useSyncExternalStore(subscribe, () => window.matchMedia(WIDE).matches, () => false);
   return (
     <div className="relative">
       <label htmlFor="cause-search" className="sr-only">
@@ -14,7 +24,7 @@ export default function SearchBar({ value, onChange }: { value: string; onChange
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Search by cause, nonprofit, neighborhood, or student"
+        placeholder={wide ? "Search by cause, nonprofit, neighborhood, or student" : "Search causes, places, students"}
         className="w-full rounded-full border border-line bg-surface/60 py-4 pl-13 pr-5 text-base transition-colors placeholder:text-ink/50 focus:border-ink/30 focus:bg-white focus:outline-none"
       />
     </div>

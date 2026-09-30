@@ -5,7 +5,7 @@ import RevealText from "./RevealText";
 import { PillButton } from "./ui";
 
 const linkCls =
-  "inline-flex text-sm text-white/70 transition-all duration-300 ease-snap hover:translate-x-1 hover:text-white";
+  "inline-flex py-2.5 text-sm text-white/70 transition-all duration-300 ease-snap hover:translate-x-1 hover:text-white md:py-0";
 
 export default function SiteFooter() {
   return (
@@ -33,7 +33,7 @@ export default function SiteFooter() {
           </div>
           <nav aria-label="Explore">
             <p className="text-xs uppercase tracking-wide text-white/55">Explore</p>
-            <ul className="mt-4 flex flex-col gap-3">
+            <ul className="mt-2 flex flex-col gap-1 md:mt-4 md:gap-3">
               {NAV_ITEMS.filter((i) => !i.external).map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className={linkCls}>
@@ -45,7 +45,7 @@ export default function SiteFooter() {
           </nav>
           <div>
             <p className="text-xs uppercase tracking-wide text-white/55">The project</p>
-            <ul className="mt-4 flex flex-col gap-3">
+            <ul className="mt-2 flex flex-col gap-1 md:mt-4 md:gap-3">
               <li>
                 <a href={REPO_URL} target="_blank" rel="noopener noreferrer" className={linkCls}>
                   Source code

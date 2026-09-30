@@ -353,24 +353,13 @@ A single self-contained HTML file the student builds with an AI agent.
 
 ---
 
-## 11. Design tokens (placeholder)
+## 11. Design tokens
 
-Brand direction is still open. Everything reads from one token set.
+The site reads every color, font, radius, and easing from `public/tokens.css` (burnt-orange accent, Onest type). That file is the source of truth; don't copy values from here.
 
-```css
-:root {
-  --bg: #FBF9F5;
-  --surface: #FFFFFF;
-  --ink: #1C1A17;
-  --muted: #5E5A54;
-  --border: #E8E3DA;
-  --accent: #E4572E;
-  --accent-ink: #FFFFFF;
-  --radius: 12px;
-}
-```
-
-- Also published as `/tokens.css` so custom sections can match the site
+- Custom sections keep a `<link rel="stylesheet" href="/tokens.css">` line. When a section is copied into `/public`, that line is replaced with the tokens themselves, so sections match the site even where `/tokens.css` can't be fetched from the sandboxed frame (a private Codespaces preview).
+- `tests/design.test.ts` fails if a token that custom sections depend on is renamed or removed. Add tokens; never rename them.
+- `causes/_template/custom.html` has starter classes (eyebrow, cards, pill buttons, chips) built on the tokens, and `AGENTS.md` spells out the design rules for agents.
 - WCAG AA contrast, visible focus states, `prefers-reduced-motion` respected
 
 ---

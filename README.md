@@ -73,6 +73,8 @@ Describe what you want at the bottom of your page. Some ideas:
 - A timeline of the problem in LA
 - A mini game
 
+Claude gives you a **preview link** to your page. Open it in a new tab, and reload it after each change to see what's new. To see how it looks on a phone, make the browser window narrow. (You'll check it on your actual phone after you submit.)
+
 Then keep going: "make it more colorful", "add a second question", "make the text bigger on phones".
 
 ### 6. Submit it

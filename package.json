@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "tsx scripts/copy-cause-assets.ts",
-    "dev": "next dev",
+    "dev": "tsx scripts/copy-cause-assets.ts --watch",
     "prebuild": "tsx scripts/copy-cause-assets.ts",
     "build": "next build",
     "start": "next start",

@@ -37,11 +37,24 @@ const HEIGHT_SCRIPT = `(function () {
   window.addEventListener("load", send);
 })();`;
 
-/** Adds the CSP and the height reporter to the top of a student's custom.html. */
-export function prepareCustomHtml(html: string): string {
+/** Students keep this line in custom.html; it's replaced by the tokens themselves when the section is served. */
+const TOKENS_LINK = /<link\b[^>]*\bhref\s*=\s*["']?\/tokens\.css["']?[^>]*>[ \t]*\n?/gi;
+
+/**
+ * Adds the CSP, the height reporter, and the site's design tokens to the top
+ * of a student's custom.html.
+ *
+ * The tokens are inlined rather than linked: the sandboxed frame has an opaque
+ * origin, so where the site sits behind a login (a private Codespaces preview)
+ * the browser fetches /tokens.css without the login cookie, gets a sign-in
+ * page back, and every var(--…) in the section comes out empty.
+ */
+export function prepareCustomHtml(html: string, tokensCss = ""): string {
   const inject =
     `<meta http-equiv="Content-Security-Policy" content="${CUSTOM_SECTION_CSP}">\n` +
-    `<script>${HEIGHT_SCRIPT}</script>\n`;
+    `<script>${HEIGHT_SCRIPT}</script>\n` +
+    (tokensCss ? `<style>\n${tokensCss.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\n\s*\n/g, "\n").trim()}\n</style>\n` : "");
+  if (tokensCss) html = html.replace(TOKENS_LINK, "");
 
   // The CSP must come before anything it governs, so it goes first inside <head>.
   if (/<head\b[^>]*>/i.test(html)) return html.replace(/<head\b[^>]*>/i, (m) => `${m}\n${inject}`);

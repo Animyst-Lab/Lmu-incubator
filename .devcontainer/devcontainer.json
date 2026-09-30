@@ -16,6 +16,12 @@
   "customizations": {
     "codespaces": {
       "openFiles": ["README.md"]
+    },
+    "vscode": {
+      "settings": {
+        // Show the README formatted, not as raw markdown.
+        "workbench.editorAssociations": { "README.md": "vscode.markdown.preview.editor" }
+      }
     }
   }
 }

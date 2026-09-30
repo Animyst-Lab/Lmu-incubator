@@ -128,6 +128,14 @@ describe("cause folder validation", () => {
   it("rejects forms in custom.html", () => {
     expect(errorsFor((f) => f.write("custom.html", "<form><input name=email></form>"))[0]).toMatch(/has a <form>/);
   });
+
+  it.each(["---js", "---javascript", "--- js", "---coffee"])("never runs %s front matter as code", (opening) => {
+    const g = globalThis as { __answersRan?: boolean };
+    delete g.__answersRan;
+    const errors = errorsFor((f) => f.write("answers.md", `${opening}\n{ author: (globalThis.__answersRan = true, "x") }\n---\n`));
+    expect(g.__answersRan).toBeUndefined();
+    expect(errors[0]).toMatch(/answers\.md: must start with a line that's just three dashes/);
+  });
 });
 
 describe("template", () => {

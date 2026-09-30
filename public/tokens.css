@@ -31,7 +31,7 @@
   --accent-to: #97501F;
   --accent-gradient: linear-gradient(135deg, var(--accent-from), var(--accent-to));
 
-  /* Hero base, revealed to color under the cursor */
+  /* Hero background gradient */
   --hero-from: #ECEBE9;
   --hero-to: #C9C9C9;
 

@@ -1,28 +1,17 @@
-"use client";
-
-import { useCallback, useRef } from "react";
 import type { CauseSummary } from "@/lib/causes";
 import { reveal } from "@/lib/reveal";
 import ChatMatcher from "./ChatMatcher";
-import LiquidReveal from "./LiquidReveal";
 import RevealText from "./RevealText";
 import { Eyebrow, PillButton } from "./ui";
 
 type Props = { causes: CauseSummary[]; nonprofitCount: number };
 
 export default function Hero({ causes, nonprofitCount }: Props) {
-  // Shared with the canvas without re-rendering on every keystroke.
-  const activity = useRef(0);
-  const onActivity = useCallback(() => {
-    activity.current = Math.min(1, activity.current + 0.3);
-  }, []);
-
   return (
     <section
       id="top"
       className="relative isolate overflow-hidden rounded-b-card bg-[linear-gradient(160deg,var(--hero-from),var(--hero-to))]"
     >
-      <LiquidReveal activity={activity} />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(to_bottom,rgba(255,255,255,.35),transparent,rgba(255,255,255,.35))]"
@@ -56,7 +45,7 @@ export default function Hero({ causes, nonprofitCount }: Props) {
             {nonprofitCount === 1 ? "nonprofit" : "nonprofits"}
           </div>
           <div {...reveal({ y: 12, delay: 750, intro: true, className: "flex flex-wrap gap-3" })}>
-            <PillButton href="#causes" variant="outline" arrow="right">
+            <PillButton href="#causes" variant="dark" arrow="right">
               Browse every cause
             </PillButton>
           </div>
@@ -65,7 +54,7 @@ export default function Hero({ causes, nonprofitCount }: Props) {
         <div
           {...reveal({ y: 16, scale: 0.96, delay: 400, intro: true, className: "w-full lg:col-span-5 lg:justify-self-end lg:max-w-[28rem]" })}
         >
-          <ChatMatcher causes={causes} onActivity={onActivity} />
+          <ChatMatcher causes={causes} />
         </div>
       </div>
 

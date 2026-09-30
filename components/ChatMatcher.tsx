@@ -13,11 +13,9 @@ type Match = Extract<MatchResponse, { type: "match" }>;
 
 type Props = {
   causes: CauseSummary[];
-  /** Called on every keystroke so the background can react. */
-  onActivity?: () => void;
 };
 
-export default function ChatMatcher({ causes, onActivity }: Props) {
+export default function ChatMatcher({ causes }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
@@ -43,7 +41,6 @@ export default function ChatMatcher({ causes, onActivity }: Props) {
     setInput("");
     setError(null);
     setPending(true);
-    onActivity?.();
 
     try {
       const res = await fetch("/api/match", {
@@ -165,10 +162,7 @@ export default function ChatMatcher({ causes, onActivity }: Props) {
           ref={inputRef}
           id="chat-input"
           value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-            onActivity?.();
-          }}
+          onChange={(e) => setInput(e.target.value)}
           maxLength={MAX_MESSAGE_CHARS}
           autoComplete="off"
           placeholder="Type what you care about…"

@@ -62,12 +62,9 @@ Click in the terminal, type this, and press **Enter**:
 claude
 ```
 
-The first time, it asks a few setup questions. Use the arrow keys and **Enter**:
+Claude opens ready to go, already set up with the class key. You'll see a box with a `>` where you can type.
 
-- **"Use this API key?"** Choose **Yes**. It's the class key.
-- **Everything else:** the first option is fine, including "Yes, I trust this folder."
-
-> **Tip:** If the terminal feels cramped, drag its top edge up.
+> **Tip:** If it ever asks **"Use this API key?"**, press **↑** to choose **Yes**, then **Enter**. If the terminal feels cramped, drag its top edge up.
 
 ### Step 4 · Say "Help me add my cause page."
 

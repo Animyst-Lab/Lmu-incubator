@@ -100,6 +100,8 @@ When you're done, close the Codespace tab. It stops on its own.
 
 Ask your AI helper first: "I'm stuck, what do I do next?" If that doesn't help, ask your instructor, or email **hello@animystlab.com**.
 
+**Preview link not loading?** Your Codespace stops the preview when it sits idle. Tell your AI helper "restart my preview", or type `npm run dev` in a terminal, wait until it says **Ready**, and reload the link.
+
 ---
 
 *For instructors and maintainers: see [MAINTAINER.md](MAINTAINER.md).*

@@ -70,7 +70,7 @@ Do this from a non-maintainer test account before class:
 
 1. On GitHub.com, create a test `student/...` branch from `dev` using the README steps.
 2. Open a Codespace on that branch. Check that it builds, the terminal opens, and `claude --version` works.
-3. Run `claude`, choose **Yes** when it asks to use the API key, and say "Help me add my cause page."
+3. Run `claude`. It should open straight to the prompt, with no theme, API key, terminal setup, or folder trust questions (`.devcontainer/claude-setup.mjs` answers them when the Codespace opens). Then say "Help me add my cause page."
 4. Check that it interviews you one question at a time, fills the rest from the nonprofit's site, and commits to the selected branch.
 5. When it asks for a photo, drag one into the folder in the file list and check that it picks it up.
 6. Say "Open my pull request" and confirm it targets `dev`, both checks run, and the Vercel preview builds and opens without a login. On a private repo, Vercel may hold deployments from commit authors who aren't on the Vercel team; note whether it does.

@@ -9,6 +9,10 @@
   },
   "hostRequirements": { "cpus": 2 },
   "postCreateCommand": "npm ci",
+  // Pre-answer Claude Code's first-run questions (see claude-setup.mjs). Runs on
+  // start and again on attach, when the Codespaces secret is sure to be set.
+  "postStartCommand": "node .devcontainer/claude-setup.mjs",
+  "postAttachCommand": "node .devcontainer/claude-setup.mjs",
   "forwardPorts": [3000],
   "portsAttributes": {
     "3000": { "label": "Lion Share preview", "onAutoForward": "notify" }

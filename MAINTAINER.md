@@ -35,31 +35,24 @@ A **warning** (not a failure) appears when a student's pull request edits a caus
 
 ## Before class
 
-### 1. Create student branches
+Students follow the README: they make their own GitHub account and, in class, their own `student/<first-name>-<last-initial>` branch from `dev` on GitHub.com. Making the branch is part of the lesson, so nothing is pre-created.
 
-1. Copy `roster.example.txt` to `roster.txt` and list one student per line: `Maya Rodriguez`. `roster.txt` is gitignored, so names stay out of the repo.
-2. Preview: `scripts/create-student-branches.sh --dry-run`
-3. Create: `scripts/create-student-branches.sh`
-4. Share the printed list so each student knows their branch (for example `student/maya-r`).
+### 1. Invite students
 
-Re-run it any time to add late students; existing branches are skipped. If two students would get the same branch (same first name and last initial), the script stops without creating anything. Add more of the last name to one of them, like `Maya Ro`.
+1. Collect each student's GitHub username.
+2. Add each one as a collaborator with **Write** access, so they can create a branch, push to it, and open pull requests. Invites expire after 7 days, so send them close to class and ask students to accept before they arrive.
 
-Branches are created from the latest `origin/dev`. Use `--base <branch>` to change that.
-
-### 2. Invite students
-
-Add each student as a collaborator with **Write** access, so they can push to their branch and open pull requests.
-
-### 3. Dry run
+### 2. Dry run
 
 Do this from a non-maintainer test account before class:
 
-1. In Claude Code, select the repo and a test `student/...` branch.
-2. Use the starter prompt from the README to create a cause.
-3. Check that Claude commits to the selected branch. If it creates a `claude/...` branch instead, note it: the scope check still works, but update the README so students know to expect it.
-4. Open a pull request into `dev` and confirm both checks run, and that the Vercel preview builds and opens without a login. On a private repo, Vercel may hold deployments from commit authors who aren't on the Vercel team; note whether it does.
-5. Try a bad change (edit `app/page.tsx`) and confirm the scope check fails with a clear message.
-6. Merge, and confirm the cause shows up in the directory and can be matched in the hero chat.
+1. On GitHub.com, create a test `student/...` branch from `dev` using the README steps.
+2. In Claude Code, select the repo and that branch, and say "Help me add my cause page."
+3. Check that it interviews you one question at a time, fills the rest from the nonprofit's site, and commits to the selected branch. If it creates a `claude/...` branch instead, note it: the scope check still works, but update the README so students know to expect it.
+4. Give it a photo and check that it lands in the cause folder. If the tool can't save attached images as files, it should walk you through uploading on GitHub.com instead; make sure that works.
+5. Say "Open my pull request" and confirm it targets `dev`, both checks run, and the Vercel preview builds and opens without a login. On a private repo, Vercel may hold deployments from commit authors who aren't on the Vercel team; note whether it does.
+6. Try a bad change (edit `app/page.tsx`) and confirm the scope check fails with a clear message.
+7. Merge, and confirm the cause shows up in the directory and can be matched in the hero chat.
 
 ## Reviewing a student pull request
 
@@ -86,6 +79,5 @@ Do this from a non-maintainer test account before class:
 
 ## After class
 
-- Delete `roster.txt` when you no longer need it.
 - Student branches can be deleted once their pull requests are merged.
-- When there are enough causes, derive categories from everyone's `interests` (BUILD_SPEC.md, section 15).
+- When there are enough causes, derive categories from everyone's `interests` (`docs/BUILD_SPEC.md`, section 15).

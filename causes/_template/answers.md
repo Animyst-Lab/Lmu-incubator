@@ -1,49 +1,54 @@
 ---
 # ─────────────────────────────────────────────
-# LION SHARE: answer every question in the quotes
+# LION SHARE: your cause page
+#
+# You don't fill this in by hand. Tell your AI helper:
+#   "Help me add my cause page."
+# It asks you a few questions (marked "you"), fills in the rest
+# from the nonprofit's official website, and checks them with you.
 # ─────────────────────────────────────────────
 
-# 1. What's your name, as you want it shown on the page?
+# 1. Your name, as you want it shown on the page (you)
 author: ""
 
-# 2. What cause do you care about? (a few words)
+# 2. The cause you care about, in a few words (you)
 cause: ""
 
-# 3. Sum it up in one line. (10 words or fewer)
+# 3. A one-line tagline, 10 words or fewer (drafted for you to approve)
 tagline: ""
 
-# 4. Why do you personally care about this? (1 to 2 sentences)
+# 4. Why you personally care, in 1 to 2 sentences (you)
 whyICare: ""
 
-# 5. What's the problem in Los Angeles? (2 to 3 sentences)
+# 5. The problem in Los Angeles, in 2 to 3 sentences (from the nonprofit's site)
 problem: ""
 
 # ── The nonprofit ──
 
-# 6. Which LA nonprofit is tackling it?
+# 6. The LA nonprofit tackling it (you)
 nonprofitName: ""
 
-# 7. What's their official website?
+# 7. Their official website (from the nonprofit's site)
 nonprofitWebsite: ""
 
-# 8. Which LA neighborhood or area do they serve?
+# 8. The LA neighborhood or area they serve (from the nonprofit's site)
 neighborhood: ""
 
-# 9. What do they do, in one or two sentences?
+# 9. What they do, in one or two sentences (from the nonprofit's site)
 nonprofitSummary: ""
 
 # ── Volunteer ──
 
-# 10. Where do people sign up to volunteer? (official link)
+# 10. Where people sign up to volunteer (from the nonprofit's site)
 volunteerLink: ""
 
-# 11. How much time does it take? (e.g. "3 hours, one Saturday a month")
+# 11. How much time it takes, e.g. "3 hours, one Saturday a month" (from the nonprofit's site)
 timeCommitment: ""
 
-# 12. Who can join? (age, experience, anything required)
+# 12. Who can join: age, experience, anything required (from the nonprofit's site)
 whoCanJoin: ""
 
-# 13. What are the exact steps to start volunteering? (add as many as needed)
+# 13. The steps to start volunteering (from the nonprofit's site)
 volunteerSteps:
   - ""
   - ""
@@ -51,26 +56,28 @@ volunteerSteps:
 
 # ── Donate ──
 
-# 14. Where do people donate? (official link)
+# 14. Where people donate (from the nonprofit's site)
 donateLink: ""
 
-# 15. What does a donation make possible? (e.g. "$25 feeds a family for a week")
+# 15. What a donation makes possible, e.g. "$25 feeds a family for a week" (from the nonprofit's site)
 donateImpact: ""
 
-# ── Page extras ──
+# ── Your image ──
 
-# 16. Image file name in this folder (square, JPG or PNG, under 1 MB)
+# 16. Your image's file name: square, JPG or PNG, under 1 MB (you provide the photo)
 image: "image.jpg"
 
-# 17. Describe the image in a few words, for screen readers
+# 17. A few words describing the image, for screen readers (written for you)
 imageAlt: ""
 
-# 18. What topics or interests connect to this cause? (3 to 5 words)
+# ── For the matcher on the home page (chosen for you to approve) ──
+
+# 18. 3 to 5 topics or interests that connect to this cause
 interests: ["", "", ""]
 
-# 19. How can people help? Keep any that apply: time, money, skills
+# 19. How people can help: any of time, money, skills
 helpTypes: ["time", "money", "skills"]
 
-# 20. How much time does helping take overall? Pick one: low, medium, high
+# 20. How much time helping takes overall: low, medium, or high
 effort: "low"
 ---

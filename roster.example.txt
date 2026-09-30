@@ -1,4 +1,0 @@
-# Copy this file to roster.txt (which is gitignored) and list one student per line.
-# Then run: scripts/create-student-branches.sh --dry-run
-Maya Rodriguez
-Jay Park

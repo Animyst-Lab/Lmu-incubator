@@ -44,6 +44,3 @@ next-env.d.ts
 /public/cause-assets/
 /public/custom/
 !.env.example
-
-# student names stay out of the repo; see roster.example.txt
-/roster.txt

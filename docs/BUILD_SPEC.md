@@ -3,7 +3,9 @@
 **Owner:** Abhi / Animyst
 **Scope:** Everything built before class: repo setup, home page (LLM search hero + cause directory), the templated cause page, student branches, and guardrails.
 
-**Goal:** A visitor chats with the hero and gets matched to a cause. Below it, every cause is listed with a button to its page. Each student pulls their own branch, copies one folder, answers the questions, builds a custom section, and ships. No student ever touches app code.
+> The original design for the site. The code is the source of truth where they differ; the student-facing flow lives in `README.md` and `AGENTS.md`.
+
+**Goal:** A visitor chats with the hero and gets matched to a cause. Below it, every cause is listed with a button to its page. Each student makes their own branch, answers a few questions while an AI helper fills in the rest from the nonprofit's site, builds a custom section, and ships. No student ever touches app code.
 
 ---
 
@@ -38,15 +40,14 @@ CAUSE PAGE  /causes/<slug>
 
 ## 2. Student workflow
 
-1. Maintainer pre-creates one branch per student before class: `student/<first-name>-<last-initial>`
-2. Student opens Claude Code and **selects their own branch**
-3. Student copies `/causes/_template/` to `/causes/<first-name>-<cause>/`
-4. Student answers the questions in `answers.md`, which fills the required info
-5. Student prompts Claude to build `custom.html`, which fills the custom section
-6. Student commits and pushes to **their branch**
-7. Student opens a PR from their branch into `main`
-8. Student checks the Vercel preview link
-9. Maintainer merges, and the page goes live and becomes matchable in the hero
+1. Before class, the student makes a GitHub account and accepts the repo invite
+2. On GitHub.com, the student creates `student/<first-name>-<last-initial>` from `dev`
+3. The student opens that branch in an AI coding agent and says "Help me add my cause page"
+4. The agent (following `AGENTS.md`) interviews them for what only they know: name, cause, nonprofit, why they care, a photo, and an idea for the custom section
+5. The agent copies `/causes/_template/`, fills the remaining answers from the nonprofit's official site, and confirms them with the student
+6. The agent builds `custom.html` with the student, runs `npm run validate`, commits, pushes, and opens a PR into `dev`
+7. The student checks the Vercel preview link
+8. A maintainer merges into `dev`, then ships `dev` to `main`; the page goes live and becomes matchable in the hero
 
 ---
 
@@ -98,7 +99,6 @@ CAUSE PAGE  /causes/<slug>
   _template/                 # Students copy this. Ignored by the site.
     answers.md
     custom.html
-    HOW-TO.md
   example-food-access/       # One finished example page
     answers.md
     custom.html
@@ -106,15 +106,17 @@ CAUSE PAGE  /causes/<slug>
 /scripts
   validate-causes.ts
   copy-cause-assets.ts       # Copies images + custom.html into /public at build
-  create-student-branches.sh # Creates one branch per name in roster.txt
-roster.txt                   # One student per line (maintainer only)
+  check-pr-scope.ts          # CI: a student PR only touches one cause folder
 /.github
   workflows/validate.yml
+  workflows/scope.yml
   pull_request_template.md
   CODEOWNERS
-CLAUDE.md
-README.md
-BUILD_SPEC.md
+AGENTS.md                    # Rules for AI agents helping students
+CLAUDE.md                    # Imports AGENTS.md
+README.md                    # Student guide
+MAINTAINER.md
+docs/BUILD_SPEC.md
 ```
 
 **The folder name is the URL.** `/causes/maya-food-access/` becomes `/causes/maya-food-access`.
@@ -279,86 +281,7 @@ Built with `generateStaticParams` from every cause folder except `_template`.
 
 ## 8. `answers.md` (the questions file)
 
-Students answer questions written as comments. Every answer goes in the quotes.
-
-```yaml
----
-# ─────────────────────────────────────────────
-# LION SHARE: answer every question in the quotes
-# ─────────────────────────────────────────────
-
-# 1. What's your name, as you want it shown on the page?
-author: ""
-
-# 2. What cause do you care about? (a few words)
-cause: ""
-
-# 3. Sum it up in one line. (10 words or fewer)
-tagline: ""
-
-# 4. Why do you personally care about this? (1 to 2 sentences)
-whyICare: ""
-
-# 5. What's the problem in Los Angeles? (2 to 3 sentences)
-problem: ""
-
-# ── The nonprofit ──
-
-# 6. Which LA nonprofit is tackling it?
-nonprofitName: ""
-
-# 7. What's their official website?
-nonprofitWebsite: ""
-
-# 8. Which LA neighborhood or area do they serve?
-neighborhood: ""
-
-# 9. What do they do, in one or two sentences?
-nonprofitSummary: ""
-
-# ── Volunteer ──
-
-# 10. Where do people sign up to volunteer? (official link)
-volunteerLink: ""
-
-# 11. How much time does it take? (e.g. "3 hours, one Saturday a month")
-timeCommitment: ""
-
-# 12. Who can join? (age, experience, anything required)
-whoCanJoin: ""
-
-# 13. What are the exact steps to start volunteering? (add as many as needed)
-volunteerSteps:
-  - ""
-  - ""
-  - ""
-
-# ── Donate ──
-
-# 14. Where do people donate? (official link)
-donateLink: ""
-
-# 15. What does a donation make possible? (e.g. "$25 feeds a family for a week")
-donateImpact: ""
-
-# ── Page extras ──
-
-# 16. Image file name in this folder (square, JPG or PNG, under 1 MB)
-image: "image.jpg"
-
-# 17. Describe the image in a few words, for screen readers
-imageAlt: ""
-
-# 18. What topics or interests connect to this cause? (3 to 5 words)
-interests: ["", "", ""]
-
-# 19. How can people help? Keep any that apply: time, money, skills
-helpTypes: ["time", "money", "skills"]
-
-# 20. How much time does helping take overall? Pick one: low, medium, high
-effort: "low"
----
-```
+Each question is a numbered comment above its field, and every answer goes in the quotes. Each comment says who supplies the answer: the student, or the nonprofit's official site (filled by the agent and confirmed by the student). The canonical file is `causes/_template/answers.md`; `lib/schema.ts` defines the fields and a test keeps the two in sync.
 
 `interests`, `helpTypes`, and `effort` feed the hero matcher, and later become the raw material for deriving categories.
 
@@ -382,7 +305,7 @@ Errors must be readable by non-technical students, e.g.:
 
 ## 9. `custom.html` (the custom section)
 
-A single self-contained HTML file the student builds with Claude.
+A single self-contained HTML file the student builds with an AI agent.
 
 **Rules**
 - One file: HTML, CSS and JS all inline
@@ -405,33 +328,26 @@ A single self-contained HTML file the student builds with Claude.
 - Build injects a small script that posts the content height to the parent, so there's no inner scrollbar
 - If it fails to load, the section hides and the required info still works
 
-**Starter `_template/custom.html`:** a blank canvas with the site's fonts and `/tokens.css` linked, plus a comment: "Ask Claude to build anything here."
+**Starter `_template/custom.html`:** a blank canvas with the site's fonts and `/tokens.css` linked, plus a comment: "Ask your AI helper to build anything here."
 
 ---
 
 ## 10. Student branches
 
-### Setup (maintainer, before class)
+### Setup
 
-1. Collect the roster in `roster.txt`, one name per line: `Maya Rodriguez`
-2. Run `scripts/create-student-branches.sh`, which for each name:
-   - Makes a slug: `student/maya-r`
-   - Creates the branch from the latest `main`
-   - Pushes it to GitHub
-3. Share the list so each student knows their branch name
-4. Re-run the script any time to add late students. It skips branches that already exist.
+1. Maintainer invites each student as a collaborator with Write access
+2. In class, each student creates `student/<first-name>-<last-initial>` from `dev` on GitHub.com. Making the branch themselves is part of the lesson.
 
 ### Rules
 
 - **One branch per student.** Students only commit to their own branch.
-- `main` is protected. Nobody pushes to it directly.
-- Student branches are **not** protected, so students can commit freely
-- Merges into `main` only happen through PRs the maintainer approves
+- Nobody pushes to `main` or `dev` directly; changes arrive through PRs a maintainer merges (see `MAINTAINER.md`)
+- Student PRs target `dev`; maintainers ship `dev` to `main`
 
-### Claude Code check (dry run)
+### Agent check (dry run)
 
-- Confirm that when a student selects `student/<name>` in Claude Code, Claude commits to that branch and does **not** create a new `claude/...` branch
-- If it does create its own branch, the CLAUDE.md rule below plus the student's prompt should keep it on their branch. Verify this before class.
+- Confirm the agent commits to the selected `student/<name>` branch. If it creates its own `claude/...` branch, the scope check still works.
 
 ---
 
@@ -459,15 +375,14 @@ Brand direction is still open. Everything reads from one token set.
 
 ## 12. Guardrails
 
-### `CLAUDE.md` (repo root)
+### `AGENTS.md` (repo root; `CLAUDE.md` imports it)
 
-Tells Claude, when working for a student:
-- Stay on the student's current branch (`student/<name>`). **Do not create new branches.** Commit and push to this branch only.
+Tells any AI agent, when working for a student:
+- Stay on the student's branch (`student/<name>`). Commit and push to this branch only.
 - Work **only** inside the student's own `/causes/<slug>/` folder
 - Never edit app code, config, `_template`, the example, or another student's folder
-- To start: copy `/causes/_template/` to a new folder named `<first-name>-<cause>`
-- Fill `answers.md` from what the student tells you. Ask for anything missing.
-- **Never invent** a nonprofit, link, number, or fact. If unknown, ask the student.
+- Interview the student one question at a time for what only they know, then fill the rest of `answers.md` from the nonprofit's official site and confirm it with them
+- **Never invent** a nonprofit, link, number, or fact. Only use what the student said or the nonprofit's official site.
 - `custom.html` must follow the rules in section 9
 - Run `npm run validate` before finishing and fix every error
 
@@ -479,8 +394,8 @@ Tells Claude, when working for a student:
 
 ### CI (`.github/workflows/validate.yml`)
 
-- Runs on every PR into `main`: `npm ci`, `npm run validate`, `npm run build`
-- If the source branch starts with `student/`, the PR may only touch files inside **one** folder in `/causes/`. Anything else fails.
+- `validate.yml` runs on every PR into `main` or `dev`: `npm ci`, `npm run validate`, lint, tests, `npm run build`
+- `scope.yml`: for anyone not in `.github/maintainers.txt`, the PR may only touch files inside **one** folder in `/causes/`. Anything else fails.
 
 ### LLM and cost
 
@@ -509,11 +424,11 @@ Tells Claude, when working for a student:
 9. Build the chat UI and match result
 10. Build the animated background
 11. Add `not-found`, metadata, disclaimer
-12. Add `CLAUDE.md`, PR template, CODEOWNERS
+12. Add `AGENTS.md`, PR template, CODEOWNERS
 13. Add CI and branch protection on `main`
 14. Connect Vercel and set env vars
-15. Create student branches from the roster
-16. Dry run from a test student account: select branch, copy template, answer, build the custom section, open a PR, confirm the cause is matchable after merge
+15. Invite students as collaborators
+16. Dry run from a test student account: create a branch, run the interview, build the custom section, open a PR, confirm the cause is matchable after merge
 
 ---
 
@@ -529,8 +444,8 @@ Tells Claude, when working for a student:
 - [ ] A bad answer fails CI with a plain-English error naming the question
 - [ ] A student PR touching anything outside one cause folder fails CI
 - [ ] A broken `custom.html` cannot break the rest of the page or site
-- [ ] Every student on the roster has a branch
-- [ ] Claude Code commits to the selected student branch
+- [ ] Every student has accepted their invite
+- [ ] The agent commits to the selected student branch
 - [ ] Pages work on mobile
 - [ ] Lighthouse 90+ for performance and accessibility
 - [ ] Full dry run completed from a non-maintainer account

@@ -6,8 +6,21 @@ import { MAX_MESSAGE_CHARS, MAX_VISITOR_TURNS } from "./matchPrompt";
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 
 export type MatchResponse =
-  | { type: "question"; text: string; source: "llm" }
+  | { type: "question"; text: string; source: "llm" | "keyword" }
   | { type: "match"; slug: string; reason: string; alternates: string[]; source: "llm" | "keyword" };
+
+/**
+ * Asked by the keyword fallback when nothing the visitor said matched a cause.
+ * Suggests the most common interests among the causes that exist, so it never
+ * points at a topic the site doesn't have.
+ */
+export function noMatchQuestion(index: CauseIndexEntry[]): string {
+  const counts = new Map<string, number>();
+  for (const c of index) for (const i of new Set(c.interests.map((x) => x.trim().toLowerCase()))) counts.set(i, (counts.get(i) ?? 0) + 1);
+  const top = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 4).map(([i]) => i);
+  const issues = top.length > 1 ? `${top.slice(0, -1).join(", ")}, or ${top.at(-1)}` : top[0];
+  return `I couldn't find a close fit for that yet. Try an issue${issues ? `, like ${issues},` : ""} or tell me how you'd like to help: time, money, or a skill.`;
+}
 
 /** What the model is asked to return (see buildReplySchema). */
 const modelReplySchema = z.object({
@@ -49,7 +62,11 @@ function fallback(messages: ChatMessage[], index: CauseIndexEntry[]): MatchRespo
   const said = messages.filter((m) => m.role === "user").map((m) => m.content);
   const result = keywordMatch(said, index);
   if (!result) throw new Error("No causes to match");
-  return { type: "match", ...result, source: "keyword" };
+  // Don't pass off an unrelated cause as a match while the visitor can still say more.
+  if (!result.confident && said.length < MAX_VISITOR_TURNS) {
+    return { type: "question", text: noMatchQuestion(index), source: "keyword" };
+  }
+  return { type: "match", slug: result.slug, reason: result.reason, alternates: result.alternates, source: "keyword" };
 }
 
 /**

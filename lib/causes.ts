@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import matter from "gray-matter";
+import { AnswersFormatError, readAnswersFrontMatter } from "./answersFile";
 import { ALLOWED_SCRIPT_HOSTS } from "./customSection";
 import { answersSchema, describeIssue, type Answers } from "./schema";
 
@@ -92,13 +92,17 @@ export function loadCauseFolder(slug: string, dir = CAUSES_DIR): FolderResult {
   } else {
     let data: unknown;
     try {
-      data = matter(fs.readFileSync(/*turbopackIgnore: true*/ answersPath, "utf8")).data;
+      data = readAnswersFrontMatter(fs.readFileSync(/*turbopackIgnore: true*/ answersPath, "utf8"));
     } catch (e) {
-      const line = (e as { mark?: { line?: number } }).mark?.line;
-      err(
-        "answers.md",
-        `couldn't be read${line != null ? ` near line ${line + 1}` : ""}. Check that every answer is inside "double quotes" and that no quotes are missing.`,
-      );
+      if (e instanceof AnswersFormatError) {
+        err("answers.md", e.message);
+      } else {
+        const line = (e as { mark?: { line?: number } }).mark?.line;
+        err(
+          "answers.md",
+          `couldn't be read${line != null ? ` near line ${line + 1}` : ""}. Check that every answer is inside "double quotes" and that no quotes are missing.`,
+        );
+      }
     }
     if (data !== undefined) {
       const parsed = answersSchema.safeParse(data);

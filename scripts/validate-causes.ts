@@ -4,7 +4,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import matter from "gray-matter";
+import { readAnswersFrontMatter } from "../lib/answersFile";
 import { CAUSES_DIR, listCauseFolders, loadCauseFolder } from "../lib/causes";
 import { QUESTIONS } from "../lib/schema";
 
@@ -19,7 +19,7 @@ for (const entry of fs.readdirSync(CAUSES_DIR, { withFileTypes: true })) {
 
 // The template must keep asking exactly the questions the schema expects.
 const templatePath = path.join(CAUSES_DIR, "_template", "answers.md");
-const templateKeys = Object.keys(matter(fs.readFileSync(templatePath, "utf8")).data).sort();
+const templateKeys = Object.keys(readAnswersFrontMatter(fs.readFileSync(templatePath, "utf8")) as object).sort();
 const expectedKeys = Object.keys(QUESTIONS).sort();
 if (templateKeys.join() !== expectedKeys.join()) {
   problems.push("_template/answers.md: The template's questions don't match lib/schema.ts. Only a maintainer should change the template.");

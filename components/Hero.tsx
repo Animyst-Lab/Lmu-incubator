@@ -1,20 +1,33 @@
+import Link from "next/link";
 import type { CauseSummary } from "@/lib/causes";
 import { reveal } from "@/lib/reveal";
 import ChatMatcher from "./ChatMatcher";
+import { ArrowRight } from "./icons";
 import RevealText from "./RevealText";
 import { Eyebrow, PillButton } from "./ui";
 
-type Props = { causes: CauseSummary[]; nonprofitCount: number };
+type Props = {
+  causes: CauseSummary[];
+  /** The most recently added student cause, if known. */
+  newest: Pick<CauseSummary, "slug" | "nonprofitName" | "author"> | null;
+};
 
-export default function Hero({ causes, nonprofitCount }: Props) {
+export default function Hero({ causes, newest }: Props) {
   return (
     <section
       id="top"
       className="relative isolate overflow-hidden rounded-b-card bg-[linear-gradient(160deg,var(--hero-from),var(--hero-to))]"
     >
+      {/* Warm shapes drifting slowly behind everything; still under reduced motion. */}
+      <div aria-hidden="true" className="hero-glow">
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(to_bottom,rgba(255,255,255,.35),transparent,rgba(255,255,255,.35))]"
+        className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(to_bottom,rgba(255,255,255,.35),transparent,rgba(255,255,255,.3))]"
       />
       <p
         aria-hidden="true"
@@ -23,8 +36,9 @@ export default function Hero({ causes, nonprofitCount }: Props) {
         LION SHARE
       </p>
 
-      <div className="shell relative z-20 flex flex-col gap-10 pb-16 pt-28 lg:grid lg:min-h-[100svh] lg:grid-cols-12 lg:items-center lg:gap-10 lg:pb-32 lg:pt-36">
-        <div className="flex flex-col gap-7 lg:col-span-7">
+      {/* Phones stack headline, chat, then links; wide screens put the chat in its own column. */}
+      <div className="shell relative z-20 flex flex-col gap-8 pb-16 pt-28 lg:grid lg:min-h-[100svh] lg:grid-cols-12 lg:grid-rows-[auto_auto] lg:content-center lg:gap-x-12 lg:gap-y-8 lg:pb-32 lg:pt-36">
+        <div className="flex flex-col gap-6 lg:col-span-6 lg:self-end">
           <div {...reveal({ y: 10, delay: 200, intro: true })}>
             <Eyebrow>Built by LMU students</Eyebrow>
           </div>
@@ -39,22 +53,31 @@ export default function Hero({ causes, nonprofitCount }: Props) {
           <p {...reveal({ y: 12, delay: 550, intro: true, className: "max-w-md text-lg text-ink/75" })}>
             Tell us what you care about. We&apos;ll match you with an LA cause built by LMU students.
           </p>
-          <div {...reveal({ y: 12, delay: 650, intro: true, className: "flex items-center gap-3 text-sm font-medium text-ink/75" })}>
-            <span className="rounded-full bg-ink-card px-3 py-1 text-white tabular-nums">{causes.length}</span>
-            {causes.length === 1 ? "cause" : "causes"} · {nonprofitCount} LA{" "}
-            {nonprofitCount === 1 ? "nonprofit" : "nonprofits"}
-          </div>
-          <div {...reveal({ y: 12, delay: 750, intro: true, className: "flex flex-wrap gap-3" })}>
-            <PillButton href="#causes" variant="dark" arrow="right">
-              Browse every cause
-            </PillButton>
-          </div>
         </div>
 
         <div
-          {...reveal({ y: 16, scale: 0.96, delay: 400, intro: true, className: "w-full lg:col-span-5 lg:justify-self-end lg:max-w-[28rem]" })}
+          {...reveal({ y: 16, scale: 0.97, delay: 400, intro: true, className: "w-full lg:col-span-6 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:self-center" })}
         >
           <ChatMatcher causes={causes} />
+        </div>
+
+        <div {...reveal({ y: 12, delay: 650, intro: true, className: "flex flex-col items-start gap-5 lg:col-span-6 lg:self-start" })}>
+          {newest && (
+            <Link
+              href={`/causes/${newest.slug}`}
+              className="group inline-flex max-w-full items-center gap-2 rounded-full bg-white/60 py-1.5 pl-1.5 pr-4 text-sm text-ink/80 ring-1 ring-ink/10 backdrop-blur transition-colors hover:bg-white/85"
+            >
+              <span className="rounded-full bg-[image:var(--accent-gradient)] px-2.5 py-0.5 text-xs font-semibold text-white">New</span>
+              <span className="truncate">
+                <span className="font-medium text-ink">{newest.nonprofitName}</span>
+                <span className="text-ink/60"> by {newest.author}</span>
+              </span>
+              <ArrowRight className="shrink-0 transition-transform duration-300 ease-snap group-hover:translate-x-0.5" />
+            </Link>
+          )}
+          <PillButton href="#causes" variant="dark" arrow="right">
+            Browse every cause
+          </PillButton>
         </div>
       </div>
 
@@ -63,7 +86,7 @@ export default function Hero({ causes, nonprofitCount }: Props) {
       >
         <span>Loyola Marymount University</span>
         <span className="hidden sm:inline">Los Angeles, California</span>
-        <a href="#causes" className="inline-flex items-center gap-2 hover:text-ink">
+        <a href="#how" className="inline-flex items-center gap-2 hover:text-ink">
           Scroll to explore <span aria-hidden="true">↓</span>
         </a>
       </div>

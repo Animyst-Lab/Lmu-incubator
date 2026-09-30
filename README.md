@@ -2,164 +2,104 @@
 
 **A campus guide to giving back in Los Angeles.**
 
-Each of you picks a cause you care about and builds a page for it: the problem, a local LA nonprofit tackling it, and exactly how to volunteer or donate. Together, those pages become one guide that helps our campus find where to give back.
+You'll pick a cause you care about and a real LA nonprofit working on it, then build a page for it with an AI helper. Your page shows the problem, the nonprofit, and exactly how to volunteer or donate, plus one creative piece you design: a quiz, a calculator, a mini game, anything. Together, everyone's pages become one guide for our campus.
 
-Built by LMU students, with AI, in one session.
-
----
-
-## How the site works
-
-- **Home page:** visitors chat with our AI about what they care about, and it matches them to a cause. Below that is a directory of every cause.
-- **Your cause page** has two parts:
-  - **Required info:** generated automatically from your answers to a list of questions
-  - **Custom section:** anything you want to build with Claude
-
-Once your page is merged, it shows up in the directory **and** the AI can match visitors to it.
+You don't need to know how to code. You need to know what you care about.
 
 ---
 
-## Your workflow
+## Before class (about 10 minutes)
 
-1. **Open your branch.** In Claude Code, select the Lion Share repo and your branch: `student/<your-first-name>-<last-initial>`
-2. **Copy the template.** Copy `/causes/_template/` to `/causes/<your-first-name>-<cause>/`
-3. **Answer the questions** in `answers.md`
-4. **Add your image** to your folder as `image.jpg`
-5. **Build your custom section** in `custom.html` with Claude
-6. **Review** everything Claude changed
-7. **Commit and push** to your branch
-8. **Open a pull request** into `dev`
-9. **Check your preview link**
-10. **Go live** once it's merged
+1. **Make a GitHub account** at [github.com/signup](https://github.com/signup). GitHub is where the site's code lives.
+2. **Send your GitHub username** to your instructor.
+3. **Accept the invite.** You'll get an email from GitHub inviting you to the `Lmu-incubator` repository. Click **Accept invitation**.
 
-You don't need to write code by hand. You need to be clear about what you want.
+That's the only account you need. The AI helper, Claude, is set up for you, and you don't need to pay for anything.
+
+Come to class with:
+- A cause you care about, and an LA nonprofit working on it if you know one (the AI can help you find one)
+- A photo for your page, saved on your laptop, that you took or have permission to use (square is best)
+
+Everything else runs in your web browser. You don't need to install anything.
 
 ---
 
-## Your folder
+## In class
+
+### 1. Make your branch
+
+A **branch** is your own copy of the site to work on. Your changes stay there until they're reviewed and added to the real site.
+
+1. Open the repository on GitHub: [github.com/Animyst-Lab/Lmu-incubator](https://github.com/Animyst-Lab/Lmu-incubator)
+2. Click the branch menu near the top left. It says **dev**.
+3. Type your branch name: `student/` then your first name and last initial, e.g. `student/maya-r`
+4. Click **Create branch student/maya-r from dev**.
+
+### 2. Open your Codespace
+
+A **Codespace** is a computer in your browser with the site's code and your AI helper already set up.
+
+1. On the repository page, check that the branch menu shows your branch.
+2. Click the green **Code** button, open the **Codespaces** tab, and click **Create codespace on student/maya-r**.
+3. Wait a minute or two while it sets up. You'll see files on the left and a **terminal** at the bottom: a place to type commands.
+
+### 3. Start Claude
+
+Click in the terminal, type this, and press Enter:
 
 ```
-/causes/maya-food-access/
-  answers.md     # Your answers → the required info
-  custom.html    # Your custom section
-  image.jpg      # Square, JPG or PNG, under 1 MB
+claude
 ```
 
-The folder name becomes your page URL: `/causes/maya-food-access`
+The first time, it asks a few setup questions. Use the arrow keys and Enter to answer:
 
----
+- When it asks whether to use the API key it found, choose **Yes**. (It's the class key.)
+- For everything else, the first option is fine, including "Yes, I trust this folder."
 
-## Part 1: Answer the questions
+If the terminal feels cramped, drag its top edge up to make it bigger.
 
-Open `answers.md`. Every question is numbered. Put your answer inside the quotes.
+### 4. Tell it: "Help me add my cause page."
 
-| # | Question |
-|---|---|
-| 1 | Your name, as shown on the page |
-| 2 | The cause you care about |
-| 3 | A one-line tagline, 10 words or fewer |
-| 4 | Why you personally care |
-| 5 | The problem in Los Angeles |
-| 6 to 9 | The nonprofit: name, official website, neighborhood, what they do |
-| 10 to 13 | Volunteering: signup link, time needed, who can join, exact steps |
-| 14 to 15 | Donating: official link, what a donation makes possible |
-| 16 to 17 | Your image and a short description of it |
-| 18 | 3 to 5 interests that connect to your cause |
-| 19 | How people can help: time, money, skills |
-| 20 | Overall effort: low, medium, or high |
+It asks you a few questions, one at a time: your name, your cause and nonprofit, why you care, and your idea for the creative section. When it asks for your photo, drag it from your computer into your folder in the file list on the left. Then it looks up the rest on the nonprofit's official website and shows you what it found.
 
-Questions 18 to 20 are how the AI on the home page matches visitors to your cause. Choose them carefully.
+**Check everything it found.** AI can be wrong. Open every link and make sure every fact matches the nonprofit's site.
 
-### Starter prompt
+### 5. Build your creative section
 
-```
-I'm working on my Lion Share cause page on my branch, student/[your-branch].
-Copy /causes/_template/ to /causes/[first-name]-[cause]/.
+Describe what you want at the bottom of your page. Some ideas:
 
-Here are my answers:
-- Name: [...]
-- Cause: [...]
-- Why I care: [...]
-- LA nonprofit: [...]
-- Nonprofit website: [...]
-- How to volunteer: [...]
-- How to donate: [...]
-
-Fill in answers.md with these. Ask me for anything missing.
-Don't invent any facts or links. Run npm run validate when done.
-```
-
----
-
-## Part 2: Build your custom section
-
-This is yours. Ask Claude to build anything that helps people understand your cause or get involved.
-
-**Ideas**
-- An interactive timeline of the problem
-- A "what would your $10 do?" calculator
 - A quiz about the cause
-- A photo story you scroll through
-- A map of where the nonprofit works
+- A "what would your $10 do?" calculator
+- A timeline of the problem in LA
 - A mini game
 
-### Starter prompt
+Then keep going: "make it more colorful", "add a second question", "make the text bigger on phones".
 
-```
-Build my custom section in /causes/[my-folder]/custom.html.
-I want: [describe your idea].
-Keep it in one file, make it look good on a phone,
-and follow the custom section rules in CLAUDE.md.
-```
+### 6. Submit it
 
-Then keep iterating: "make it more colorful", "add a second question", "make the text bigger on mobile".
+Say: **"Open my pull request."** A **pull request** asks the instructors to add your page to the real site.
 
-### Custom section rules
+After a few minutes, a **preview link** appears on your pull request. Open it, including on your phone, to see your page. Once your instructor merges it, your page is live and the home page can match visitors to it.
 
-- One file: HTML, CSS and JS together
-- External scripts only from `cdn.jsdelivr.net` or `cdnjs.cloudflare.com`
-- No forms asking for personal info, no tracking, no logins
-- Under 500 KB
-- Must work on a phone
+When you're done, close the Codespace tab. It stops on its own.
 
 ---
 
 ## Ground rules
 
-- **Your branch only.** Commit to `student/<you>`. Never commit to `main`, `dev`, or anyone else's branch.
-- **Your folder only.** Never edit someone else's folder, the template, the example, or any site code. Your PR will fail if you do.
-- **One cause per person.** Check `/causes/` first so you don't duplicate.
+- **Your branch and your folder only.** Your pull request will fail if it changes anything else.
 - **Real and local.** The nonprofit must be real and serve Los Angeles.
-- **Official links only.** Volunteer and donate links go to the nonprofit's own site.
-- **Verify everything.** AI can be wrong. Open every link and confirm every fact before you submit.
+- **Verify everything.** Open every link and check every fact before you submit.
+- **Your own photo.** Only use an image you took or have permission to use.
 - **No personal info.** No phone numbers or emails of individuals.
 - **Respectful tone.** Write about the people served with dignity.
 
----
+## Stuck?
 
-## Pull request checklist
-
-- [ ] I committed to my own `student/` branch
-- [ ] I only changed files inside my one folder in `/causes/`
-- [ ] Every question in `answers.md` is answered
-- [ ] Every link opens and goes to the official source
-- [ ] The nonprofit is real and serves LA
-- [ ] My image is square, JPG or PNG, under 1 MB
-- [ ] My custom section works on a phone
-- [ ] I read everything Claude wrote before submitting
+Ask your AI helper first: "I'm stuck, what do I do next?" If that doesn't help, ask your instructor, or email **hello@animystlab.com**.
 
 ---
 
-## For maintainers
-
-Setting up a class, reviewing pull requests, and deploying: see [MAINTAINER.md](MAINTAINER.md).
-
----
-
-## Questions
-
-Email **hello@animystlab.com**
-
----
+*For instructors and maintainers: see [MAINTAINER.md](MAINTAINER.md).*
 
 *Lion Share is built by LMU entrepreneurship students in a hands-on session on building technology with AI, hosted by Animyst.*

@@ -20,6 +20,11 @@ const INDEX = [
   entry("jay-animal-rescue", { cause: "Animal rescue", interests: ["dogs", "cats", "shelters"], helpTypes: ["time", "money"] }),
   entry("maya-food-access", { cause: "Food access", interests: ["food", "hunger", "community"], helpTypes: ["money"], effort: "low" }),
   entry("leo-youth-literacy", { cause: "Youth literacy", interests: ["reading", "kids", "education"], helpTypes: ["time", "skills"] }),
+  entry("abhi-youth-boxing", {
+    cause: "Youth development through boxing",
+    nonprofitName: "Ring of Hope LA",
+    interests: ["sports", "youth", "mentorship", "fitness", "community"],
+  }),
 ];
 const slugs = new Set(INDEX.map((e) => e.slug));
 
@@ -30,6 +35,10 @@ describe("keyword fallback matcher", () => {
     [["the ocean", "I like being outside"], "ana-beach-cleanup"],
     [["people going hungry"], "maya-food-access"],
     [["I'd rather donate"], "maya-food-access"],
+    [["martial arts"], "abhi-youth-boxing"],
+    [["karate"], "abhi-youth-boxing"],
+    [["I want to coach sports"], "abhi-youth-boxing"],
+    [["Ring of Hope"], "abhi-youth-boxing"],
   ])("%j matches %s", (messages, expected) => {
     expect(keywordMatch(messages, INDEX)?.slug).toBe(expected);
   });
@@ -44,6 +53,11 @@ describe("keyword fallback matcher", () => {
     const result = keywordMatch(["asdf qwerty"], INDEX)!;
     expect(slugs.has(result.slug)).toBe(true);
     expect(result.reason).toMatch(/good place to start/);
+    expect(result.confident).toBe(false);
+  });
+
+  it("is confident when something the visitor said matched", () => {
+    expect(keywordMatch(["martial arts"], INDEX)!.confident).toBe(true);
   });
 
   it("only ever returns slugs from the index", () => {

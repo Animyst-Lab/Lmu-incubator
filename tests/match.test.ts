@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CauseIndexEntry } from "@/lib/causeIndex";
-import { checkConversation, requestSchema, runMatch, type ChatMessage } from "@/lib/match";
+import { checkConversation, noMatchQuestion, requestSchema, runMatch, type ChatMessage } from "@/lib/match";
 import { buildReplySchema, buildSystemPrompt } from "@/lib/matchPrompt";
 
 const entry = (slug: string, interests: string[]): CauseIndexEntry => ({
@@ -56,6 +56,27 @@ describe("runMatch", () => {
   it("falls back to keywords with no model configured (no API key)", async () => {
     const r = await runMatch([user("ocean cleanups")], INDEX, null);
     expect(r).toMatchObject({ type: "match", slug: "ana-beach", source: "keyword" });
+  });
+
+  it("asks again instead of matching an unrelated cause while the visitor can still reply", async () => {
+    const r = await runMatch([user("asdf qwerty")], INDEX, null);
+    expect(r).toEqual({ type: "question", text: noMatchQuestion(INDEX), source: "keyword" });
+    // It only suggests topics that some cause actually covers.
+    expect(noMatchQuestion(INDEX)).toBe(
+      "I couldn't find a close fit for that yet. Try an issue, like animals, dogs, food, or ocean, or tell me how you'd like to help: time, money, or a skill.",
+    );
+  });
+
+  it("still ends on a real cause at the last turn, even with no keyword match", async () => {
+    const convo: ChatMessage[] = [user("zz"), { role: "assistant", content: "q" }, user("yy"), { role: "assistant", content: "q" }, user("xx"), { role: "assistant", content: "q" }, user("ww")];
+    const r = await runMatch(convo, INDEX, null);
+    expect(r).toMatchObject({ type: "match", source: "keyword" });
+    expect(r.type === "match" && r.reason).toMatch(/Nothing matched closely/);
+  });
+
+  it("quotes what the visitor typed, not the stemmed or related words it matched on", async () => {
+    const r = await runMatch([user("martial arts")], [entry("abhi-youth-boxing", ["sports", "fitness"])], null);
+    expect(r).toMatchObject({ type: "match", slug: "abhi-youth-boxing", reason: 'It connects to what you told us: "martial arts".' });
   });
 
   it("forces a match on the 4th visitor message", async () => {

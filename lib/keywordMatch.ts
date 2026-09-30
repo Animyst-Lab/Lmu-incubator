@@ -1,6 +1,7 @@
 import type { CauseIndexEntry } from "./causeIndex";
 
-export type MatchResult = { slug: string; reason: string; alternates: string[] };
+/** `confident` is false when nothing the visitor said matched any cause. */
+export type MatchResult = { slug: string; reason: string; alternates: string[]; confident: boolean };
 
 const STOPWORDS = new Set(
   "a an and are as at be but by can do for from have i i'd i'm im in into is it its just like love me more my not of on only or our really so some that the their them they this to want we what when where which who with would you your about care help".split(
@@ -43,6 +44,23 @@ const SYNONYMS: Record<string, string[]> = {
   senior: ["elderly", "older"],
   art: ["music", "creative", "arts"],
   music: ["art", "creative"],
+  sport: ["sports", "fitness", "athlete", "team", "coach", "boxing"],
+  fitness: ["sport", "exercise", "gym", "health", "boxing"],
+  exercise: ["fitness", "sport", "gym"],
+  gym: ["fitness", "sport", "boxing"],
+  athlete: ["sport", "fitness"],
+  coach: ["sport", "mentor", "mentorship", "youth"],
+  martial: ["boxing", "sport", "fitness", "karate", "judo"],
+  karate: ["martial", "boxing", "sport", "fitness"],
+  judo: ["martial", "boxing", "sport", "fitness"],
+  boxing: ["sport", "fitness", "martial"],
+  mentor: ["mentorship", "youth", "coach"],
+  mentorship: ["mentor", "youth"],
+  jail: ["prison", "justice", "reentry", "second"],
+  prison: ["jail", "justice", "reentry", "second"],
+  gang: ["reentry", "justice", "second"],
+  job: ["jobs", "employment", "career", "training"],
+  work: ["job", "employment", "career"],
 };
 
 /** Phrases that say how someone wants to help, mapped to helpTypes. */
@@ -102,6 +120,7 @@ export function keywordMatch(visitorMessages: string[], index: CauseIndexEntry[]
     };
     for (const interest of entry.interests) weigh(interest, 3);
     weigh(entry.cause, 3);
+    weigh(entry.nonprofitName, 2);
     weigh(entry.tagline, 1);
     weigh(entry.neighborhood, 1);
 
@@ -116,18 +135,20 @@ export function keywordMatch(visitorMessages: string[], index: CauseIndexEntry[]
   scored.sort((a, b) => b.score - a.score || a.position - b.position);
   const [best, ...rest] = scored;
 
-  // Quote the visitor's own words where possible, not the synonyms they were expanded to.
-  const ownWords = best.matched.filter((t) => saidSet.has(t));
-  const quoted = (ownWords.length > 0 ? ownWords : best.matched).slice(0, 3);
+  // Quote what the visitor actually typed: the matched terms are stemmed ("kid",
+  // "box") and may be related words they never used.
+  const lastSaid = visitorMessages.at(-1)?.trim().replace(/\s+/g, " ") ?? "";
+  const quote = lastSaid.length > 40 ? lastSaid.slice(0, 40).trimEnd() + "…" : lastSaid;
   const reason =
-    quoted.length > 0
-      ? `It connects to what you said about ${quoted.join(", ")}.`
+    best.matched.length > 0 && quote
+      ? `It connects to what you told us: "${quote}".`
       : best.score > 0
-        ? "It fits the way you said you'd like to help."
-        : "Nothing matched closely yet, so here's a good place to start.";
+          ? "It fits the way you said you'd like to help."
+          : "Nothing matched closely yet, so here's a good place to start.";
 
   return {
     slug: best.entry.slug,
+    confident: best.score > 0,
     reason,
     alternates: rest
       .filter((r) => r.score > 0 || best.score === 0)

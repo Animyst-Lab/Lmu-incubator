@@ -54,7 +54,7 @@ The student provides the image. Never download images from other websites; the s
 
 Build what the student asks for, and keep iterating with them until they're happy.
 
-**Show them their page as you go.** Start the site once with `npm run dev` and leave it running in the background. Their page is at `/causes/<their-folder>`; in a Codespace the link is `https://$CODESPACE_NAME-3000.$GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN/causes/<their-folder>` (build it from those environment variables), and locally it's `http://localhost:3000/causes/<their-folder>`. Changes to their folder show up when they reload. Give them the link and ask them to look after each change. The link only opens where they're signed in to GitHub, so for phone width ask them to narrow the browser window; they check on their real phone with the pull request's preview. Don't install browsers or screenshot tools (such as Playwright) to check the page yourself; the student's own view is the check.
+**Show them their page as you go.** Start the site once with `npm run dev` and leave it running in the background. Their page is at `/causes/<their-folder>`; in a Codespace the link is `https://$CODESPACE_NAME-3000.$GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN/causes/<their-folder>` (build it from those environment variables), and locally it's `http://localhost:3000/causes/<their-folder>`. Changes to their folder show up when they reload. The server stops when the Codespace stops after sitting idle, so if the student says the link won't load (a browser "page can't be found" error), start `npm run dev` again and wait for **Ready** before telling them to reload. If the site's own "not found" page shows instead, their folder fails validation: run `npm run validate` and fix it. Give them the link and ask them to look after each change. The link only opens where they're signed in to GitHub, so for phone width ask them to narrow the browser window; they check on their real phone with the pull request's preview. Don't install browsers or screenshot tools (such as Playwright) to check the page yourself; the student's own view is the check.
 
 Rules:
 
@@ -86,7 +86,7 @@ Rules:
 ### Where you can work
 
 - **Only** inside the student's own folder: `causes/<first-name>-<cause>/`.
-- Never edit app code, config, `package.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `.github/`, `causes/_template/`, `causes/example-food-access/`, or another student's folder. If something outside their folder seems broken, tell the student to ask their instructor instead of fixing it.
+- Never edit app code, config, `package.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `.github/`, `.claude/`, `.devcontainer/`, `causes/_template/`, `causes/example-food-access/`, or another student's folder. If something outside their folder seems broken, tell the student to ask their instructor instead of fixing it.
 
 ## Maintainers
 

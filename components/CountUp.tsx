@@ -2,10 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 
+const DURATION_MS = 900;
+
 /**
- * A number that counts up with scroll: 0 when the element's top reaches the
- * bottom of the viewport, the full value when its center reaches the center.
- * Shows the final value without JS and with reduced motion.
+ * A number that counts up once, the first time it scrolls into view, then
+ * stays at its value whatever the scroll position. Shows the final value
+ * without JS and with reduced motion.
  */
 export default function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -15,26 +17,31 @@ export default function CountUp({ value, suffix = "" }: { value: number; suffix?
     const el = ref.current;
     if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    let pending = 0;
-    const update = () => {
-      pending = 0;
-      const r = el.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const start = vh; // top at viewport bottom
-      const end = vh / 2 - r.height / 2; // center at viewport center
-      const progress = Math.min(1, Math.max(0, (start - r.top) / (start - end)));
-      setShown(Math.round(progress * value));
-    };
-    const onScroll = () => {
-      if (!pending) pending = window.setTimeout(update, 30);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    // Start from 0 only if the number is still below the fold; if it's already
+    // on screen at load, leave the real value in place.
+    if (el.getBoundingClientRect().top < window.innerHeight) return;
+    setShown(0);
+
+    let frame = 0;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        const start = performance.now();
+        const tick = (now: number) => {
+          const t = Math.min(1, (now - start) / DURATION_MS);
+          const eased = 1 - Math.pow(1 - t, 3); // ease-out
+          setShown(Math.round(eased * value));
+          if (t < 1) frame = requestAnimationFrame(tick);
+        };
+        frame = requestAnimationFrame(tick);
+      },
+      { threshold: 0.6 },
+    );
+    observer.observe(el);
     return () => {
-      clearTimeout(pending);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      observer.disconnect();
+      cancelAnimationFrame(frame);
     };
   }, [value]);
 

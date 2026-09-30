@@ -68,6 +68,13 @@ if (flag === "--watch") {
     );
   });
 
+  // Print the address people open, which in a Codespace is the forwarded one, not localhost.
+  const portArg = nextArgs.findIndex((a) => a === "-p" || a === "--port");
+  const port = (portArg >= 0 && nextArgs[portArg + 1]) || process.env.PORT || "3000";
+  const { CODESPACE_NAME: codespace, GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN: domain } = process.env;
+  const base = codespace && domain ? `https://${codespace}-${port}.${domain}` : `http://localhost:${port}`;
+  console.log(`[lion-share] Preview: ${base}/causes/<folder-name>  (reload after each change)`);
+
   const next = spawn(path.join(process.cwd(), "node_modules", ".bin", "next"), ["dev", ...nextArgs], {
     stdio: "inherit",
     shell: process.platform === "win32",

@@ -27,7 +27,7 @@ for (const e of errors) console.log(`::error title=Outside your folder::${e}`);
 
 if (errors.length > 0) {
   console.log(`\n${errors.length} problem(s). Student pull requests can only change one folder in causes/.`);
-  console.log("Ask Claude to undo changes to any other files, then push again.");
+  console.log("Ask your AI helper to undo changes to any other files, then push again.");
   process.exit(1);
 }
 console.log(`OK: this pull request only changes causes/${folder}/.`);

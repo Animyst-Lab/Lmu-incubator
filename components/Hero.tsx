@@ -45,7 +45,7 @@ export default function Hero({ causes, nonprofitCount }: Props) {
             {nonprofitCount === 1 ? "nonprofit" : "nonprofits"}
           </div>
           <div {...reveal({ y: 12, delay: 750, intro: true, className: "flex flex-wrap gap-3" })}>
-            <PillButton href="#causes" variant="outline" arrow="right">
+            <PillButton href="#causes" variant="dark" arrow="right">
               Browse every cause
             </PillButton>
           </div>

@@ -1,16 +1,20 @@
 <div align="center">
 
-# Lion Share
+<img src="docs/assets/lion-share-banner.svg" alt="Lion Share" width="720">
 
 **A campus guide to giving back in Los Angeles, built by LMU students.**
 
 Pick a cause you care about. Build a page for it with an AI helper. Help people find where to show up.
 
+![Built by LMU students](https://img.shields.io/badge/built%20by-LMU%20students-B15F2C?style=for-the-badge)
+![For Los Angeles](https://img.shields.io/badge/for-Los%20Angeles-CF8047?style=for-the-badge)
+![No coding needed](https://img.shields.io/badge/no%20coding-needed-111111?style=for-the-badge)
+
 </div>
 
 ---
 
-## At a glance
+## 🦁 At a glance
 
 | Topic | Details |
 |---|---|
@@ -21,13 +25,14 @@ Pick a cause you care about. Build a page for it with an AI helper. Help people 
 
 ---
 
-## Before class (about 10 minutes)
+## 📋 Before class (about 10 minutes)
 
 - [ ] **Make a GitHub account** at [github.com/signup](https://github.com/signup). GitHub is where the site's code lives.
 - [ ] **Send your GitHub username** to your instructor.
 - [ ] **Accept the invite** in the email from GitHub to the `Lmu-incubator` repository. Click **Accept invitation**.
 
-That's the only account you need. Claude is set up for you, and you don't pay for anything.
+> [!NOTE]
+> That's the only account you need. Claude is set up for you, and you don't pay for anything.
 
 **Bring to class:**
 - A cause you care about, and the LA nonprofit working on it if you know one (Claude can help you find one)
@@ -35,9 +40,9 @@ That's the only account you need. Claude is set up for you, and you don't pay fo
 
 ---
 
-## In class
+## 🏫 In class
 
-### Step 1 · Make your branch
+### 1️⃣ Make your branch
 
 A **branch** is your own copy of the site. Your changes stay there until they're reviewed and added to the real site.
 
@@ -46,7 +51,7 @@ A **branch** is your own copy of the site. Your changes stay there until they're
 3. Type `student/` then your first name and last initial, like `student/maya-r`.
 4. Click **Create branch student/maya-r from dev**.
 
-### Step 2 · Open your Codespace
+### 2️⃣ Open your Codespace
 
 A **Codespace** is a computer in your browser with the site and Claude already set up.
 
@@ -54,7 +59,7 @@ A **Codespace** is a computer in your browser with the site and Claude already s
 2. Click the green **Code** button, open the **Codespaces** tab, and click **Create codespace on student/maya-r**.
 3. Wait a minute or two. You'll see files on the left and a **terminal** at the bottom: a place to type commands.
 
-### Step 3 · Start Claude
+### 3️⃣ Start Claude
 
 Click in the terminal, type this, and press **Enter**:
 
@@ -64,15 +69,17 @@ claude
 
 Claude opens ready to go, already set up with the class key. You'll see a box with a `>` where you can type.
 
-> **Tip:** If it ever asks **"Use this API key?"**, press **↑** to choose **Yes**, then **Enter**. If the terminal feels cramped, drag its top edge up.
+> [!TIP]
+> If it ever asks **"Use this API key?"**, press **↑** to choose **Yes**, then **Enter**. If the terminal feels cramped, drag its top edge up.
 
-### Step 4 · Say "Help me add my cause page."
+### 4️⃣ Say "Help me add my cause page."
 
 Claude asks you a few things, one at a time: your name, your cause and nonprofit, why you care, and your idea for the creative section. When it asks for your photo, drag the file from your computer into your folder in the file list on the left. Then it looks up the rest on the nonprofit's official website and shows you what it found.
 
-> **Important:** AI can be wrong. Open every link and check that every fact matches the nonprofit's site.
+> [!IMPORTANT]
+> AI can be wrong. Open every link and check that every fact matches the nonprofit's site.
 
-### Step 5 · Build your creative section
+### 5️⃣ Build your creative section
 
 Describe what you want at the bottom of your page:
 
@@ -87,7 +94,7 @@ Claude gives you a **preview link**. Open it in a new tab and reload after each 
 
 Then keep going: *"make it more colorful"*, *"add a second question"*, *"make the text bigger on phones"*.
 
-### Step 6 · Submit it
+### 6️⃣ Submit it
 
 Say **"Open my pull request."** A **pull request** asks your instructor to add your page to the real site.
 
@@ -97,7 +104,7 @@ When you're done, close the Codespace tab. It stops on its own.
 
 ---
 
-## Ground rules
+## 📏 Ground rules
 
 | Rule | What it means |
 |---|---|
@@ -110,7 +117,7 @@ When you're done, close the Codespace tab. It stops on its own.
 
 ---
 
-## Need help?
+## 🆘 Need help?
 
 <details>
 <summary><strong>I'm stuck</strong></summary>
@@ -129,7 +136,8 @@ Your Codespace stops the preview when it sits idle. Tell Claude *"restart my pre
 <details>
 <summary><strong>Codespaces isn't working (backup route)</strong></summary>
 
-Only use this if your instructor says so. It needs **your own Claude Pro or Max plan**; the class key only works in Codespaces.
+> [!WARNING]
+> Only use this if your instructor says so. It needs **your own Claude Pro or Max plan**; the class key only works in Codespaces.
 
 1. Go to [claude.ai/code](https://claude.ai/code) and sign in.
 2. Connect GitHub if it asks, choose **Animyst-Lab/Lmu-incubator**, and start from the **dev** branch.

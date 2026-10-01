@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    /* Starter styles that match the Lion Share site. Reuse these classes. */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* Small uppercase label above a heading */
+    .eyebrow { display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+
+    /* Cards: .card on light, .card-dark for one standout card */
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark p { color: #d6d6d6; }
+    .card-dark .eyebrow { color: var(--accent-from); }
+
+    /* Pill buttons: .btn for the main action, .btn-light for the rest */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 0; border-radius: var(--radius-pill); padding: 14px 28px;
+      background: var(--ink-card); color: #fff; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: transform 0.3s var(--ease-snap);
+    }
+    .btn:hover { transform: scale(1.04); }
+    .btn-light { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+
+    /* Chips and toggles: add aria-pressed="true" for the selected state */
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 6px 14px;
+      background: var(--bg); color: var(--ink); font-size: 0.875rem; font-weight: 500; cursor: pointer;
+    }
+    .chip[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
+
+    /* Guide */
+    .guide { max-width: 680px; margin: 0 auto; }
+    .intro { margin-bottom: 20px; }
+    .steps { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; padding: 0; list-style: none; }
+    .steps .chip { gap: 8px; }
+    .num {
+      display: grid; place-items: center; width: 22px; height: 22px;
+      border-radius: var(--radius-pill); background: var(--surface); color: var(--ink);
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .chip[aria-pressed="true"] .num { background: var(--accent); color: #fff; }
+    .chip { transition: transform 0.3s var(--ease-snap); }
+    .chip:hover { transform: scale(1.04); }
+    .bar { height: 6px; border-radius: var(--radius-pill); background: var(--border); overflow: hidden; margin-bottom: 20px; }
+    .bar span { display: block; height: 100%; background: var(--accent); border-radius: var(--radius-pill); transition: width 0.5s var(--ease-spring); }
+    .panel { animation: rise 0.4s var(--ease-spring); }
+    .panel h3 { font-size: 1.375rem; margin-bottom: 12px; }
+    .icon {
+      display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 16px;
+      border-radius: var(--radius-control); background: var(--surface); color: var(--accent);
+    }
+    .card-dark .icon { background: rgba(255, 255, 255, 0.08); color: var(--accent-from); }
+    .icon svg { width: 26px; height: 26px; }
+    .points { margin: 0 0 4px; padding: 0; list-style: none; display: grid; gap: 10px; }
+    .points li { position: relative; padding-left: 22px; color: var(--muted); }
+    .points li::before {
+      content: ""; position: absolute; left: 4px; top: 0.6em; width: 7px; height: 7px;
+      border-radius: var(--radius-pill); background: var(--accent);
+    }
+    .card-dark .points li { color: #d6d6d6; }
+    .card-dark .points li::before { background: var(--accent-from); }
+    .stat { font-size: 2.25rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1; color: var(--accent-strong); margin: 4px 0 12px; }
+    .nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; }
+    .nav .btn[hidden] { display: none; }
+    #next { margin-left: auto; }
+    .note { margin: 16px 0 0; font-size: 0.875rem; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    @media (max-width: 420px) {
+      body { padding: 16px; }
+      .card, .card-dark { padding: 20px; }
+      .steps .label { display: none; }
+      .nav .btn { flex: 1; justify-content: center; padding: 14px 16px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="guide">
+    <div class="intro">
+      <span class="eyebrow">A step-by-step guide</span>
+      <h2>Noticed changes in someone you love?</h2>
+      <p>Here's what to do next, and how The McCourt Foundation can help with Alzheimer's, MS, Parkinson's, and ALS.</p>
+    </div>
+
+    <ol class="steps" id="steps" aria-label="Guide steps"></ol>
+    <div class="bar" aria-hidden="true"><span id="bar"></span></div>
+
+    <div id="panel" aria-live="polite"></div>
+
+    <div class="nav">
+      <button class="btn btn-light" id="back">Back</button>
+      <button class="btn" id="next">Next step</button>
+    </div>
+  </div>
+
+  <script>
+    // Facts about the foundation come from its official website, mccourtfoundation.org.
+    const icons = {
+      eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+      doctor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/><path d="M12 10v5M9.5 12.5h5"/></svg>',
+      learn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8l10-5 10 5-10 5z"/><path d="M6 10v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>',
+      research: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/><path d="M7.5 15h9"/></svg>',
+      hands: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 14.5c.6-.3 1.3-.5 2-.5 2.8 0 4 2 4 5"/></svg>'
+    };
+
+    const steps = [
+      {
+        label: "Notice",
+        icon: "eye",
+        title: "Notice the changes",
+        text: "Maybe someone you love seems different in how they think, remember, or move. You don't have to figure it out alone.",
+        points: [
+          "Write down what you've noticed and when it started.",
+          "Keep the conversation kind and calm."
+        ]
+      },
+      {
+        label: "See a doctor",
+        icon: "doctor",
+        title: "Talk to a doctor",
+        text: "Only a doctor can look into changes like these. Bring your notes to the appointment so nothing gets missed.",
+        points: [
+          "Ask the questions you and your loved one have.",
+          "Go together if you can, so no one goes through it alone."
+        ]
+      },
+      {
+        label: "Learn",
+        icon: "learn",
+        title: "Learn from top neurologists, for free",
+        text: "The McCourt Foundation hosts a Neurological Symposium where leading doctors share the latest research.",
+        points: [
+          "It's free and open to the public.",
+          "Neurologists from Mass General Brigham and Cedars-Sinai share research on Alzheimer's, MS, Parkinson's, and ALS.",
+          "Each session has a short talk followed by a Q&A, so you can ask questions."
+        ]
+      },
+      {
+        label: "Hope",
+        icon: "research",
+        title: "Know that research is moving forward",
+        stat: "$7.2M+",
+        text: "That's how much the foundation has donated to neurological research.",
+        points: [
+          "Its seed funding helped a vaccine project for people living with Alzheimer's move toward a Phase 1 study in humans.",
+          "The foundation began in 1992, when seven brothers came together after their father was diagnosed with MS and their mother developed Alzheimer's."
+        ]
+      },
+      {
+        label: "Help",
+        icon: "hands",
+        dark: true,
+        title: "Help fund a cure",
+        text: "Every race, volunteer shift, and donation helps the foundation fund research and community programs.",
+        points: [
+          "Volunteer at the LA Marathon, the Rose Bowl Half Marathon, or the Santa Monica Classic.",
+          "Run for the cause with Team TMF.",
+          "Donate to support neurological research and community programs."
+        ],
+        note: "Find the volunteer and donate links on this page."
+      }
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    let current = 0;
+
+    steps.forEach((s, i) => {
+      const li = document.createElement("li");
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.innerHTML = '<span class="num">' + (i + 1) + '</span><span class="label"></span>';
+      b.querySelector(".label").textContent = s.label;
+      b.setAttribute("aria-label", "Step " + (i + 1) + ": " + s.label);
+      b.addEventListener("click", () => go(i));
+      li.appendChild(b);
+      $("steps").appendChild(li);
+    });
+
+    function go(i) {
+      current = i;
+      const s = steps[i];
+      $("steps").querySelectorAll(".chip").forEach((b, j) => b.setAttribute("aria-pressed", j === i ? "true" : "false"));
+      $("bar").style.width = ((i + 1) / steps.length * 100) + "%";
+
+      const panel = document.createElement("div");
+      panel.className = "panel " + (s.dark ? "card-dark" : "card");
+      panel.innerHTML =
+        '<div class="icon">' + icons[s.icon] + '</div>' +
+        '<span class="eyebrow">Step ' + (i + 1) + ' of ' + steps.length + '</span>' +
+        '<h3></h3>' + (s.stat ? '<div class="stat"></div>' : '') +
+        '<p class="text"></p><ul class="points"></ul>' +
+        (s.note ? '<p class="note"></p>' : '');
+      panel.querySelector("h3").textContent = s.title;
+      if (s.stat) panel.querySelector(".stat").textContent = s.stat;
+      panel.querySelector(".text").textContent = s.text;
+      s.points.forEach((p) => {
+        const li = document.createElement("li");
+        li.textContent = p;
+        panel.querySelector(".points").appendChild(li);
+      });
+      if (s.note) panel.querySelector(".note").textContent = s.note;
+      $("panel").replaceChildren(panel);
+
+      $("back").hidden = i === 0;
+      $("next").textContent = i === steps.length - 1 ? "Start over" : "Next step";
+    }
+
+    $("back").addEventListener("click", () => go(Math.max(0, current - 1)));
+    $("next").addEventListener("click", () => go(current === steps.length - 1 ? 0 : current + 1));
+
+    go(0);
+  </script>
+</body>
+</html>

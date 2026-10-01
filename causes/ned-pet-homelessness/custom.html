@@ -38,68 +38,98 @@
       cursor: pointer; transition: transform 0.3s var(--ease-snap);
     }
     .btn:hover { transform: scale(1.04); }
-    .btn-light { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
-
-    .chip {
-      display: inline-flex; align-items: center; gap: 6px;
-      border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 6px 14px;
-      background: var(--bg); color: var(--ink); font-size: 0.875rem; font-weight: 500; cursor: pointer;
-      transition: background 0.2s var(--ease-snap), color 0.2s var(--ease-snap);
-    }
-    .chip[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
+    .card-dark .btn { background: #fff; color: var(--ink); }
 
     .stack > * + * { margin-top: 16px; }
     .intro { max-width: 60ch; }
 
-    /* Controls */
-    .controls { display: grid; gap: 20px; }
-    .control-label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 600; margin-bottom: 8px; }
-    .control-label output { font-size: 1.5rem; color: var(--accent); font-variant-numeric: tabular-nums; }
-    input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; height: 28px; cursor: pointer; }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    /* Sliders */
+    .controls { display: grid; gap: 22px; }
+    @media (min-width: 640px) { .controls { grid-template-columns: 1fr 1fr; gap: 32px; } }
+    .control-label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 600; margin-bottom: 6px; }
+    .control-label output { font-size: 1.75rem; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .control-label output small { font-size: 0.875rem; color: var(--muted); font-weight: 500; letter-spacing: 0; }
 
-    /* Stage: van + herd */
+    input[type="range"] {
+      --fill: 0%;
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 40px; margin: 0;
+      background: transparent; cursor: grab; touch-action: pan-y;
+    }
+    input[type="range"]:active { cursor: grabbing; }
+    input[type="range"]:focus-visible { outline: none; }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 12px; border-radius: var(--radius-pill);
+      background: linear-gradient(to right, var(--accent-from), var(--accent) var(--fill), var(--surface-2) var(--fill));
+    }
+    input[type="range"]::-moz-range-track { height: 12px; border-radius: var(--radius-pill); background: var(--surface-2); }
+    input[type="range"]::-moz-range-progress { height: 12px; border-radius: var(--radius-pill); background: var(--accent-gradient); }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 32px; height: 32px; margin-top: -10px; border-radius: 50%;
+      background: var(--bg); border: 3px solid var(--ink-card);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+      transition: transform 0.25s var(--ease-spring);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--bg); border: 3px solid var(--ink-card);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+      transition: transform 0.25s var(--ease-spring);
+    }
+    input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.2); }
+    input[type="range"]:active::-moz-range-thumb { transform: scale(1.2); }
+    input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--accent); outline-offset: 2px; }
+    input[type="range"]:focus-visible::-moz-range-thumb { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .ticks { display: flex; justify-content: space-between; padding: 0 8px; font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+    .ticks span { width: 2.5em; text-align: center; transition: color 0.2s var(--ease-snap); }
+    .ticks span.on { color: var(--ink); font-weight: 600; }
+
+    /* Puppy pit */
+    .pit-card { padding: 0; overflow: hidden; position: relative; }
+    .pit-head { position: absolute; top: 0; left: 0; right: 0; z-index: 2; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 18px 20px; pointer-events: none; }
+    .pit-count { background: rgba(255, 255, 255, 0.92); border: 1px solid var(--border); border-radius: var(--radius-control); padding: 10px 14px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06); }
+    .pit-count .num { display: block; font-size: 2rem; font-weight: 600; line-height: 1.05; letter-spacing: -0.02em; color: var(--accent); font-variant-numeric: tabular-nums; }
+    .pit-count .what { display: block; font-size: 0.8rem; color: var(--muted); font-weight: 500; }
+    .overload {
+      align-self: flex-start; background: var(--ink-card); color: #fff;
+      border-radius: var(--radius-pill); padding: 8px 14px; font-size: 0.8rem; font-weight: 600; text-align: center;
+      opacity: 0; transform: scale(0.6) rotate(-6deg); transition: opacity 0.3s var(--ease-spring), transform 0.4s var(--ease-spring);
+    }
+    .overload small { display: block; font-weight: 500; color: var(--accent-from); font-size: 0.75rem; }
+    .overload.on { opacity: 1; transform: scale(1) rotate(-4deg); animation: wiggle 1.6s var(--ease-spring) infinite; }
+    @keyframes wiggle { 0%, 100% { transform: scale(1) rotate(-4deg); } 50% { transform: scale(1.06) rotate(3deg); } }
+    canvas#pit { display: block; width: 100%; height: 440px; background: linear-gradient(var(--bg), var(--surface)); }
+    @media (max-width: 480px) { canvas#pit { height: 400px; } }
+    .pit-card.shake { animation: shake 0.45s var(--ease-snap); }
+    @keyframes shake { 0%, 100% { transform: none; } 20% { transform: translateX(-5px) rotate(-0.4deg); } 40% { transform: translateX(5px) rotate(0.4deg); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+
+    /* Van + spayed dogs */
     .stage { display: grid; gap: 20px; }
-    @media (min-width: 640px) { .stage { grid-template-columns: 200px 1fr; align-items: start; } }
+    @media (min-width: 640px) { .stage { grid-template-columns: 200px 1fr; align-items: center; } }
     .van-wrap { text-align: center; }
-    .van { width: 100%; max-width: 220px; height: auto; animation: bob 2.4s var(--ease-spring) infinite alternate; }
+    .van { width: 100%; max-width: 200px; height: auto; animation: bob 2.4s var(--ease-spring) infinite alternate; }
     .van .body { fill: var(--ink-card); }
     .van .stripe { fill: var(--accent); }
     .van .window { fill: var(--surface-2); }
     .van .wheel { fill: var(--ink); }
     .van .hub { fill: var(--surface); }
     .van .label { fill: #fff; font-family: var(--font-sans); font-weight: 600; font-size: 11px; letter-spacing: 0.06em; }
-    .van-caption { font-size: 0.875rem; color: var(--muted); margin: 8px 0 0; }
     @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
-
-    .herd-title { font-size: 0.875rem; font-weight: 600; margin: 0 0 8px; }
+    .herd-title { font-size: 0.875rem; font-weight: 600; margin: 0 0 8px; color: var(--ink); }
     .herd-title span { color: var(--muted); font-weight: 500; }
-    .herd { display: flex; flex-wrap: wrap; gap: 6px; min-height: 40px; align-content: flex-start; }
-    .herd + .herd-title { margin-top: 20px; }
-    .dog { width: 40px; height: 30px; color: var(--ink-card); animation: pop 0.5s var(--ease-spring) both; }
+    .herd { display: flex; flex-wrap: wrap; gap: 4px; }
+    .dog { width: 26px; height: 20px; color: var(--ink-card); animation: pop 0.45s var(--ease-spring) both; }
     .dog .eye { fill: #fff; }
     .dog .heart { fill: var(--accent); }
-    .pup { width: 24px; height: 18px; color: var(--accent); opacity: 0.35; animation: ghost 0.6s var(--ease-spring) both; }
-    .pup .eye, .pup .heart { display: none; }
-    .empty { font-size: 0.875rem; color: var(--muted); margin: 0; }
-    @keyframes pop { from { transform: scale(0) translateY(8px); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    @keyframes ghost { from { transform: translateY(-14px) scale(0.6); opacity: 0; } to { transform: none; opacity: 0.35; } }
-
-    /* Counters */
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
-    .stat { padding: 18px 20px; }
-    .stat .num { display: block; font-size: 2rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; color: var(--accent); font-variant-numeric: tabular-nums; }
-    .stat .what { display: block; font-size: 0.875rem; color: var(--muted); margin-top: 4px; }
+    @keyframes pop { from { transform: scale(0) translateY(6px); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
     .note { font-size: 0.8rem; font-style: italic; color: var(--muted); margin: 0; max-width: 70ch; }
     .note + .note { margin-top: 6px; }
 
-    /* Call to action */
     .cta-msg { margin: 16px 0 0; padding: 14px 16px; border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.08); color: #fff; font-size: 0.9rem; }
     .cta-msg strong { color: var(--accent-from); font-weight: 600; word-break: break-all; }
-    .card-dark .btn { background: #fff; color: var(--ink); }
-
-    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; animation: none !important; }
@@ -126,29 +156,40 @@
   <main class="stack">
     <div class="intro">
       <span class="eyebrow">Spaymobile Ripple Effect Calculator</span>
-      <h2>One surgery today, dozens fewer puppies tomorrow</h2>
-      <p>Pick how many female dogs the Amanda Spaymobile spays, then look ahead in time to see the litters that never happen.</p>
+      <h2>One surgery today, a flood of puppies prevented tomorrow</h2>
+      <p>Slide to pick how many female dogs the Amanda Spaymobile spays and how far ahead to look. Then watch the puppies pile up: every one is a puppy that won't be born into a crowded shelter.</p>
     </div>
 
     <section class="card controls" aria-label="Calculator settings">
       <div>
         <label class="control-label" for="dogs">
           Female dogs spayed
-          <output id="dogs-out" for="dogs">3</output>
+          <output id="dogs-out" for="dogs">5</output>
         </label>
-        <input id="dogs" type="range" min="1" max="10" step="1" value="3">
+        <input id="dogs" type="range" min="1" max="100" step="any" value="5">
       </div>
       <div>
-        <span class="control-label" id="time-label">Look ahead</span>
-        <div class="chips" role="group" aria-labelledby="time-label">
-          <button class="chip" type="button" data-years="0" aria-pressed="true">Today</button>
-          <button class="chip" type="button" data-years="1" aria-pressed="false">In 1 year</button>
-          <button class="chip" type="button" data-years="2" aria-pressed="false">In 2 years</button>
-        </div>
+        <label class="control-label" for="years">
+          Look ahead
+          <output id="years-out" for="years">1 <small>year</small></output>
+        </label>
+        <input id="years" type="range" min="0" max="4" step="any" value="0">
+        <div class="ticks" aria-hidden="true"><span>1 yr</span><span>2 yrs</span><span>4 yrs</span><span>5 yrs</span><span>10 yrs</span></div>
       </div>
     </section>
 
-    <section class="card stage" aria-label="Ripple effect">
+    <section class="card pit-card" id="pit-card" aria-label="Puppies prevented">
+      <div class="pit-head">
+        <div class="pit-count" aria-live="polite">
+          <span class="num" id="pups-num">60</span>
+          <span class="what">puppies prevented (up to)</span>
+        </div>
+        <div class="overload" id="overload">Puppy overload!<small id="overload-more"></small></div>
+      </div>
+      <canvas id="pit" role="img" aria-label="A box filling up with cartoon puppies, one for each puppy prevented"></canvas>
+    </section>
+
+    <section class="card stage" aria-label="Surgeries">
       <div class="van-wrap">
         <svg class="van" viewBox="0 0 220 120" role="img" aria-label="The Amanda Spaymobile van">
           <rect class="body" x="8" y="20" width="150" height="72" rx="12"/>
@@ -163,24 +204,15 @@
           <circle class="wheel" cx="176" cy="94" r="15"/>
           <circle class="hub" cx="176" cy="94" r="6"/>
         </svg>
-        <p class="van-caption">Free spay/neuter surgeries and vaccines, brought to LA neighborhoods.</p>
       </div>
       <div>
-        <p class="herd-title">Spayed today <span id="dogs-caption"></span></p>
+        <p class="herd-title">Surgeries completed <span id="dogs-caption"></span></p>
         <div class="herd" id="dog-herd" aria-hidden="true"></div>
-        <p class="herd-title">Puppies that won't be born <span id="pups-caption"></span></p>
-        <div class="herd" id="pup-herd" aria-hidden="true"></div>
       </div>
-    </section>
-
-    <section class="stats" aria-label="Totals" aria-live="polite">
-      <div class="card stat"><span class="num" id="stat-surgeries">3</span><span class="what">surgeries completed</span></div>
-      <div class="card stat"><span class="num" id="stat-pups">0</span><span class="what">puppies prevented (up to)</span></div>
-      <div class="card stat"><span class="num" id="stat-time">Today</span><span class="what">point in time</span></div>
     </section>
 
     <div>
-      <p class="note">These numbers are estimates. They use the Amanda Foundation's figure that one unspayed female dog can have up to 12 puppies a year, so each spayed dog prevents up to 12 puppies per year. Puppies can start having litters of their own by 6 months old, which isn't counted here, so the real ripple can be even bigger.</p>
+      <p class="note">These numbers are estimates. They use the Amanda Foundation's figure that one unspayed female dog can have up to 12 puppies a year, multiplied by the number of dogs and years. Puppies can start having litters of their own by 6 months old, which isn't counted here, so the real ripple can be even bigger.</p>
       <p class="note">We don't show a dollar cost per surgery. The Spaymobile is free for pet owners, and the Amanda Foundation doesn't publish what one surgery costs, so we didn't want to guess what your donation pays for. Every dollar goes to their medical care, spay/neuter procedures, and education programs.</p>
     </div>
 
@@ -188,30 +220,43 @@
       <span class="eyebrow">Make it real</span>
       <h3 id="cta-title">Help the Spaymobile keep rolling</h3>
       <p>Donations go straight to the Amanda Foundation and support free spay/neuter surgeries across Los Angeles.</p>
-      <button class="btn" type="button" id="cta" aria-expanded="false" aria-controls="cta-msg">Help prevent up to 0 puppies</button>
+      <button class="btn" type="button" id="cta" aria-expanded="false" aria-controls="cta-msg">Help prevent up to 60 puppies</button>
       <p class="cta-msg" id="cta-msg" hidden>Use the <strong>Donate</strong> button on this page to give directly to the Amanda Foundation, or visit <strong>amandafoundation.org/donate</strong>.</p>
     </section>
   </main>
 
   <script>
     var PUPPIES_PER_DOG_PER_YEAR = 12; // Amanda Foundation: "up to 12 puppies in a year"
+    var YEAR_STOPS = [1, 2, 4, 5, 10];
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    var slider = document.getElementById("dogs");
-    var dogsOut = document.getElementById("dogs-out");
+    var dogSlider = document.getElementById("dogs");
+    var yearSlider = document.getElementById("years");
     var dogHerd = document.getElementById("dog-herd");
-    var pupHerd = document.getElementById("pup-herd");
-    var chips = document.querySelectorAll(".chip[data-years]");
+    var ticks = document.querySelectorAll(".ticks span");
+    var pupsNum = document.getElementById("pups-num");
+    var overload = document.getElementById("overload");
+    var overloadMore = document.getElementById("overload-more");
+    var pitCard = document.getElementById("pit-card");
     var cta = document.getElementById("cta");
     var ctaMsg = document.getElementById("cta-msg");
-    var years = 0;
-    var shownDogs = 0;
-    var shownPups = 0;
 
-    function icon(cls, delay) {
+    var state = { dogs: 0, years: 0, pups: 0 };
+    var shownPups = 0;
+    var wasOverloaded = false;
+
+    function fmt(n) { return n.toLocaleString("en-US"); }
+
+    function setFill(slider) {
+      var p = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+      slider.style.setProperty("--fill", p + "%");
+    }
+
+    /* ---------- Spayed dog icons ---------- */
+    function dogIcon(delay) {
       var ns = "http://www.w3.org/2000/svg";
       var svg = document.createElementNS(ns, "svg");
-      svg.setAttribute("class", cls);
+      svg.setAttribute("class", "dog");
       svg.setAttribute("viewBox", "0 0 64 48");
       svg.style.animationDelay = delay + "s";
       var use = document.createElementNS(ns, "use");
@@ -219,70 +264,303 @@
       svg.appendChild(use);
       return svg;
     }
-
-    // Add or remove icons so only the new ones animate in.
-    function fill(herd, count, cls, totalStagger) {
-      while (herd.children.length > count) herd.removeChild(herd.lastChild);
-      if (herd.firstChild && herd.firstChild.tagName === "P") herd.innerHTML = "";
-      var added = count - herd.children.length;
-      var step = added > 0 ? Math.min(0.06, totalStagger / added) : 0;
+    function setDogIcons(count) {
+      while (dogHerd.children.length > count) dogHerd.removeChild(dogHerd.lastChild);
+      var added = count - dogHerd.children.length;
       var frag = document.createDocumentFragment();
-      for (var i = 0; i < added; i++) frag.appendChild(icon(cls, i * step));
-      herd.appendChild(frag);
+      for (var i = 0; i < added; i++) frag.appendChild(dogIcon(Math.min(i * 0.02, 0.4)));
+      dogHerd.appendChild(frag);
     }
 
-    function countTo(el, from, to) {
-      if (reduceMotion || from === to) { el.textContent = to; return; }
-      var start = null, dur = 600;
-      function tick(t) {
-        if (!start) start = t;
-        var p = Math.min((t - start) / dur, 1);
-        var eased = 1 - Math.pow(1 - p, 3);
-        el.textContent = Math.round(from + (to - from) * eased);
-        if (p < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    }
+    /* ---------- Puppy sprites, drawn once with the site's colors ---------- */
+    var css = getComputedStyle(document.documentElement);
+    function token(name, fallback) { return css.getPropertyValue(name).trim() || fallback; }
+    var C = {
+      ink: token("--ink", "#111"), card: token("--ink-card", "#0a0a0a"), bg: token("--bg", "#fff"),
+      surface: token("--surface", "#f1f0ee"), surface2: token("--surface-2", "#e3e2df"), subtle: token("--subtle", "#8d8d8d"),
+      accent: token("--accent", "#b15f2c"), from: token("--accent-from", "#cf8047"), strong: token("--accent-strong", "#97501f")
+    };
+    var COATS = [
+      { fur: C.from, ear: C.strong, muzzle: C.bg },
+      { fur: C.surface2, ear: C.subtle, muzzle: C.bg },
+      { fur: C.card, ear: C.card, muzzle: C.subtle },
+      { fur: C.bg, ear: C.from, muzzle: C.surface, spot: C.from },
+      { fur: C.accent, ear: C.strong, muzzle: C.surface }
+    ];
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var SPRITE = 64;
 
-    function render() {
-      var dogs = Number(slider.value);
-      var pups = dogs * PUPPIES_PER_DOG_PER_YEAR * years;
-      dogsOut.textContent = dogs;
-
-      fill(dogHerd, dogs, "dog", 0.4);
-      if (pups === 0) {
-        pupHerd.innerHTML = '<p class="empty">Switch to "In 1 year" or "In 2 years" to see the ripple.</p>';
-      } else {
-        fill(pupHerd, pups, "pup", 1.2);
-      }
-
-      document.getElementById("dogs-caption").textContent = "(" + dogs + (dogs === 1 ? " dog)" : " dogs)");
-      document.getElementById("pups-caption").textContent = years === 0 ? "" : "(up to " + pups + ")";
-      countTo(document.getElementById("stat-surgeries"), shownDogs, dogs);
-      countTo(document.getElementById("stat-pups"), shownPups, pups);
-      document.getElementById("stat-time").textContent = years === 0 ? "Today" : years === 1 ? "1 year" : "2 years";
-      cta.textContent = pups > 0
-        ? "Help prevent up to " + pups + " puppies"
-        : "Help spay " + dogs + (dogs === 1 ? " dog" : " dogs");
-
-      shownDogs = dogs;
-      shownPups = pups;
-    }
-
-    slider.addEventListener("input", render);
-    chips.forEach(function (chip) {
-      chip.addEventListener("click", function () {
-        years = Number(chip.dataset.years);
-        chips.forEach(function (c) { c.setAttribute("aria-pressed", String(c === chip)); });
-        render();
+    function drawPuppy(coat, blink) {
+      var cv = document.createElement("canvas");
+      cv.width = cv.height = SPRITE * dpr;
+      var g = cv.getContext("2d");
+      g.scale(dpr * SPRITE / 100, dpr * SPRITE / 100);
+      g.translate(50, 54);
+      // floppy ears
+      g.fillStyle = coat.ear;
+      [[-1], [1]].forEach(function (side) {
+        var s = side[0];
+        g.save(); g.translate(s * 30, -14); g.rotate(s * 0.45);
+        g.beginPath(); g.ellipse(0, 0, 13, 24, 0, 0, Math.PI * 2); g.fill(); g.restore();
       });
+      // head
+      g.fillStyle = coat.fur;
+      g.beginPath(); g.ellipse(0, 0, 34, 31, 0, 0, Math.PI * 2); g.fill();
+      if (coat.fur === C.bg) { g.strokeStyle = C.surface2; g.lineWidth = 2; g.stroke(); }
+      if (coat.spot) { g.fillStyle = coat.spot; g.beginPath(); g.ellipse(-14, -12, 12, 10, -0.4, 0, Math.PI * 2); g.fill(); }
+      // muzzle
+      g.fillStyle = coat.muzzle;
+      g.beginPath(); g.ellipse(0, 12, 17, 13, 0, 0, Math.PI * 2); g.fill();
+      // cheeks
+      g.fillStyle = C.from; g.globalAlpha = 0.35;
+      g.beginPath(); g.arc(-21, 9, 5.5, 0, Math.PI * 2); g.arc(21, 9, 5.5, 0, Math.PI * 2); g.fill();
+      g.globalAlpha = 1;
+      // eyes
+      var eye = coat.fur === C.card ? C.bg : C.ink;
+      if (blink) {
+        g.strokeStyle = eye; g.lineWidth = 3; g.lineCap = "round";
+        g.beginPath(); g.arc(-12, -5, 5, 0.2, Math.PI - 0.2); g.stroke();
+        g.beginPath(); g.arc(12, -5, 5, 0.2, Math.PI - 0.2); g.stroke();
+      } else {
+        g.fillStyle = eye;
+        g.beginPath(); g.arc(-12, -4, 5.5, 0, Math.PI * 2); g.arc(12, -4, 5.5, 0, Math.PI * 2); g.fill();
+        g.fillStyle = coat.fur === C.card ? C.card : C.bg;
+        g.beginPath(); g.arc(-10, -6, 2, 0, Math.PI * 2); g.arc(14, -6, 2, 0, Math.PI * 2); g.fill();
+      }
+      // nose
+      g.fillStyle = C.ink;
+      g.beginPath(); g.ellipse(0, 6, 6.5, 4.5, 0, 0, Math.PI * 2); g.fill();
+      // mouth + tongue
+      g.fillStyle = C.from;
+      g.beginPath(); g.ellipse(0, 19, 4.5, 6, 0, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = C.ink; g.lineWidth = 2; g.lineCap = "round";
+      g.beginPath(); g.moveTo(-8, 13); g.quadraticCurveTo(-4, 17, 0, 12); g.quadraticCurveTo(4, 17, 8, 13); g.stroke();
+      return cv;
+    }
+    var sprites = COATS.map(function (coat) { return [drawPuppy(coat, false), drawPuppy(coat, true)]; });
+
+    /* ---------- The pit ---------- */
+    var canvas = document.getElementById("pit");
+    var ctx = canvas.getContext("2d");
+    var W = 0, H = 0, size = 34, slots = [];
+    var pups = [];   // settled pile
+    var rain = [];   // overflow puppies that bounce off the full pile
+    var running = false, visible = true, last = 0;
+
+    function rand(a, b) { return a + Math.random() * (b - a); }
+
+    function layout() {
+      var rect = canvas.getBoundingClientRect();
+      W = rect.width; H = rect.height;
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      size = W < 420 ? 30 : 36;
+      var cellW = size * 0.92, cellH = size * 0.78;
+      var cols = Math.max(1, Math.floor(W / cellW));
+      var rows = Math.floor((H - size * 0.3) / cellH);
+      cellW = W / cols;
+      slots = [];
+      for (var r = 0; r < rows; r++) {
+        var odd = r % 2, n = odd ? cols - 1 : cols, order = [];
+        for (var c = 0; c < n; c++) order.push(c);
+        order.sort(function () { return Math.random() - 0.5; });
+        order.forEach(function (c) {
+          slots.push({
+            x: (c + 0.5 + odd * 0.5) * cellW + rand(-3, 3),
+            y: H - size * 0.5 - r * cellH + rand(-2, 2)
+          });
+        });
+      }
+      pups.forEach(function (p, i) {
+        if (i < slots.length) { p.tx = slots[i].x; p.ty = slots[i].y; p.x = p.tx; }
+      });
+    }
+
+    function newPup(i) {
+      var s = slots[i];
+      return {
+        tx: s.x, ty: s.y, x: s.x + rand(-20, 20), y: -size - rand(0, H * 0.8), vy: rand(0, 2),
+        coat: Math.floor(Math.random() * COATS.length), rot: rand(-0.35, 0.35), spin: rand(-0.08, 0.08),
+        scale: 1, leaving: false, phase: rand(0, 6.28), blinkAt: rand(1, 6)
+      };
+    }
+
+    function newRain() {
+      return {
+        x: rand(size, W - size), y: -size - rand(0, H * 0.5), vx: rand(-1.5, 1.5), vy: rand(1, 4),
+        coat: Math.floor(Math.random() * COATS.length), rot: rand(-0.5, 0.5), spin: rand(-0.1, 0.1), bounced: 0
+      };
+    }
+
+    function syncPit() {
+      var target = Math.min(state.pups, slots.length);
+      var active = pups.filter(function (p) { return !p.leaving; }).length;
+      if (target > active) {
+        pups = pups.filter(function (p) { return !p.leaving; });
+        for (var i = pups.length; i < target; i++) pups.push(newPup(i));
+      } else if (target < active) {
+        for (var j = target; j < pups.length; j++) pups[j].leaving = true;
+      }
+      var over = state.pups - slots.length;
+      var rainCount = over > 0 ? Math.min(70, 12 + Math.floor(over / 40)) : 0;
+      if (reduceMotion) rainCount = 0;
+      while (rain.length < rainCount) rain.push(newRain());
+      if (rain.length > rainCount) rain.length = rainCount;
+
+      var overloaded = over > 0;
+      overload.classList.toggle("on", overloaded);
+      overloadMore.textContent = overloaded ? "+" + fmt(over) + " more than fit!" : "";
+      if (overloaded && !wasOverloaded && !reduceMotion) {
+        pitCard.classList.remove("shake"); void pitCard.offsetWidth; pitCard.classList.add("shake");
+      }
+      wasOverloaded = overloaded;
+
+      if (reduceMotion) {
+        pups = pups.filter(function (p) { return !p.leaving; });
+        pups.forEach(function (p) { p.x = p.tx; p.y = p.ty; p.vy = 0; });
+        draw(0);
+      } else start();
+    }
+
+    function drawSprite(coat, blink, x, y, rot, scale) {
+      var s = size * scale, cos = Math.cos(rot) * dpr, sin = Math.sin(rot) * dpr;
+      ctx.setTransform(cos, sin, -sin, cos, x * dpr, y * dpr);
+      ctx.drawImage(sprites[coat][blink ? 1 : 0], -s / 2, -s / 2, s, s);
+    }
+
+    function step(dt, t) {
+      var g = 0.55 * dt;
+      for (var i = pups.length - 1; i >= 0; i--) {
+        var p = pups[i];
+        if (p.leaving) {
+          p.scale -= 0.12 * dt;
+          if (p.scale <= 0) pups.splice(i, 1);
+          continue;
+        }
+        p.x += (p.tx - p.x) * 0.15 * dt;
+        if (p.y < p.ty || Math.abs(p.vy) > 0.4) {
+          p.vy += g; p.y += p.vy * dt; p.rot += p.spin * dt;
+          if (p.y >= p.ty) { p.y = p.ty; p.vy = -p.vy * 0.38; p.spin *= 0.5; }
+        } else { p.y = p.ty; p.vy = 0; }
+      }
+      var floor = slots.length ? Math.max(size, slots[slots.length - 1].y) : H;
+      rain.forEach(function (r, k) {
+        r.vy += g; r.x += r.vx * dt; r.y += r.vy * dt; r.rot += r.spin * dt;
+        if (r.y > floor - size * 0.2 && r.vy > 0) {
+          r.y = floor - size * 0.2; r.vy = -r.vy * rand(0.45, 0.7); r.vx += rand(-2.5, 2.5); r.spin = rand(-0.2, 0.2); r.bounced++;
+        }
+        if (r.x < -size || r.x > W + size || r.bounced > 3) rain[k] = newRain();
+      });
+    }
+
+    function draw(t) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var sec = t / 1000;
+      // draw from the top of the pile down so lower puppies overlap nicely
+      for (var i = pups.length - 1; i >= 0; i--) {
+        var p = pups[i];
+        var settled = p.vy === 0 && p.y === p.ty;
+        var bob = settled && !reduceMotion ? Math.sin(sec * 2 + p.phase) * 1.2 : 0;
+        var blink = !reduceMotion && ((sec + p.phase) % p.blinkAt) < 0.14;
+        drawSprite(p.coat, blink, p.x, p.y + bob, p.rot, p.scale);
+      }
+      rain.forEach(function (r) { drawSprite(r.coat, false, r.x, r.y, r.rot, 1); });
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+
+    function frame(t) {
+      if (!running) return;
+      var dt = last ? Math.min((t - last) / 16.67, 3) : 1;
+      last = t;
+      step(dt, t);
+      draw(t);
+      requestAnimationFrame(frame);
+    }
+    function start() {
+      if (running || !visible || reduceMotion) return;
+      running = true; last = 0; requestAnimationFrame(frame);
+    }
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        visible = entries[0].isIntersecting;
+        if (visible) start(); else running = false;
+      }).observe(canvas);
+    }
+
+    /* ---------- Counter ---------- */
+    var countAnim = 0;
+    function countTo(to) {
+      var from = shownPups;
+      shownPups = to;
+      cancelAnimationFrame(countAnim);
+      if (reduceMotion || from === to) { pupsNum.textContent = fmt(to); return; }
+      var t0 = null;
+      function tick(t) {
+        if (!t0) t0 = t;
+        var p = Math.min((t - t0) / 450, 1), e = 1 - Math.pow(1 - p, 3);
+        pupsNum.textContent = fmt(Math.round(from + (to - from) * e));
+        if (p < 1) countAnim = requestAnimationFrame(tick);
+      }
+      countAnim = requestAnimationFrame(tick);
+    }
+
+    /* ---------- Wire it up ---------- */
+    function update() {
+      var dogs = Math.round(Number(dogSlider.value));
+      var years = YEAR_STOPS[Math.round(Number(yearSlider.value))];
+      setFill(dogSlider); setFill(yearSlider);
+      if (dogs === state.dogs && years === state.years) return;
+      state.dogs = dogs; state.years = years;
+      state.pups = dogs * PUPPIES_PER_DOG_PER_YEAR * years;
+
+      document.getElementById("dogs-out").textContent = dogs;
+      document.getElementById("years-out").innerHTML = years + " <small>" + (years === 1 ? "year" : "years") + "</small>";
+      ticks.forEach(function (el, i) { el.classList.toggle("on", YEAR_STOPS[i] === years); });
+      document.getElementById("dogs-caption").textContent = "(" + dogs + ")";
+      dogSlider.setAttribute("aria-valuetext", dogs + (dogs === 1 ? " dog" : " dogs"));
+      yearSlider.setAttribute("aria-valuetext", years + (years === 1 ? " year" : " years"));
+      setDogIcons(dogs);
+      countTo(state.pups);
+      cta.textContent = "Help prevent up to " + fmt(state.pups) + " puppies";
+      syncPit();
+    }
+
+    dogSlider.addEventListener("input", update);
+    yearSlider.addEventListener("input", update);
+    // Let the year slider glide, then settle on the nearest stop when released.
+    yearSlider.addEventListener("change", function () {
+      yearSlider.value = Math.round(Number(yearSlider.value));
+      update();
     });
     cta.addEventListener("click", function () {
       ctaMsg.hidden = false;
       cta.setAttribute("aria-expanded", "true");
     });
 
-    render();
+    // Arrow keys move one whole step, since the sliders glide freely under a finger.
+    [dogSlider, yearSlider].forEach(function (slider) {
+      slider.addEventListener("keydown", function (e) {
+        var keys = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageUp: 10, PageDown: -10 };
+        if (!(e.key in keys) && e.key !== "Home" && e.key !== "End") return;
+        e.preventDefault();
+        var min = Number(slider.min), max = Number(slider.max);
+        var v = e.key === "Home" ? min : e.key === "End" ? max : Math.round(Number(slider.value)) + keys[e.key];
+        slider.value = Math.max(min, Math.min(max, v));
+        update();
+      });
+    });
+
+    var lastWidth = 0, resizeTimer;
+    new ResizeObserver(function () {
+      var w = canvas.getBoundingClientRect().width;
+      if (Math.abs(w - lastWidth) < 1) return;
+      lastWidth = w;
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () { layout(); syncPit(); if (reduceMotion) draw(0); }, 120);
+    }).observe(canvas);
+
+    layout();
+    update();
   </script>
 </body>
 </html>

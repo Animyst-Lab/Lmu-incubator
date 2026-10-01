@@ -57,7 +57,7 @@ volunteerSteps:
 # ── Donate ──
 
 # 14. Where people donate (from the nonprofit's site)
-donateLink: "https://connect.clickandpledge.com/Organization/keenlosangeles/campaign/KEEN-Los-Angeles"
+donateLink: "https://www.keenlosangeles.org/ways-to-help"
 
 # 15. What a donation makes possible, e.g. "$25 feeds a family for a week" (from the nonprofit's site)
 donateImpact: "Donations keep every KEEN program free, so families are never asked to pay for their child to play."

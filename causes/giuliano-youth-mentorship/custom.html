@@ -52,21 +52,273 @@
     }
     .chip[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
 
+    /* Quiz */
+    .quiz { max-width: 640px; margin: 0 auto; }
+    .intro { margin-bottom: 20px; }
+    .progress-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: 500; color: var(--muted); margin-bottom: 8px; }
+    .progress { height: 6px; border-radius: var(--radius-pill); background: var(--border); overflow: hidden; margin-bottom: 20px; }
+    .progress-fill { height: 100%; width: 0; background: var(--accent); border-radius: var(--radius-pill); transition: width 0.5s var(--ease-spring); }
+    .question { font-size: 1.25rem; margin-bottom: 16px; }
+    .options { display: grid; gap: 10px; margin-bottom: 20px; }
+    .option {
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      text-align: left; padding: 14px 16px; cursor: pointer;
+      background: var(--bg); color: var(--ink);
+      border: 1px solid var(--border); border-radius: var(--radius-control);
+      font-size: 0.95rem; font-weight: 500; line-height: 1.35;
+      transition: transform 0.3s var(--ease-snap), border-color 0.2s var(--ease-snap), background 0.2s var(--ease-snap);
+    }
+    .option:hover { transform: scale(1.02); border-color: var(--ink); }
+    .option[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
+    .option .emoji { font-size: 1.4rem; flex: none; }
+    .nav { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .btn[disabled] { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .fade-in { animation: fadeIn 0.45s var(--ease-spring); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    /* Result */
+    .result-emoji { font-size: 3rem; line-height: 1; margin-bottom: 12px; }
+    .card-dark h2 { color: #fff; font-size: 1.75rem; }
+    .activities { list-style: none; margin: 0 0 20px; padding: 0; display: grid; gap: 10px; }
+    .activities li { display: flex; gap: 12px; align-items: flex-start; background: rgba(255, 255, 255, 0.08); border-radius: var(--radius-control); padding: 12px 14px; color: #fff; }
+    .activities .num { flex: none; width: 26px; height: 26px; border-radius: var(--radius-pill); background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 0.8rem; font-weight: 600; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .card-dark .btn { background: #fff; color: var(--ink-card); }
+    .card-dark .btn-light { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.4); }
+    .signup { margin-top: 16px; padding: 14px 16px; border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.08); }
+    .signup p { margin: 0 0 4px; }
+    .signup .address { color: #fff; font-weight: 600; font-size: 1.05rem; overflow-wrap: anywhere; user-select: all; }
+    .note { font-size: 0.85rem; margin: 16px 0 0; }
+    .card-dark .note { color: #bdbdbd; }
+
+    @media (max-width: 400px) {
+      body { padding: 16px; }
+      .card, .card-dark { padding: 20px; }
+      .nav .btn, .actions .btn { flex: 1; justify-content: center; }
+    }
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; animation: none !important; }
     }
   </style>
 </head>
 <body>
-  <!--
-    Ask your AI helper to build anything here.
+  <div class="quiz">
+    <span class="eyebrow">Quiz · 5 questions</span>
+    <h2>What kind of Big would you be?</h2>
+    <p class="intro">Big Brothers Big Sisters says you don't need any special degrees or job skills to be a mentor, just the wish to positively impact a young person. Find out what kind of mentor you'd be.</p>
 
-    Rules:
-    - Keep everything in this one file: HTML, CSS and JavaScript together.
-    - Scripts can only come from cdn.jsdelivr.net or cdnjs.cloudflare.com.
-    - No forms, no collecting personal info, no tracking, no logins.
-    - Keep the file under 500 KB.
-    - Make it look good on a phone.
-  -->
+    <div id="stage" aria-live="polite"></div>
+  </div>
+
+  <script>
+    // Each answer adds a point to one mentor style: c = Confidence Builder, r = Creative Coach, a = Adventure Buddy.
+    const questions = [
+      {
+        q: 'It\'s a free Saturday. What sounds best?',
+        options: [
+          { e: '📚', t: 'Working toward a goal, like learning something new', s: 'c' },
+          { e: '🎨', t: 'Making something: art, music, a video, a recipe', s: 'r' },
+          { e: '🥾', t: 'Getting outside: a hike, a pickup game, the beach', s: 'a' }
+        ]
+      },
+      {
+        q: 'Your friends would say your biggest strength is…',
+        options: [
+          { e: '💬', t: 'I\'m a great listener and encourager', s: 'c' },
+          { e: '💡', t: 'I always have a fun, original idea', s: 'r' },
+          { e: '⚡', t: 'I bring the energy and I\'m up for anything', s: 'a' }
+        ]
+      },
+      {
+        q: 'A young person tells you they\'re nervous about something new. You…',
+        options: [
+          { e: '🙌', t: 'Remind them of what they\'ve already done well', s: 'c' },
+          { e: '🧩', t: 'Help them see it from a new, creative angle', s: 'r' },
+          { e: '🤝', t: 'Say "Let\'s try it together!" and jump in with them', s: 'a' }
+        ]
+      },
+      {
+        q: 'Which of these would you most like to share with a young person?',
+        options: [
+          { e: '🎓', t: 'What it\'s like to go to college', s: 'c' },
+          { e: '🎸', t: 'A hobby I love, like drawing, music, or cooking', s: 'r' },
+          { e: '🌊', t: 'A place in LA they\'ve never been', s: 'a' }
+        ]
+      },
+      {
+        q: 'At the end of the day, what would make you proudest?',
+        options: [
+          { e: '⭐', t: 'They believe in themselves a little more', s: 'c' },
+          { e: '✨', t: 'They found a new way to express who they are', s: 'r' },
+          { e: '😄', t: 'They had a blast and can\'t wait for next time', s: 'a' }
+        ]
+      }
+    ];
+
+    // Activity ideas follow BBBSLA's advice: keep outings simple and low-cost.
+    const results = {
+      c: {
+        e: '🌟', name: 'The Confidence Builder',
+        text: 'You see the potential in people, sometimes before they see it themselves. Your encouragement helps a young person believe they can go after big goals.',
+        activities: [
+          'Walk around a college campus together, like LMU. BBBSLA says many of its Littles have never set foot on one.',
+          'Pick a small goal together, like finishing a book or learning a skill, and celebrate when they reach it.',
+          'Play a board game and swap stories about times you each tried something hard.'
+        ]
+      },
+      r: {
+        e: '🎨', name: 'The Creative Coach',
+        text: 'You turn ordinary afternoons into something memorable. You help a young person discover what they love and find their own voice.',
+        activities: [
+          'Bring sketchbooks to a park and draw what you see.',
+          'Cook a simple recipe together, like homemade pizza.',
+          'Go on a photo walk with your phones and make a mini photo story of your day.'
+        ]
+      },
+      a: {
+        e: '🧭', name: 'The Adventure Buddy',
+        text: 'You\'re up for anything, and your energy is contagious. You open a young person\'s eyes to new places and experiences all over LA.',
+        activities: [
+          'Hit a hiking trail for fresh air and good conversation.',
+          'Shoot hoops or kick a ball around at a local park.',
+          'Spend a day at the beach. BBBSLA says many of the kids it serves have never swum in the ocean.'
+        ]
+      }
+    };
+
+    const VOLUNTEER_ADDRESS = 'bbbsla.org/volunteer';
+    const stage = document.getElementById('stage');
+    let current = 0;
+    let answers = new Array(questions.length).fill(null);
+
+    function el(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text) node.textContent = text;
+      return node;
+    }
+
+    function showQuestion(focusFirst) {
+      const item = questions[current];
+      stage.innerHTML = '';
+      const card = el('div', 'card fade-in');
+
+      const row = el('div', 'progress-row');
+      row.append(el('span', '', 'Question ' + (current + 1) + ' of ' + questions.length));
+      row.append(el('span', '', Math.round((current / questions.length) * 100) + '% done'));
+      const bar = el('div', 'progress');
+      bar.setAttribute('aria-hidden', 'true');
+      const fill = el('div', 'progress-fill');
+      bar.append(fill);
+
+      const h = el('h3', 'question', item.q);
+      h.id = 'q-title';
+      const opts = el('div', 'options');
+      opts.setAttribute('role', 'group');
+      opts.setAttribute('aria-labelledby', 'q-title');
+
+      item.options.forEach((opt, i) => {
+        const b = el('button', 'option');
+        b.type = 'button';
+        b.setAttribute('aria-pressed', String(answers[current] === i));
+        b.append(el('span', 'emoji', opt.e));
+        b.append(el('span', '', opt.t));
+        b.addEventListener('click', () => {
+          answers[current] = i;
+          opts.querySelectorAll('.option').forEach((o, j) => o.setAttribute('aria-pressed', String(j === i)));
+          next.disabled = false;
+        });
+        opts.append(b);
+      });
+
+      const nav = el('div', 'nav');
+      const back = el('button', 'btn btn-light', '← Back');
+      back.type = 'button';
+      back.disabled = current === 0;
+      back.addEventListener('click', () => { current--; showQuestion(true); });
+      const next = el('button', 'btn', current === questions.length - 1 ? 'See my result →' : 'Next →');
+      next.type = 'button';
+      next.disabled = answers[current] === null;
+      next.addEventListener('click', () => {
+        if (answers[current] === null) return;
+        if (current < questions.length - 1) { current++; showQuestion(true); }
+        else showResult();
+      });
+      nav.append(back, next);
+
+      card.append(row, bar, h, opts, nav);
+      stage.append(card);
+      requestAnimationFrame(() => { fill.style.width = (((current + (answers[current] !== null ? 1 : 0)) / questions.length) * 100) + '%'; });
+      opts.addEventListener('click', () => { fill.style.width = (((current + 1) / questions.length) * 100) + '%'; });
+      if (focusFirst) opts.querySelector('.option').focus({ preventScroll: true });
+    }
+
+    function pickStyle() {
+      const score = { c: 0, r: 0, a: 0 };
+      answers.forEach((a, i) => { score[questions[i].options[a].s]++; });
+      const best = Math.max(score.c, score.r, score.a);
+      // On a tie, the answer to the last question decides.
+      const last = questions[questions.length - 1].options[answers[questions.length - 1]].s;
+      if (score[last] === best) return last;
+      return ['c', 'r', 'a'].find((k) => score[k] === best);
+    }
+
+    function showResult() {
+      const r = results[pickStyle()];
+      stage.innerHTML = '';
+      const card = el('div', 'card-dark fade-in');
+      card.append(el('span', 'eyebrow', 'Your mentor style'));
+      const emoji = el('div', 'result-emoji', r.e);
+      emoji.setAttribute('aria-hidden', 'true');
+      card.append(emoji);
+      const h = el('h2', '', r.name);
+      h.tabIndex = -1;
+      card.append(h, el('p', '', r.text));
+
+      card.append(el('span', 'eyebrow', '3 outings you\'d be great at'));
+      const list = el('ul', 'activities');
+      r.activities.forEach((a, i) => {
+        const li = el('li');
+        li.append(el('span', 'num', String(i + 1)), el('span', '', a));
+        list.append(li);
+      });
+      card.append(list);
+
+      const actions = el('div', 'actions');
+      const join = el('button', 'btn', 'Become a Big →');
+      join.type = 'button';
+      join.setAttribute('aria-expanded', 'false');
+      const again = el('button', 'btn btn-light', 'Retake the quiz');
+      again.type = 'button';
+      again.addEventListener('click', () => {
+        answers = new Array(questions.length).fill(null);
+        current = 0;
+        showQuestion(true);
+      });
+      actions.append(join, again);
+      card.append(actions);
+
+      // This section runs in a locked-down frame that can't open other websites,
+      // so the button shows the volunteer page address instead.
+      const signup = el('div', 'signup');
+      signup.hidden = true;
+      signup.id = 'signup';
+      join.setAttribute('aria-controls', 'signup');
+      signup.append(el('p', '', 'Apply on the Big Brothers Big Sisters of Greater LA volunteer page:'));
+      signup.append(el('p', 'address', VOLUNTEER_ADDRESS));
+      signup.append(el('p', '', 'Or use the volunteer link higher up on this page.'));
+      join.addEventListener('click', () => {
+        signup.hidden = !signup.hidden;
+        join.setAttribute('aria-expanded', String(!signup.hidden));
+      });
+      card.append(signup);
+
+      card.append(el('p', 'note', 'Just for fun! Every kind of Big makes a difference.'));
+      stage.append(card);
+      h.focus({ preventScroll: true });
+    }
+
+    showQuestion(false);
+  </script>
 </body>
 </html>

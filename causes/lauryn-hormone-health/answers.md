@@ -68,7 +68,7 @@ donateImpact: "$10 funds a menstrual care kit for a teen experiencing period pov
 image: "image.jpg"
 
 # 17. A few words describing the image, for screen readers (written for you)
-imageAlt: "Lauryn Said smiling, with long wavy brown hair and a gray blazer, against a light gray background."
+imageAlt: "Three white menstrual pads fanned out on a split pale yellow and magenta background."
 
 # ── For the matcher on the home page (chosen for you to approve) ──
 

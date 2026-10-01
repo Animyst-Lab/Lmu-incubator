@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    /* Starter styles that match the Lion Share site. Reuse these classes. */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* Small uppercase label above a heading */
+    .eyebrow { display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+
+    /* Cards: .card on light, .card-dark for one standout card */
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark p { color: #d6d6d6; }
+    .card-dark .eyebrow { color: var(--accent-from); }
+
+    /* Pill buttons: .btn for the main action, .btn-light for the rest */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 0; border-radius: var(--radius-pill); padding: 14px 28px;
+      background: var(--ink-card); color: #fff; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: transform 0.3s var(--ease-snap);
+    }
+    .btn:hover { transform: scale(1.04); }
+    .btn-light { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+
+    /* Chips and toggles: add aria-pressed="true" for the selected state */
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 6px 14px;
+      background: var(--bg); color: var(--ink); font-size: 0.875rem; font-weight: 500; cursor: pointer;
+    }
+    .chip[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
+
+    /* ── Myth vs. fact quiz ── */
+    .intro { max-width: 40rem; }
+    .quiz { max-width: 40rem; }
+    .progress { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-size: 0.875rem; color: var(--muted); }
+    .track { flex: 1; height: 6px; background: var(--border); border-radius: var(--radius-pill); overflow: hidden; }
+    .fill { height: 100%; width: 0; background: var(--accent); border-radius: var(--radius-pill); transition: width 0.5s var(--ease-spring); }
+    .statement { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.35; color: var(--ink); margin: 0 0 20px; }
+    .choices { display: flex; flex-wrap: wrap; gap: 12px; }
+    .choices .btn { flex: 1 1 120px; justify-content: center; }
+    .choices .btn[disabled] { cursor: default; transform: none; opacity: 0.45; }
+    .choices .btn.picked { opacity: 1; }
+    .reveal { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .reveal[hidden] { display: none; }
+    .verdict { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px; font-weight: 600; color: var(--ink); }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: var(--radius-pill); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink-card); color: #fff; }
+    .reveal p { margin-bottom: 20px; }
+    .result { text-align: left; }
+    .result .score { display: block; font-size: 3rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1; color: var(--accent-from); margin: 8px 0 12px; }
+    .result .btn-light { margin-top: 8px; }
+    .source { margin-top: 16px; font-size: 0.8125rem; color: var(--muted); }
+    .fade { animation: fadeUp 0.45s var(--ease-spring); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <section aria-labelledby="quiz-title">
+    <span class="eyebrow">Myth vs. fact · Emersyn Gray</span>
+    <h2 id="quiz-title">What do you really know about abuse in LA?</h2>
+    <p class="intro">When I volunteered with VIP, building awareness was a big part of the work. Read each statement and decide: myth or fact?</p>
+
+    <div class="quiz" id="quiz" aria-live="polite"></div>
+    <p class="source">Every answer comes from the Violence Intervention Program's website, violenceinterventionprogram.org.</p>
+  </section>
+
+  <script>
+    // Every explanation comes from violenceinterventionprogram.org.
+    const questions = [
+      {
+        text: 'Once the bruises heal, a child who was abused has recovered.',
+        fact: false,
+        why: 'VIP explains that after a child experiences trauma, the internal emotional wounds can take years to heal, long after the external bruises have disappeared. That\'s why mental health care is part of all of its programs.'
+      },
+      {
+        text: 'Most of the people VIP serves are children.',
+        fact: true,
+        why: '71% of the clients VIP serves are under age 15, and more than 15,000 children are helped at its medical center every year.'
+      },
+      {
+        text: 'Help after abuse or assault in L.A. County is only available during business hours.',
+        fact: false,
+        why: 'VIP runs the only 24/7 clinic for abuse and assault in L.A. County, so medical experts are there day and night.'
+      },
+      {
+        text: 'Most elder abuse gets reported.',
+        fact: false,
+        why: 'According to VIP, 93% of elder abuse is not reported. That\'s why VIP\'s work covers older adults as well as children.'
+      },
+      {
+        text: 'Treating emotional trauma early can help break the cycle of abuse.',
+        fact: true,
+        why: 'VIP says the earlier emotional trauma is addressed, the more likely it is that a child succeeds in the long run and the cycle of abuse is broken.'
+      },
+      {
+        text: 'A sexual assault exam has to happen in a hospital emergency room.',
+        fact: false,
+        why: 'VIP\'s Sexual Assault Center was the first to be set up outside the emergency room. Its medical experts give exams 24/7 in a calm setting, to help keep survivors from going through more trauma.'
+      },
+      {
+        text: 'Volunteers make a real difference for VIP\'s clients.',
+        fact: true,
+        why: 'In one year, VIP\'s volunteers gave 2,265 hours as mentors, tutors, child care providers, educators, and administrative volunteers.'
+      }
+    ];
+
+    const quiz = document.getElementById('quiz');
+    let index = 0;
+    let score = 0;
+
+    function render() {
+      if (index >= questions.length) return renderResult();
+      const q = questions[index];
+      const pct = (index / questions.length) * 100;
+      quiz.innerHTML = `
+        <div class="progress">
+          <span>${index + 1} of ${questions.length}</span>
+          <div class="track" aria-hidden="true"><div class="fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="card fade">
+          <span class="eyebrow">Myth or fact?</span>
+          <p class="statement">“${q.text}”</p>
+          <div class="choices">
+            <button class="btn btn-light" data-answer="false">Myth</button>
+            <button class="btn btn-light" data-answer="true">Fact</button>
+          </div>
+          <div class="reveal" hidden>
+            <div class="verdict"><span class="badge">${q.fact ? 'Fact' : 'Myth'}</span><span class="feedback"></span></div>
+            <p>${q.why}</p>
+            <button class="btn next">${index === questions.length - 1 ? 'See my score' : 'Next statement'}</button>
+          </div>
+        </div>`;
+      quiz.querySelectorAll('[data-answer]').forEach((btn) => btn.addEventListener('click', () => answer(btn)));
+    }
+
+    function answer(btn) {
+      const q = questions[index];
+      const guess = btn.dataset.answer === 'true';
+      const right = guess === q.fact;
+      if (right) score++;
+      quiz.querySelectorAll('[data-answer]').forEach((b) => { b.disabled = true; });
+      btn.classList.add('picked');
+      btn.classList.remove('btn-light');
+      const reveal = quiz.querySelector('.reveal');
+      reveal.querySelector('.feedback').textContent = right ? 'You got it.' : 'Not quite.';
+      reveal.hidden = false;
+      reveal.classList.add('fade');
+      quiz.querySelector('.fill').style.width = `${((index + 1) / questions.length) * 100}%`;
+      const next = reveal.querySelector('.next');
+      next.addEventListener('click', () => { index++; render(); quiz.querySelector('button')?.focus(); });
+      next.focus();
+    }
+
+    function renderResult() {
+      const message = score === questions.length
+        ? 'You already know a lot. Share what you learned so more people do too.'
+        : 'Every myth you unlearn helps. Awareness is one of the first steps toward stopping abuse.';
+      quiz.innerHTML = `
+        <div class="card-dark result fade">
+          <span class="eyebrow">Your score</span>
+          <span class="score">${score} / ${questions.length}</span>
+          <p>${message}</p>
+          <p>VIP helps 20,000 people a year move past abuse, neglect, and assault. You can help by volunteering or donating; see the links on this page.</p>
+          <button class="btn btn-light" id="again">Try again</button>
+        </div>`;
+      document.getElementById('again').addEventListener('click', () => { index = 0; score = 0; render(); quiz.querySelector('button')?.focus(); });
+      document.getElementById('again').focus();
+    }
+
+    render();
+  </script>
+</body>
+</html>

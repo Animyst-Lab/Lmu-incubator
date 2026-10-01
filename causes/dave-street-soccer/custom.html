@@ -168,10 +168,10 @@
     (function () {
       // The field uses its own units; it is scaled to fit the screen when drawn.
       var FW = 300, FH = 400;
-      var GOAL_L = 70, GOAL_R = 230, LINE = 44;
+      var GOAL_L = 60, GOAL_R = 240, LINE = 44;
       var SPOT = { x: 150, y: 250 };
       var BALL_R = 8, FOOT_R = 10;
-      var KEEPER_Y = LINE + 14, KEEPER_REACH = 18, KEEPER_SPEED = 2.1, KEEPER_DELAY = 11;
+      var KEEPER_Y = LINE + 14, KEEPER_REACH = 13, KEEPER_SPEED = 1.2, KEEPER_DELAY = 20;
       var KICKS = 3, TO_WIN = 2;
 
       var canvas = document.getElementById("field");
@@ -388,7 +388,7 @@
         var m = Math.hypot(side, 1);
         ball.vx = side / m * power; ball.vy = up / m * power;
         state = "flying";
-        aimError = (Math.random() - 0.5) * 26;
+        aimError = (Math.random() - 0.5) * 60;
         statusEl.textContent = "Shot!";
       }
 

@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    /* Starter styles that match the Lion Share site. Reuse these classes. */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* Small uppercase label above a heading */
+    .eyebrow { display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+
+    /* Cards: .card on light, .card-dark for one standout card */
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark p { color: #d6d6d6; }
+    .card-dark .eyebrow { color: var(--accent-from); }
+
+    /* Pill buttons: .btn for the main action, .btn-light for the rest */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 0; border-radius: var(--radius-pill); padding: 14px 28px;
+      background: var(--ink-card); color: #fff; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: transform 0.3s var(--ease-snap);
+    }
+    .btn:hover { transform: scale(1.04); }
+    .btn-light { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+
+    /* Chips and toggles: add aria-pressed="true" for the selected state */
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 6px 14px;
+      background: var(--bg); color: var(--ink); font-size: 0.875rem; font-weight: 500; cursor: pointer;
+    }
+    .chip[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
+
+    /* ── Breanna's section ── */
+    .wrap { max-width: 720px; margin: 0 auto; display: grid; gap: 20px; }
+
+    /* Quiz */
+    .progress { height: 6px; background: var(--surface); border-radius: var(--radius-pill); overflow: hidden; margin: 4px 0 20px; }
+    .progress span { display: block; height: 100%; width: 0; background: var(--accent); border-radius: var(--radius-pill); transition: width 0.5s var(--ease-spring); }
+    .q-count { font-size: 0.875rem; color: var(--muted); margin-bottom: 6px; }
+    .options { display: grid; gap: 10px; margin-top: 16px; }
+    .option {
+      text-align: left; width: 100%;
+      border: 1px solid var(--border); border-radius: var(--radius-control);
+      background: var(--bg); color: var(--ink); padding: 14px 16px;
+      font-size: 0.9375rem; cursor: pointer;
+      transition: transform 0.3s var(--ease-snap), border-color 0.2s;
+    }
+    .option:hover { border-color: var(--ink); transform: translateX(3px); }
+    .result-name { font-size: 1.75rem; margin: 4px 0 10px; }
+    .result-icon { font-size: 2.5rem; line-height: 1; margin-bottom: 8px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    .fade-in { animation: fadeIn 0.45s var(--ease-spring); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    /* Game */
+    .game-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .scores { display: flex; gap: 8px; }
+    .score { background: rgba(255,255,255,0.08); border-radius: var(--radius-control); padding: 6px 12px; text-align: center; min-width: 64px; }
+    .score b { display: block; font-size: 1.25rem; color: var(--accent-from); line-height: 1.2; }
+    .score small { font-size: 0.6875rem; letter-spacing: 0.06em; text-transform: uppercase; color: #d6d6d6; }
+    .court-box { position: relative; }
+    canvas { display: block; width: 100%; aspect-ratio: 4 / 5; max-height: 480px; border-radius: var(--radius-control); touch-action: none; cursor: pointer; }
+    .overlay {
+      position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 20px; gap: 6px;
+      background: rgba(10,10,10,0.72); border-radius: var(--radius-control);
+    }
+    .overlay[hidden] { display: none; }
+    .overlay h3 { color: #fff; font-size: 1.375rem; }
+    .overlay p { margin: 0 0 10px; }
+    .card-dark .btn { background: #fff; color: var(--ink); }
+    .hint { font-size: 0.8125rem; margin: 12px 0 0; }
+
+    @media (min-width: 560px) {
+      canvas { aspect-ratio: 5 / 4; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- Quiz -->
+    <section class="card" aria-live="polite">
+      <span class="eyebrow">Quiz</span>
+      <div id="quiz"></div>
+    </section>
+
+    <!-- Mini game -->
+    <section class="card-dark">
+      <div class="game-head">
+        <div>
+          <span class="eyebrow">Mini game</span>
+          <h2>Keep the rally going</h2>
+        </div>
+        <div class="scores">
+          <div class="score"><b id="rally">0</b><small>Rally</small></div>
+          <div class="score"><b id="best">0</b><small>Best</small></div>
+        </div>
+      </div>
+      <p>At KEEN, nobody plays to beat anyone. A coach and an athlete play together, non-competitively. So this game has one goal: keep the ball in play with your partner as long as you can.</p>
+      <div class="court-box">
+        <canvas id="court" aria-label="Tennis rally game. Move your racket left and right to return the ball."></canvas>
+        <div class="overlay" id="overlay">
+          <h3 id="ov-title">Ready to rally?</h3>
+          <p id="ov-text">Drag, move your mouse, or use the arrow keys to move your racket.</p>
+          <button class="btn" id="play">Start rally</button>
+        </div>
+      </div>
+      <p class="hint">On a phone, drag your finger across the court.</p>
+    </section>
+
+  </div>
+
+  <script>
+    // ── Quiz: which KEEN program would you love to coach at? ──
+    const PROGRAMS = {
+      swim:   { icon: "🏊", name: "KEEN Swim",       text: "You're calm, patient, and happy in the water. You'd be a great one-on-one partner for an athlete at the pool." },
+      basket: { icon: "🏀", name: "KEEN Basketball", text: "You love energy, high-fives, and cheering every shot, whether it goes in or not. The court is your place." },
+      dance:  { icon: "💃", name: "KEEN Dance",      text: "Music gets you moving. You'd help an athlete find their rhythm and have fun showing off their moves." },
+      art:    { icon: "🎨", name: "KEEN Art",        text: "You're creative and love a slower pace. You'd help an athlete make something they're proud of." },
+      sports: { icon: "⚽", name: "KEEN Sports",     text: "You want to try a little of everything. You'd explore lots of games and activities with your athlete." }
+    };
+
+    const QUESTIONS = [
+      { q: "It's Saturday morning. What sounds best?", a: [
+        ["A swim to start the day", "swim"], ["Shooting hoops with friends", "basket"],
+        ["A playlist and a dance party", "dance"], ["A sketchbook in the park", "art"] ] },
+      { q: "What kind of teammate are you?", a: [
+        ["The hype person, always cheering", "basket"], ["The calm, steady one", "swim"],
+        ["The one who tries anything", "sports"], ["The creative problem solver", "art"] ] },
+      { q: "Pick a sound:", a: [
+        ["A splash", "swim"], ["Sneakers squeaking", "basket"],
+        ["Your favorite song", "dance"], ["A whistle and a game starting", "sports"] ] },
+      { q: "What would make you proudest as a coach?", a: [
+        ["Seeing my athlete try something new", "sports"], ["Celebrating a big moment together", "basket"],
+        ["Watching them light up to the music", "dance"], ["Seeing them create something of their own", "art"] ] }
+    ];
+
+    const quiz = document.getElementById("quiz");
+    let step = 0, tally = {};
+
+    function renderQuestion() {
+      const item = QUESTIONS[step];
+      quiz.innerHTML = `
+        <div class="fade-in">
+          <h2>Which KEEN program would you coach?</h2>
+          <div class="progress" aria-hidden="true"><span style="width:${(step / QUESTIONS.length) * 100}%"></span></div>
+          <div class="q-count">Question ${step + 1} of ${QUESTIONS.length}</div>
+          <h3>${item.q}</h3>
+          <div class="options">
+            ${item.a.map(([label, key]) => `<button class="option" data-key="${key}">${label}</button>`).join("")}
+          </div>
+        </div>`;
+      quiz.querySelectorAll(".option").forEach(btn => btn.addEventListener("click", () => {
+        tally[btn.dataset.key] = (tally[btn.dataset.key] || 0) + 1;
+        step++;
+        step < QUESTIONS.length ? renderQuestion() : renderResult();
+      }));
+      if (step > 0) quiz.querySelector(".option").focus();
+    }
+
+    function renderResult() {
+      const top = Object.keys(tally).sort((a, b) => tally[b] - tally[a])[0];
+      const p = PROGRAMS[top];
+      quiz.innerHTML = `
+        <div class="fade-in">
+          <div class="progress" aria-hidden="true"><span style="width:100%"></span></div>
+          <div class="result-icon" aria-hidden="true">${p.icon}</div>
+          <div class="q-count">You'd be a great fit for</div>
+          <h2 class="result-name">${p.name}</h2>
+          <p>${p.text}</p>
+          <p>At every KEEN program, a volunteer coach is paired one-on-one with an athlete. No experience or athletic ability needed, just you as you are.</p>
+          <div class="actions"><button class="btn btn-light" id="again">Take it again</button></div>
+        </div>`;
+      const again = document.getElementById("again");
+      again.addEventListener("click", () => { step = 0; tally = {}; renderQuestion(); quiz.querySelector(".option").focus(); });
+      again.focus();
+    }
+
+    renderQuestion();
+
+    // ── Mini game: keep the rally going ──
+    const canvas = document.getElementById("court");
+    const ctx = canvas.getContext("2d");
+    const overlay = document.getElementById("overlay");
+    const rallyEl = document.getElementById("rally");
+    const bestEl = document.getElementById("best");
+    const css = getComputedStyle(document.documentElement);
+    const color = name => css.getPropertyValue(name).trim();
+    const COLORS = { court: color("--ink-card"), line: "rgba(255,255,255,0.55)", ball: color("--accent-from"), racket: "#fff", partner: color("--accent") };
+
+    let W = 0, H = 0, dpr = 1;
+    let ball, racket, partner, rally = 0, best = 0, playing = false, keys = {}, last = 0;
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      W = rect.width; H = rect.height;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (!playing) reset();
+      draw();
+    }
+
+    function reset() {
+      const size = Math.max(7, W * 0.022);
+      racket = { w: Math.max(64, W * 0.2), h: 10, x: W / 2, y: H - 26 };
+      partner = { w: Math.max(56, W * 0.16), h: 8, x: W / 2, y: 22 };
+      const speed = H * 0.55;
+      ball = { x: W / 2, y: H * 0.35, r: size, vx: speed * 0.35 * (Math.random() < 0.5 ? -1 : 1), vy: speed };
+    }
+
+    function drawCourt() {
+      ctx.fillStyle = COLORS.court;
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = COLORS.line;
+      ctx.lineWidth = 2;
+      const m = 14;
+      ctx.strokeRect(m, m, W - m * 2, H - m * 2);
+      ctx.beginPath();
+      ctx.moveTo(W / 2, m); ctx.lineTo(W / 2, H - m);           // center line
+      ctx.stroke();
+      // net
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(m, H / 2); ctx.lineTo(W - m, H / 2); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function drawRacket(r, fill) {
+      ctx.fillStyle = fill;
+      const x = r.x - r.w / 2, y = r.y - r.h / 2, rad = r.h / 2;
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(x, y, r.w, r.h, rad) : ctx.rect(x, y, r.w, r.h);
+      ctx.fill();
+    }
+
+    function draw() {
+      if (!ball) return;
+      drawCourt();
+      drawRacket(partner, COLORS.partner);
+      drawRacket(racket, COLORS.racket);
+      ctx.fillStyle = COLORS.ball;
+      ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2); ctx.fill();
+    }
+
+    function update(dt) {
+      // keyboard movement
+      const move = W * 1.1 * dt;
+      if (keys.ArrowLeft) racket.x -= move;
+      if (keys.ArrowRight) racket.x += move;
+      racket.x = Math.max(racket.w / 2, Math.min(W - racket.w / 2, racket.x));
+
+      // your partner always tracks the ball and sends it back
+      partner.x += (ball.x - partner.x) * Math.min(1, dt * 6);
+
+      ball.x += ball.vx * dt;
+      ball.y += ball.vy * dt;
+
+      if (ball.x < ball.r) { ball.x = ball.r; ball.vx *= -1; }
+      if (ball.x > W - ball.r) { ball.x = W - ball.r; ball.vx *= -1; }
+
+      // partner return
+      if (ball.vy < 0 && ball.y - ball.r <= partner.y + partner.h / 2) {
+        ball.y = partner.y + partner.h / 2 + ball.r;
+        ball.vy *= -1;
+        ball.vx = (Math.random() - 0.5) * Math.abs(ball.vy) * 1.1;
+      }
+
+      // your return
+      if (ball.vy > 0 && ball.y + ball.r >= racket.y - racket.h / 2 && ball.y < racket.y + racket.h) {
+        if (Math.abs(ball.x - racket.x) <= racket.w / 2 + ball.r) {
+          ball.y = racket.y - racket.h / 2 - ball.r;
+          const offset = (ball.x - racket.x) / (racket.w / 2);    // -1 to 1
+          const speed = Math.min(Math.hypot(ball.vx, ball.vy) * 1.05, H * 1.6);
+          ball.vx = speed * offset * 0.6;
+          ball.vy = -Math.sqrt(speed * speed - ball.vx * ball.vx);
+          rally++;
+          rallyEl.textContent = rally;
+        }
+      }
+
+      if (ball.y - ball.r > H) endRally();
+    }
+
+    function loop(t) {
+      if (!playing) return;
+      const dt = Math.min(0.032, (t - last) / 1000 || 0);
+      last = t;
+      update(dt);
+      draw();
+      if (playing) requestAnimationFrame(loop);
+    }
+
+    function startRally() {
+      reset();
+      rally = 0; rallyEl.textContent = 0;
+      overlay.hidden = true;
+      playing = true;
+      last = performance.now();
+      canvas.focus();
+      requestAnimationFrame(loop);
+    }
+
+    function endRally() {
+      playing = false;
+      if (rally > best) { best = rally; bestEl.textContent = best; }
+      const msg = rally === 0 ? "Shake it off and try again. Every coach starts somewhere!"
+        : rally < 5 ? `You kept it going for ${rally} ${rally === 1 ? "hit" : "hits"}. Nice start!`
+        : rally < 15 ? `A ${rally}-hit rally. Your partner is having a blast!`
+        : `${rally} hits! That's teamwork.`;
+      document.getElementById("ov-title").textContent = "Rally over";
+      document.getElementById("ov-text").textContent = msg;
+      document.getElementById("play").textContent = "Play again";
+      overlay.hidden = false;
+      document.getElementById("play").focus();
+    }
+
+    function pointTo(clientX) {
+      const rect = canvas.getBoundingClientRect();
+      racket.x = Math.max(racket.w / 2, Math.min(W - racket.w / 2, clientX - rect.left));
+      if (!playing) draw();
+    }
+
+    canvas.tabIndex = 0;
+    canvas.addEventListener("pointermove", e => pointTo(e.clientX));
+    canvas.addEventListener("pointerdown", e => { canvas.setPointerCapture(e.pointerId); pointTo(e.clientX); });
+    canvas.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") { keys[e.key] = true; e.preventDefault(); }
+    });
+    canvas.addEventListener("keyup", e => { keys[e.key] = false; });
+    document.getElementById("play").addEventListener("click", startRally);
+
+    new ResizeObserver(resize).observe(canvas);
+    document.fonts && document.fonts.ready.then(draw);
+  </script>
+</body>
+</html>

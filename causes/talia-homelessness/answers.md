@@ -60,7 +60,7 @@ volunteerSteps:
 donateLink: "https://downtownwomenscenter.org/donate/"
 
 # 15. What a donation makes possible, e.g. "$25 feeds a family for a week" (from the nonprofit's site)
-donateImpact: "$25 can cover three nutritious daily meals that fight hunger with dignity."
+donateImpact: "$25 can provide meals for a week for a woman."
 
 # ── Your image ──
 

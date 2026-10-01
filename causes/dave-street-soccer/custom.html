@@ -77,11 +77,26 @@
 
     .big-score { font-size: 3rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1; color: var(--accent-from); }
 
-    .legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 12px; }
-    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-    .dot-ball { background: var(--bg); border: 1px solid var(--subtle); }
-    .dot-gold { background: var(--accent-from); }
-    .dot-you { background: var(--accent); }
+    .kicks { display: inline-flex; gap: 6px; align-items: center; }
+    .kick {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 1px solid var(--subtle); background: var(--bg);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.625rem; font-weight: 600; color: #fff;
+    }
+    .kick.goal { background: var(--accent); border-color: var(--accent); }
+    .kick.miss { background: var(--ink-card); border-color: var(--ink-card); }
+
+    .callout {
+      position: absolute; left: 50%; top: 42%;
+      transform: translate(-50%, -50%) scale(0.9);
+      padding: 10px 22px; border-radius: var(--radius-pill);
+      background: var(--bg); color: var(--ink);
+      font-weight: 600; font-size: 1.125rem; letter-spacing: -0.02em;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s var(--ease-spring), transform 0.3s var(--ease-spring);
+    }
+    .callout.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
     /* Money flash */
     .money { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
@@ -112,42 +127,38 @@
 <body>
   <div class="game">
     <div class="intro">
-      <span class="eyebrow">Street Soccer mini game</span>
+      <span class="eyebrow">Street Soccer penalty shootout</span>
       <h2>Do you think you can be #1?</h2>
-      <p>Push as many balls into the goal as you can in 10 seconds. Drag on the field (or use the arrow keys) to move. The golden ball runs from you. Score it and you're #1.</p>
+      <p>You get 3 penalty kicks. Score 2 to win. Move your player with your mouse, finger or arrow keys, then run into the ball to kick it past the angry golden goalie.</p>
     </div>
 
     <div class="hud" aria-hidden="true">
-      <span class="chip">Time <span class="num" id="time">10.0</span></span>
-      <span class="chip">Goals <span class="num" id="goals">0</span></span>
-      <span class="chip">Best <span class="num" id="best">0</span></span>
+      <span class="chip">Kicks <span class="kicks" id="kicks"><span class="kick"></span><span class="kick"></span><span class="kick"></span></span></span>
+      <span class="chip">Goals <span class="num" id="goals">0</span>&nbsp;of 3</span>
+      <span class="chip">Win with <span class="num">2</span></span>
     </div>
 
     <div class="pitch" id="pitch">
-      <canvas id="field" tabindex="0" aria-label="Soccer field. Drag or use arrow keys to move your player."></canvas>
+      <canvas id="field" tabindex="0" aria-label="Soccer field with a goalie. Move with your mouse, finger or arrow keys and run into the ball to shoot."></canvas>
+
+      <div class="callout" id="callout" aria-hidden="true"></div>
 
       <div class="overlay" id="start">
-        <span class="eyebrow">10 seconds on the clock</span>
-        <h3>Ready to play?</h3>
-        <p>Every goal counts.</p>
-        <button class="btn" id="startBtn" type="button">Kick off</button>
+        <span class="eyebrow">3 kicks · score 2 to win</span>
+        <h3>Can you beat the goalie?</h3>
+        <p>Run up and hit the ball toward a corner. Shots straight down the middle get saved.</p>
+        <button class="btn" id="startBtn" type="button">Take your first kick</button>
       </div>
 
       <div class="overlay" id="end" hidden>
         <span class="eyebrow" id="endEyebrow">Full time</span>
-        <div class="big-score" id="endScore">0</div>
-        <h3 id="endTitle">Goals</h3>
+        <div class="big-score" id="endScore">0 / 3</div>
+        <h3 id="endTitle"></h3>
         <p id="endText"></p>
         <button class="btn" id="againBtn" type="button">Play again</button>
       </div>
 
       <div class="money" id="money" aria-hidden="true"></div>
-    </div>
-
-    <div class="legend" aria-hidden="true">
-      <span class="chip"><span class="dot dot-you"></span>You</span>
-      <span class="chip"><span class="dot dot-ball"></span>Ball: 1 goal</span>
-      <span class="chip"><span class="dot dot-gold"></span>Golden ball: 5 goals</span>
     </div>
 
     <p class="sr-only" aria-live="polite" id="status"></p>
@@ -157,16 +168,18 @@
     (function () {
       // The field uses its own units; it is scaled to fit the screen when drawn.
       var FW = 300, FH = 400;
-      var GOAL_L = 100, GOAL_R = 200, LINE = 22;
-      var BALL_R = 10, PLAYER_R = 16;
-      var GAME_TIME = 10;
+      var GOAL_L = 70, GOAL_R = 230, LINE = 44;
+      var SPOT = { x: 150, y: 250 };
+      var BALL_R = 8, FOOT_R = 10;
+      var KEEPER_Y = LINE + 14, KEEPER_REACH = 18, KEEPER_SPEED = 2.1, KEEPER_DELAY = 11;
+      var KICKS = 3, TO_WIN = 2;
 
       var canvas = document.getElementById("field");
       var ctx = canvas.getContext("2d");
       var pitch = document.getElementById("pitch");
-      var timeEl = document.getElementById("time");
       var goalsEl = document.getElementById("goals");
-      var bestEl = document.getElementById("best");
+      var kickDots = document.getElementById("kicks").children;
+      var callout = document.getElementById("callout");
       var startOv = document.getElementById("start");
       var endOv = document.getElementById("end");
       var statusEl = document.getElementById("status");
@@ -177,28 +190,33 @@
       var C = {
         field: token("--ink-card", "#0A0A0A"),
         line: "rgba(255,255,255,0.35)",
-        ball: token("--bg", "#FFFFFF"),
-        hex: token("--ink", "#111111"),
-        gold: token("--accent-from", "#CF8047"),
+        net: "rgba(255,255,255,0.12)",
+        white: token("--bg", "#FFFFFF"),
+        ink: token("--ink", "#111111"),
+        skin: token("--surface-2", "#E3E2DF"),
         you: token("--accent", "#B15F2C"),
-        net: "rgba(255,255,255,0.12)"
+        gold: token("--accent-from", "#CF8047"),
+        goldDark: token("--accent-strong", "#97501F")
       };
-
+      var FONT = token("--font-sans", "sans-serif");
       var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      var state = "idle", startTime = 0, goals = 0, best = 0, goldScored = false;
-      var player, balls, target, keys = {};
+      var state = "idle";   // idle, aim, flying, result, done
+      var kick = 0, goals = 0, results = [];
+      var player, ball, keeper, target = null, keys = {}, frames = 0, flightFrames = 0, aimError = 0;
 
-      function reset() {
-        player = { x: FW / 2, y: FH - 50, vx: 0, vy: 0 };
-        target = null;
-        balls = [];
-        var spots = [[70, 250], [150, 220], [230, 250], [110, 300], [190, 300], [150, 140], [60, 160], [240, 160]];
-        spots.forEach(function (s) { balls.push({ x: s[0], y: s[1], vx: 0, vy: 0, gold: false }); });
-        balls.push({ x: 150, y: 80, vx: 0, vy: 0, gold: true });
-        goals = 0; goldScored = false;
+      function setupKick() {
+        player = { x: SPOT.x + (Math.random() < 0.5 ? -40 : 40), y: FH - 50, vx: 0, vy: 0 };
+        ball = { x: SPOT.x, y: SPOT.y, vx: 0, vy: 0 };
+        keeper = { x: FW / 2, tx: FW / 2, mad: 0 };
+        target = null; flightFrames = 0;
+      }
+
+      function resetGame() {
+        kick = 0; goals = 0; results = [];
         goalsEl.textContent = "0";
-        timeEl.textContent = GAME_TIME.toFixed(1);
+        for (var i = 0; i < kickDots.length; i++) { kickDots[i].className = "kick"; kickDots[i].textContent = ""; }
+        setupKick();
       }
 
       // ── Drawing ──
@@ -219,197 +237,267 @@
         ctx.closePath();
       }
 
-      function draw() {
-        var s = canvas.width / FW;
-        ctx.setTransform(s, 0, 0, s, 0, 0);
+      function drawField() {
         ctx.fillStyle = C.field;
         ctx.fillRect(0, 0, FW, FH);
-
-        // Lines
         ctx.strokeStyle = C.line;
         ctx.lineWidth = 2;
         ctx.strokeRect(8, LINE, FW - 16, FH - LINE - 8);
-        ctx.beginPath(); ctx.moveTo(8, FH / 2 + 60); ctx.lineTo(FW - 8, FH / 2 + 60); ctx.stroke();
-        ctx.beginPath(); ctx.arc(FW / 2, FH / 2 + 60, 40, 0, Math.PI * 2); ctx.stroke();
-        ctx.strokeRect(GOAL_L - 30, LINE, GOAL_R - GOAL_L + 60, 60);
+        ctx.strokeRect(GOAL_L - 40, LINE, GOAL_R - GOAL_L + 80, 150);
+        ctx.strokeRect(GOAL_L - 10, LINE, GOAL_R - GOAL_L + 20, 50);
+        ctx.beginPath(); ctx.arc(SPOT.x, LINE + 150, 40, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+        ctx.fillStyle = C.line;
+        ctx.beginPath(); ctx.arc(SPOT.x, SPOT.y, 2.5, 0, Math.PI * 2); ctx.fill();
 
         // Goal and net
         ctx.fillStyle = C.net;
-        ctx.fillRect(GOAL_L, 0, GOAL_R - GOAL_L, LINE);
-        ctx.strokeStyle = "#fff";
+        ctx.fillRect(GOAL_L, 8, GOAL_R - GOAL_L, LINE - 8);
+        ctx.strokeStyle = "rgba(255,255,255,0.18)";
+        ctx.lineWidth = 1;
+        for (var x = GOAL_L + 10; x < GOAL_R; x += 10) { ctx.beginPath(); ctx.moveTo(x, 8); ctx.lineTo(x, LINE); ctx.stroke(); }
+        for (var y = 16; y < LINE; y += 8) { ctx.beginPath(); ctx.moveTo(GOAL_L, y); ctx.lineTo(GOAL_R, y); ctx.stroke(); }
+        ctx.strokeStyle = C.white;
         ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.moveTo(GOAL_L, LINE); ctx.lineTo(GOAL_L, 2); ctx.lineTo(GOAL_R, 2); ctx.lineTo(GOAL_R, LINE);
+        ctx.moveTo(GOAL_L, LINE); ctx.lineTo(GOAL_L, 8); ctx.lineTo(GOAL_R, 8); ctx.lineTo(GOAL_R, LINE);
         ctx.stroke();
-
-        // Balls
-        balls.forEach(function (b) {
-          if (b.gold) {
-            ctx.shadowColor = C.gold;
-            ctx.shadowBlur = 14;
-          }
-          ctx.fillStyle = b.gold ? C.gold : C.ball;
-          ctx.beginPath(); ctx.arc(b.x, b.y, BALL_R, 0, Math.PI * 2); ctx.fill();
-          ctx.shadowBlur = 0;
-          ctx.fillStyle = C.hex;
-          hexagon(b.x, b.y, 4); ctx.fill();
-        });
-
-        // Player
-        ctx.fillStyle = C.you;
-        ctx.beginPath(); ctx.arc(player.x, player.y, PLAYER_R, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = "#fff";
-        ctx.font = "600 9px " + token("--font-sans", "sans-serif");
-        ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.fillText("YOU", player.x, player.y + 0.5);
       }
 
-      // ── Physics ──
-      function step(dt) {
-        // Player heads toward the finger, or moves with the arrow keys.
-        var maxV = 5.2;
-        var ax = 0, ay = 0;
+      // The angry golden goalie, arms out
+      function drawKeeper() {
+        var x = keeper.x, y = KEEPER_Y;
+        var shake = keeper.mad > 0 && !reduceMotion ? Math.sin(frames * 1.6) * 2 : 0;
+        x += shake;
+        ctx.lineCap = "round";
+        // Arms
+        ctx.strokeStyle = C.gold; ctx.lineWidth = 6;
+        var armY = keeper.mad > 0 ? y - 16 : y - 4;
+        ctx.beginPath(); ctx.moveTo(x - 8, y - 2); ctx.lineTo(x - KEEPER_REACH, armY); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 8, y - 2); ctx.lineTo(x + KEEPER_REACH, armY); ctx.stroke();
+        // Gloves
+        ctx.fillStyle = C.white;
+        ctx.beginPath(); ctx.arc(x - KEEPER_REACH, armY, 4.5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + KEEPER_REACH, armY, 4.5, 0, Math.PI * 2); ctx.fill();
+        // Legs
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(x - 4, y + 8); ctx.lineTo(x - 7, y + 18); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 4, y + 8); ctx.lineTo(x + 7, y + 18); ctx.stroke();
+        // Body
+        ctx.fillStyle = C.gold;
+        ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - 9, y - 8, 18, 18, 4) : ctx.rect(x - 9, y - 8, 18, 18); ctx.fill();
+        // Head
+        ctx.fillStyle = C.skin;
+        ctx.beginPath(); ctx.arc(x, y - 15, 8, 0, Math.PI * 2); ctx.fill();
+        // Angry face: slanted brows, narrow eyes, frown
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(x - 6, y - 21); ctx.lineTo(x - 1.5, y - 18.5); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 6, y - 21); ctx.lineTo(x + 1.5, y - 18.5); ctx.stroke();
+        ctx.fillStyle = C.ink;
+        ctx.fillRect(x - 4.5, y - 17.5, 2.5, 1.8);
+        ctx.fillRect(x + 2, y - 17.5, 2.5, 1.8);
+        ctx.beginPath(); ctx.arc(x, y - 9.5, 3.2, 1.15 * Math.PI, 1.85 * Math.PI); ctx.stroke();
+        // Steam when mad
+        if (keeper.mad > 0) {
+          ctx.fillStyle = C.goldDark;
+          ctx.font = "700 9px " + FONT; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillText("#@!", x + 18, y - 26);
+        }
+      }
+
+      // Your player: jersey number 1, seen from behind, running at the goal
+      function drawPlayer() {
+        var x = player.x, y = player.y;
+        var moving = Math.hypot(player.vx, player.vy) > 0.5 && !reduceMotion;
+        var stride = moving ? Math.sin(frames * 0.5) * 4 : 0;
+        ctx.lineCap = "round";
+        // Legs and boots
+        ctx.strokeStyle = C.skin; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(x - 4, y - 10); ctx.lineTo(x - 5 + stride, y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 4, y - 10); ctx.lineTo(x + 5 - stride, y); ctx.stroke();
+        ctx.fillStyle = C.white;
+        ctx.beginPath(); ctx.arc(x - 5 + stride, y + 1, 3, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + 5 - stride, y + 1, 3, 0, Math.PI * 2); ctx.fill();
+        // Shorts
+        ctx.fillStyle = C.white;
+        ctx.fillRect(x - 8, y - 15, 16, 6);
+        // Arms
+        ctx.strokeStyle = C.skin; ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.moveTo(x - 9, y - 30); ctx.lineTo(x - 13, y - 20 - stride); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 9, y - 30); ctx.lineTo(x + 13, y - 20 + stride); ctx.stroke();
+        // Jersey with #1
+        ctx.fillStyle = C.you;
+        ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - 10, y - 33, 20, 19, 4) : ctx.rect(x - 10, y - 33, 20, 19); ctx.fill();
+        ctx.fillStyle = C.white;
+        ctx.font = "700 11px " + FONT; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText("1", x, y - 23);
+        // Head (back of the head, with hair)
+        ctx.fillStyle = C.skin;
+        ctx.beginPath(); ctx.arc(x, y - 39, 6.5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = C.ink;
+        ctx.beginPath(); ctx.arc(x, y - 40.5, 6.5, Math.PI, 2 * Math.PI); ctx.fill();
+      }
+
+      function drawBall() {
+        ctx.fillStyle = C.white;
+        ctx.beginPath(); ctx.arc(ball.x, ball.y, BALL_R, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = C.ink;
+        hexagon(ball.x, ball.y, 3.5); ctx.fill();
+      }
+
+      function draw() {
+        var s = canvas.width / FW;
+        ctx.setTransform(s, 0, 0, s, 0, 0);
+        drawField();
+        drawKeeper();
+        // Draw whichever is nearer the goal first so the other sits on top
+        if (ball.y < player.y) { drawBall(); drawPlayer(); } else { drawPlayer(); drawBall(); }
+      }
+
+      // ── Game logic ──
+      function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+      function movePlayer(dt) {
+        var maxV = 4.2, ax = 0, ay = 0;
         if (keys.ArrowLeft) ax -= 1;
         if (keys.ArrowRight) ax += 1;
         if (keys.ArrowUp) ay -= 1;
         if (keys.ArrowDown) ay += 1;
-        if (ax || ay) {
+        if (state !== "aim") { player.vx *= 0.85; player.vy *= 0.85; }
+        else if (ax || ay) {
           var m = Math.hypot(ax, ay);
           player.vx = ax / m * maxV; player.vy = ay / m * maxV;
         } else if (target) {
           var dx = target.x - player.x, dy = target.y - player.y, d = Math.hypot(dx, dy);
-          var v = Math.min(maxV, d * 0.35);
+          var v = Math.min(maxV, d * 0.3);
           player.vx = d > 0.5 ? dx / d * v : 0;
           player.vy = d > 0.5 ? dy / d * v : 0;
-        } else {
-          player.vx *= 0.8; player.vy *= 0.8;
-        }
-        player.x = clamp(player.x + player.vx * dt, 8 + PLAYER_R, FW - 8 - PLAYER_R);
-        player.y = clamp(player.y + player.vy * dt, LINE + PLAYER_R, FH - 8 - PLAYER_R);
-
-        balls.forEach(function (b) {
-          if (b.gold) runAway(b, dt);
-
-          b.x += b.vx * dt; b.y += b.vy * dt;
-          var f = Math.pow(0.975, dt);
-          b.vx *= f; b.vy *= f;
-
-          // Push from the player
-          var dx = b.x - player.x, dy = b.y - player.y, d = Math.hypot(dx, dy), min = BALL_R + PLAYER_R;
-          if (d < min && d > 0) {
-            var nx = dx / d, ny = dy / d;
-            b.x = player.x + nx * min; b.y = player.y + ny * min;
-            var push = Math.max(2.5, (player.vx * nx + player.vy * ny) * 1.4);
-            b.vx = nx * push + player.vx * 0.3;
-            b.vy = ny * push + player.vy * 0.3;
-          }
-
-          // Side and bottom walls
-          if (b.x < 8 + BALL_R) { b.x = 8 + BALL_R; b.vx = Math.abs(b.vx) * 0.7; }
-          if (b.x > FW - 8 - BALL_R) { b.x = FW - 8 - BALL_R; b.vx = -Math.abs(b.vx) * 0.7; }
-          if (b.y > FH - 8 - BALL_R) { b.y = FH - 8 - BALL_R; b.vy = -Math.abs(b.vy) * 0.7; }
-
-          // Top: the goal mouth is open, the rest is the end line
-          var inMouth = b.x > GOAL_L + BALL_R * 0.5 && b.x < GOAL_R - BALL_R * 0.5;
-          if (b.y < LINE + BALL_R && !inMouth && !b.inGoal) { b.y = LINE + BALL_R; b.vy = Math.abs(b.vy) * 0.7; }
-          if (b.y < LINE && inMouth) b.inGoal = true;
-          if (b.inGoal && b.y < LINE - BALL_R) b.scored = true;
-        });
-
-        // Balls bump into each other
-        for (var i = 0; i < balls.length; i++) {
-          for (var j = i + 1; j < balls.length; j++) {
-            var a = balls[i], c = balls[j];
-            var dx2 = c.x - a.x, dy2 = c.y - a.y, d2 = Math.hypot(dx2, dy2);
-            if (d2 > 0 && d2 < BALL_R * 2) {
-              var nx2 = dx2 / d2, ny2 = dy2 / d2, overlap = (BALL_R * 2 - d2) / 2;
-              a.x -= nx2 * overlap; a.y -= ny2 * overlap; c.x += nx2 * overlap; c.y += ny2 * overlap;
-              var rel = (a.vx - c.vx) * nx2 + (a.vy - c.vy) * ny2;
-              if (rel > 0) {
-                a.vx -= rel * nx2; a.vy -= rel * ny2; c.vx += rel * nx2; c.vy += rel * ny2;
-              }
-            }
-          }
-        }
-
-        balls = balls.filter(function (b) {
-          if (!b.scored) return true;
-          goals += b.gold ? 5 : 1;
-          if (b.gold) goldScored = true;
-          goalsEl.textContent = goals;
-          goalFlash();
-          return false;
-        });
+        } else { player.vx *= 0.8; player.vy *= 0.8; }
+        player.x = clamp(player.x + player.vx * dt, 20, FW - 20);
+        player.y = clamp(player.y + player.vy * dt, SPOT.y - 30, FH - 12);
       }
 
-      // The golden ball runs from you and steers away from the goal.
-      function runAway(b, dt) {
-        var dx = b.x - player.x, dy = b.y - player.y, d = Math.hypot(dx, dy);
-        var speed = 0;
-        if (d < 120 && d > 0) {
-          var urge = (120 - d) / 120;
-          b.vx += dx / d * 0.55 * urge * dt;
-          b.vy += dy / d * 0.55 * urge * dt;
-          speed = 3.4;
-        }
-        if (b.y < LINE + 70 && b.x > GOAL_L - 20 && b.x < GOAL_R + 20 && !b.inGoal) {
-          b.vx += (b.x < FW / 2 ? -0.18 : 0.18) * dt;
-        }
-        b.vx += (Math.random() - 0.5) * 0.3 * dt;
-        b.vy += (Math.random() - 0.5) * 0.3 * dt;
-        var v = Math.hypot(b.vx, b.vy), cap = Math.max(speed, 3.4) + (d < 30 ? 2 : 0);
-        if (v > cap) { b.vx = b.vx / v * cap; b.vy = b.vy / v * cap; }
+      function tryKick() {
+        // The ball is kicked from the player's feet
+        var fx = player.x, fy = player.y - 2;
+        var dx = ball.x - fx, dy = ball.y - fy, d = Math.hypot(dx, dy);
+        if (d > BALL_R + FOOT_R || d === 0) return;
+        // Hitting the side of the ball sends it toward a corner; straight on goes down the middle
+        var run = Math.hypot(player.vx, player.vy);
+        var power = clamp(5.5 + run * 0.9, 6, 9.5);
+        var side = clamp(dx / d * 0.4, -0.42, 0.42), up = dy / d <= 0.2 ? -1 : 1;
+        var m = Math.hypot(side, 1);
+        ball.vx = side / m * power; ball.vy = up / m * power;
+        state = "flying";
+        aimError = (Math.random() - 0.5) * 26;
+        statusEl.textContent = "Shot!";
       }
 
-      function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+      function moveKeeper(dt) {
+        if (state === "aim") {
+          // Sways on the line and leans the way it thinks you'll shoot
+          var lean = clamp((ball.x - player.x) * 0.3, -10, 10);
+          keeper.tx = FW / 2 + Math.sin(frames * 0.05) * 14 + lean;
+        } else if (state === "flying" && ball.vy < 0) {
+          flightFrames += dt;
+          if (flightFrames > KEEPER_DELAY) {
+            var t = (ball.y - KEEPER_Y) / -ball.vy;
+            keeper.tx = ball.x + ball.vx * t + aimError;
+          }
+        }
+        keeper.tx = clamp(keeper.tx, GOAL_L + 6, GOAL_R - 6);
+        var step = clamp(keeper.tx - keeper.x, -KEEPER_SPEED * dt, KEEPER_SPEED * dt);
+        if (state === "aim") step = (keeper.tx - keeper.x) * 0.08 * dt;
+        keeper.x += step;
+        if (keeper.mad > 0) keeper.mad -= dt;
+      }
 
-      // ── Game loop ──
+      function moveBall(dt) {
+        if (state !== "flying") {
+          ball.x += ball.vx * dt; ball.y += ball.vy * dt;
+          ball.vx *= 0.9; ball.vy *= 0.9;
+          return;
+        }
+        ball.x += ball.vx * dt; ball.y += ball.vy * dt;
+        var f = Math.pow(0.996, dt);
+        ball.vx *= f; ball.vy *= f;
+
+        // Save: the ball touches the goalie's body or arms
+        var near = clamp(ball.x, keeper.x - KEEPER_REACH, keeper.x + KEEPER_REACH);
+        if (Math.hypot(ball.x - near, ball.y - KEEPER_Y) < BALL_R + 7) {
+          ball.vy = Math.abs(ball.vy) * 0.5;
+          ball.vx = (ball.x - keeper.x) * 0.15;
+          keeper.mad = 60;
+          return outcome("save");
+        }
+        if (ball.y < LINE) {
+          if (ball.x > GOAL_L + 2 && ball.x < GOAL_R - 2) return outcome("goal");
+          return outcome("wide");
+        }
+        if (ball.x < 8 || ball.x > FW - 8 || ball.y > FH) return outcome("wide");
+        if (Math.hypot(ball.vx, ball.vy) < 0.4) return outcome("soft");
+      }
+
+      function outcome(kind) {
+        state = "result";
+        var scored = kind === "goal";
+        if (scored) { goals++; goalsEl.textContent = goals; goalFlash(); }
+        else if (kind !== "save") keeper.mad = 40;
+        var dot = kickDots[kick];
+        dot.className = "kick " + (scored ? "goal" : "miss");
+        dot.textContent = scored ? "✓" : "✕";
+        results.push(kind);
+        kick++;
+        var words = { goal: "GOAL!", save: "SAVED!", wide: "Missed!", soft: "Too soft!" };
+        showCallout(words[kind]);
+        statusEl.textContent = words[kind] + " " + goals + " of " + kick + " kicks scored.";
+        setTimeout(function () {
+          hideCallout();
+          if (kick >= KICKS) return finish();
+          setupKick();
+          state = "aim";
+        }, 1300);
+      }
+
+      function showCallout(text) { callout.textContent = text; callout.classList.add("show"); }
+      function hideCallout() { callout.classList.remove("show"); }
+
+      // ── Loop ──
       var last = 0;
       function frame(now) {
-        if (state !== "playing") return;
         var dt = Math.min((now - last) / (1000 / 60), 3);
         last = now;
-        step(dt);
-        draw();
-        var left = Math.max(0, GAME_TIME - (now - startTime) / 1000);
-        timeEl.textContent = left.toFixed(1);
-        if (left <= 0 || balls.length === 0) return finish();
+        frames += dt;
+        if (state === "aim" || state === "flying" || state === "result") {
+          movePlayer(dt);
+          if (state === "aim") tryKick();
+          moveKeeper(dt);
+          moveBall(dt);
+          draw();
+        }
         requestAnimationFrame(frame);
       }
 
       function start() {
-        reset();
+        resetGame();
         startOv.hidden = true; endOv.hidden = true;
-        state = "playing";
-        startTime = last = performance.now();
-        statusEl.textContent = "Kick off! 10 seconds.";
+        state = "aim";
+        statusEl.textContent = "Kick 1 of 3. Run into the ball to shoot.";
         canvas.focus({ preventScroll: true });
-        requestAnimationFrame(frame);
       }
 
       function finish() {
         state = "done";
         keys = {}; target = null;
-        best = Math.max(best, goals);
-        bestEl.textContent = best;
-        document.getElementById("endScore").textContent = goals;
-        document.getElementById("endTitle").textContent = goals === 1 ? "Goal" : "Goals";
-        var eyebrow = document.getElementById("endEyebrow");
-        var text = document.getElementById("endText");
-        if (goldScored) {
-          eyebrow.textContent = "You're #1!";
-          text.textContent = "You beat the golden ball. Now help kids in LA score for real: tap the Donate button on this page to support Street Soccer USA.";
-        } else if (goals > 0) {
-          eyebrow.textContent = "Goal!";
-          text.textContent = "You scored, so it's your turn to give. Tap the Donate button on this page to help Street Soccer USA keep its parks free for kids.";
-        } else {
-          eyebrow.textContent = "Full time";
-          text.textContent = "No goals this time. Think you can be #1? Try again.";
-        }
+        var won = goals >= TO_WIN;
+        document.getElementById("endScore").textContent = goals + " / " + KICKS;
+        document.getElementById("endEyebrow").textContent = won ? "You're #1!" : "Full time";
+        document.getElementById("endTitle").textContent = won ? "You beat the goalie!" : "The goalie wins this time";
+        document.getElementById("endText").textContent = won
+          ? "You scored, so now it's your turn to give. Tap the Donate button on this page to help Street Soccer USA keep its parks free for kids."
+          : "You needed 2 goals. Think you can be #1? Try again.";
         endOv.hidden = false;
-        if (goals > 0) moneyRain();
-        statusEl.textContent = "Full time. You scored " + goals + (goals === 1 ? " goal." : " goals.") + (goldScored ? " You're number 1!" : "");
+        if (won) moneyRain();
+        statusEl.textContent = (won ? "You win! " : "You lose. ") + "You scored " + goals + " of 3.";
         document.getElementById("againBtn").focus({ preventScroll: true });
       }
 
@@ -432,21 +520,22 @@
           el.style.setProperty("--spin", (Math.random() * 360 - 180) + "deg");
           money.appendChild(el);
         }
-        setTimeout(function () { money.innerHTML = ""; }, reduceMotion ? 3000 : 3400);
+        setTimeout(function () { money.innerHTML = ""; }, 3400);
       }
 
       // ── Input ──
       function toField(e) {
         var r = canvas.getBoundingClientRect();
-        return { x: (e.clientX - r.left) / r.width * FW, y: (e.clientY - r.top) / r.height * FH };
+        // Aim the player's feet just below the pointer so a finger doesn't hide them
+        return { x: (e.clientX - r.left) / r.width * FW, y: (e.clientY - r.top) / r.height * FH + 4 };
       }
       canvas.addEventListener("pointerdown", function (e) {
-        if (state !== "playing") return;
+        if (state !== "aim") return;
         canvas.setPointerCapture(e.pointerId);
         target = toField(e);
       });
       canvas.addEventListener("pointermove", function (e) {
-        if (state !== "playing") return;
+        if (state !== "aim") return;
         if (e.pointerType === "mouse" || e.buttons) target = toField(e);
       });
       canvas.addEventListener("pointerup", function (e) {
@@ -454,7 +543,7 @@
       });
       canvas.addEventListener("keydown", function (e) {
         if (e.key.indexOf("Arrow") === 0) {
-          if (state === "playing") { keys[e.key] = true; target = null; }
+          keys[e.key] = true; target = null;
           e.preventDefault();
         }
       });
@@ -463,10 +552,11 @@
       document.getElementById("startBtn").addEventListener("click", start);
       document.getElementById("againBtn").addEventListener("click", start);
 
-      reset();
+      resetGame();
       if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas);
       else window.addEventListener("resize", resize);
       resize();
+      requestAnimationFrame(function (now) { last = now; frame(now); });
     })();
   </script>
 </body>

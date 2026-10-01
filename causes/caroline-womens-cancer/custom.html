@@ -48,7 +48,8 @@
     }
     .half { position: relative; min-height: 440px; padding: 20px; }
     .half .eyebrow { position: relative; z-index: 5; }
-    .known { background: var(--surface-2); }
+    .known { background: var(--accent-gradient); }
+    .known .eyebrow { color: #fff; }
     .unknown { background: var(--bg); }
 
     /* Torn-paper edge between the halves */
@@ -68,7 +69,7 @@
     .piece svg { display: block; width: 100%; height: 100%; }
     .tape {
       position: absolute; width: 56px; height: 18px; z-index: 3;
-      background: color-mix(in srgb, var(--accent-from) 45%, transparent);
+      background: rgb(255 255 255 / 0.55);
       transform: rotate(var(--r, 0deg));
     }
     .note {
@@ -78,10 +79,11 @@
       box-shadow: 0 2px 6px rgb(0 0 0 / 0.12);
       transform: rotate(var(--r, 0deg));
     }
+    .note-dark { background: var(--ink-card); color: #fff; }
     .stamp {
       position: absolute; z-index: 3;
-      border: 2px solid var(--accent-strong); border-radius: var(--radius-control);
-      color: var(--accent-strong); padding: 4px 10px;
+      border: 2px solid var(--ink-card); border-radius: var(--radius-control);
+      background: var(--ink-card); color: #fff; padding: 4px 10px;
       font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
       transform: rotate(var(--r, 0deg));
     }
@@ -121,12 +123,17 @@
       transition: transform 0.5s var(--ease-spring), opacity 0.5s var(--ease-spring);
     }
     .found small { display: block; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-from); margin-bottom: 2px; }
+    .found.alt { background: var(--accent); }
+    .found.alt small { color: #fff; }
     .found.enter { opacity: 0; transform: rotate(var(--r, 0deg)) scale(0.6); }
 
-    .meter { margin: 0 0 12px; height: 8px; background: var(--surface-2); border-radius: var(--radius-pill); overflow: hidden; }
+    .meter { margin: 0 0 12px; height: 12px; background: var(--surface-2); border-radius: var(--radius-pill); overflow: hidden; }
     .meter div { height: 100%; width: 0; background: var(--accent); border-radius: var(--radius-pill); transition: width 0.5s var(--ease-spring); }
 
     .after { text-align: center; max-width: 52ch; margin: 28px auto 0; }
+    .tagline-card { background: var(--ink-card); border-radius: var(--radius-card-sm); padding: 24px; margin-top: 24px; }
+    .tagline-card .eyebrow { color: var(--accent-from); }
+    .tagline-card .tagline { color: #fff; margin: 0; }
     .tagline { color: var(--ink); font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.35; }
     .status { min-height: 1.5em; font-size: 0.875rem; }
     .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
@@ -182,7 +189,7 @@
           <rect class="fill-ink" x="24" y="40" width="12" height="36" rx="2"/>
           <rect class="fill-accent" x="44" y="24" width="12" height="52" rx="2"/>
           <rect class="fill-soft" x="64" y="32" width="12" height="44" rx="2"/>
-          <rect class="fill-ink" x="84" y="16" width="12" height="60" rx="2"/>
+          <rect class="fill-accent" x="84" y="16" width="12" height="60" rx="2"/>
           <path class="stroke-accent" d="M24 34l20-14 20 8 20-14"/>
         </svg>
       </div>
@@ -197,7 +204,7 @@
       </div>
 
       <div class="note" style="--r:-4deg; left:28%; top:150px; width:120px;" aria-hidden="true">Trial notes, continued...</div>
-      <div class="note" style="--r:6deg; right:6%; bottom:24px; width:110px;" aria-hidden="true">Data: checked ✓ double-checked ✓</div>
+      <div class="note note-dark" style="--r:6deg; right:6%; bottom:24px; width:110px;" aria-hidden="true">Data: checked ✓ double-checked ✓</div>
 
       <span class="tape" style="--r:-20deg; left:10%; top:46px;" aria-hidden="true"></span>
       <span class="tape" style="--r:14deg; left:62%; top:38px;" aria-hidden="true"></span>
@@ -205,7 +212,7 @@
       <span class="tape" style="--r:30deg; left:22%; top:244px;" aria-hidden="true"></span>
 
       <span class="stamp" style="--r:-10deg; left:8%; bottom:28px;" aria-hidden="true">Studied</span>
-      <span class="stamp" style="--r:7deg; left:52%; top:150px; background:var(--bg);" aria-hidden="true">Published</span>
+      <span class="stamp" style="--r:7deg; left:52%; top:150px;" aria-hidden="true">Published</span>
     </div>
 
     <!-- RIGHT: What we don't -->
@@ -235,7 +242,10 @@
       <button class="btn" type="button" id="fill">Add research to the blank side</button>
       <button class="btn btn-light" type="button" id="reset" hidden>Start over</button>
     </div>
-    <p class="tagline" style="margin-top:24px;">Women's health is still underresearched. The Women's Cancer Research Fund is working to close that gap.</p>
+    <div class="tagline-card">
+      <span class="eyebrow">Closing the gap</span>
+      <p class="tagline">Women's health is still underresearched. The Women's Cancer Research Fund is working to close that gap.</p>
+    </div>
     <p class="source">Research areas from WCRF's page on bcrf.org. To give or start a fundraiser, use the links on this page.</p>
   </div>
 
@@ -279,7 +289,7 @@
       const a = areas[i];
       ghosts[i].classList.add('gone');
       const card = document.createElement('div');
-      card.className = 'found enter';
+      card.className = 'found enter' + (i % 2 ? ' alt' : '');
       card.style.setProperty('--r', a.r + 'deg');
       card.style.left = a.left;
       card.style.top = a.top;

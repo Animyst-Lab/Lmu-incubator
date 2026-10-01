@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 1.5rem; text-wrap: balance; }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .eyebrow { display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark p { color: #d6d6d6; }
+    .card-dark .eyebrow { color: var(--accent-from); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 0; border-radius: var(--radius-pill); padding: 14px 28px;
+      background: var(--ink-card); color: #fff; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: transform 0.3s var(--ease-snap);
+    }
+    .btn:hover:not(:disabled) { transform: scale(1.04); }
+    .btn:disabled { opacity: 0.35; cursor: default; }
+    .btn-light { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 4px 12px;
+      background: var(--bg); color: var(--ink); font-size: 0.75rem; font-weight: 500;
+    }
+
+    .intro {
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 20px;
+      padding: 28px 24px;
+      border-radius: var(--radius-card);
+      background: var(--accent-gradient);
+      color: #fff;
+    }
+    .intro > * { position: relative; max-width: 52ch; }
+    .intro .eyebrow { color: #fff; opacity: 0.9; }
+    .intro h2 { color: #fff; font-size: 1.75rem; }
+    .intro p { color: #fff; margin: 0; opacity: 0.92; }
+    .heart {
+      display: inline-block;
+      background: currentColor;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.2 0 3.6 1.2 5.2 3 1.6-1.8 3-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z'/%3E%3C/svg%3E") center / contain no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.2 0 3.6 1.2 5.2 3 1.6-1.8 3-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+    .float { position: absolute; color: #fff; opacity: 0.22; animation: bob 4s var(--ease-spring) infinite alternate; }
+    .float.f1 { width: 64px; height: 64px; right: 18px; top: 14px; }
+    .float.f2 { width: 30px; height: 30px; right: 92px; top: 58px; animation-delay: -1.5s; }
+    .float.f3 { width: 40px; height: 40px; right: 34px; bottom: 12px; animation-delay: -3s; }
+    @keyframes bob { from { transform: translateY(0) rotate(-8deg); } to { transform: translateY(-8px) rotate(8deg); } }
+
+    .main { border-radius: var(--radius-card); }
+
+    /* Life-stage track */
+    .track-wrap { padding: 8px 4px 0; }
+    .track {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .track::before, .track .fill {
+      content: "";
+      position: absolute;
+      top: 13px;
+      left: calc(100% / 12);
+      height: 4px;
+      border-radius: var(--radius-pill);
+    }
+    .track::before { right: calc(100% / 12); background: var(--border); }
+    .track .fill {
+      width: 0;
+      background: var(--accent);
+      transition: width 0.5s var(--ease-spring);
+    }
+    .stop {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: var(--radius-control);
+    }
+    .dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      transition: transform 0.3s var(--ease-snap), background 0.3s var(--ease-snap), border-color 0.3s var(--ease-snap);
+    }
+    .stop:hover .dot { transform: scale(1.12); }
+    .stop.passed .dot { background: var(--accent); border-color: var(--accent); }
+    .stop[aria-current="true"] { color: var(--ink); font-weight: 600; }
+    .dot { display: grid; place-items: center; }
+    .dot .heart { width: 14px; height: 14px; color: #fff; transform: scale(0); transition: transform 0.4s var(--ease-spring); }
+    .stop[aria-current="true"] .dot .heart { transform: scale(1); }
+    .stop[aria-current="true"] .dot {
+      background: var(--ink-card);
+      border-color: var(--ink-card);
+      transform: scale(1.15);
+      box-shadow: 0 0 0 5px var(--bg), 0 0 0 6px var(--border);
+    }
+
+    /* Stage panel */
+    .stage { margin-top: 28px; }
+    .stage-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stage-head p { margin: 0; }
+    .nav { display: flex; gap: 8px; }
+    .nav .btn { padding: 10px 18px; }
+
+    .items { list-style: none; margin: 0; padding: 0 0 0 28px; position: relative; display: grid; gap: 14px; }
+    .items::before {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 18px;
+      bottom: 18px;
+      width: 0;
+      border-left: 2px dashed var(--border);
+    }
+    .item {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card-sm);
+      padding: 16px 18px;
+      animation: rise 0.45s var(--ease-spring) both;
+    }
+    .item::before {
+      content: "";
+      position: absolute;
+      left: -26px;
+      top: 18px;
+      width: 14px;
+      height: 14px;
+      width: 16px;
+      height: 16px;
+      left: -27px;
+      top: 17px;
+      background: var(--accent);
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.2 0 3.6 1.2 5.2 3 1.6-1.8 3-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z'/%3E%3C/svg%3E") center / contain no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.2 0 3.6 1.2 5.2 3 1.6-1.8 3-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+    .item-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .item h3 { margin: 0; font-size: 1rem; }
+    .chip svg { width: 14px; height: 14px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .card-title { display: flex; align-items: center; gap: 8px; }
+    .card-title .heart { width: 18px; height: 18px; flex: none; color: var(--accent); }
+    .card-dark .card-title .heart { color: var(--accent-from); }
+    .item p { margin: 0; font-size: 0.9375rem; }
+    .when { display: block; margin-bottom: 6px; color: var(--accent-strong); font-weight: 600; font-size: 0.875rem; }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    /* Always-true facts */
+    .always { margin-top: 24px; display: grid; gap: 16px; }
+    @media (min-width: 640px) { .always { grid-template-columns: 1fr 1fr; } }
+    .always h3 { margin-bottom: 6px; }
+    .always p { margin: 0; }
+    .card-dark h3 { color: #fff; }
+
+    .note { margin: 20px 0 0; font-size: 0.8125rem; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="intro">
+    <span class="heart float f1" aria-hidden="true"></span>
+    <span class="heart float f2" aria-hidden="true"></span>
+    <span class="heart float f3" aria-hidden="true"></span>
+    <span class="eyebrow">Interactive timeline</span>
+    <h2>What care do I need, and when?</h2>
+    <p>Sexual and reproductive health care changes as you grow. Tap a life stage to see the preventive care Planned Parenthood recommends for it.</p>
+  </div>
+
+  <div class="card main">
+    <div class="track-wrap">
+      <ol class="track" id="track" aria-label="Life stages"><span class="fill" id="fill" aria-hidden="true"></span></ol>
+    </div>
+
+    <section class="stage" aria-live="polite">
+      <div class="stage-head">
+        <div>
+          <span class="eyebrow" id="stage-eyebrow"></span>
+          <h3 id="stage-title"></h3>
+          <p id="stage-sub"></p>
+        </div>
+        <div class="nav">
+          <button class="btn btn-light" id="prev" type="button" aria-label="Previous life stage">← Back</button>
+          <button class="btn" id="next" type="button" aria-label="Next life stage">Next →</button>
+        </div>
+      </div>
+      <ul class="items" id="items"></ul>
+    </section>
+  </div>
+
+  <div class="always">
+    <div class="card-dark">
+      <span class="eyebrow">At every age</span>
+      <h3 class="card-title"><span class="heart" aria-hidden="true"></span>Most STIs have no symptoms</h3>
+      <p>Most people with STIs never notice symptoms, but infections can still cause long-term health problems. If you're sexually active, testing about once a year, or before or after a new partner, is the way to know.</p>
+    </div>
+    <div class="card">
+      <span class="eyebrow">Get care in LA</span>
+      <h3 class="card-title"><span class="heart" aria-hidden="true"></span>Planned Parenthood Los Angeles</h3>
+      <p>Health centers across LA County offer birth control, STI testing and treatment, cancer screenings, and more, with judgment-free care. Find one at plannedparenthood.org.</p>
+    </div>
+  </div>
+
+  <p class="note">This timeline shares general guidelines from Planned Parenthood's website. It isn't medical advice: talk with a doctor or nurse about what's right for you, since your own health history can change what you need.</p>
+
+  <script>
+    const STI = {
+      tag: "Testing",
+      title: "STI testing",
+      when: "About once a year if you're sexually active",
+      text: "Or before or after every new partner, whichever comes first. People with multiple partners may need testing every 3 to 6 months."
+    };
+
+    const STAGES = [
+      {
+        label: "9–14", eyebrow: "Ages 9 to 14", title: "Preteens", sub: "Building a healthy start.",
+        items: [
+          { tag: "Vaccine", title: "HPV vaccine", when: "Recommended at age 11 or 12",
+            text: "It works best years before any sexual contact. At ages 9 to 14, it's just 2 shots, with the second 6 months after the first." },
+          { tag: "Education", title: "Learning about your body", when: "Any age",
+            text: "PPLA teaches medically accurate, age-appropriate sex education in classrooms, and its “Let's Talk” workshops help parents and caregivers have honest conversations with kids." }
+        ]
+      },
+      {
+        label: "15–20", eyebrow: "Ages 15 to 20", title: "Teens", sub: "Knowing your options and your rights.",
+        items: [
+          { tag: "Vaccine", title: "HPV vaccine", when: "Not vaccinated yet? It's not too late",
+            text: "From age 15, the vaccine is 3 shots, taking about 6 months in total." },
+          STI,
+          { tag: "Birth control", title: "Finding your method", when: "Whenever you're ready",
+            text: "No birth control method is perfect for everyone. A provider can talk through your health history, lifestyle, and concerns to find your best fit." },
+          { tag: "Your rights", title: "Confidential care", when: "Under 18 in California",
+            text: "California law lets minors get birth control, STI testing and treatment, and pregnancy testing without a parent's permission." },
+          { tag: "Education", title: "Peer Advocates", when: "High school",
+            text: "PPLA trains high school students to be trusted sources of sexual and reproductive health information at their schools and in their communities." }
+        ]
+      },
+      {
+        label: "21–29", eyebrow: "Ages 21 to 29", title: "Your twenties", sub: "Screenings begin.",
+        items: [
+          { tag: "Screening", title: "Cervical cancer screening", when: "Starts between 21 and 25",
+            text: "From 21 to 24, you can get a Pap test every 3 years or wait until 25. From 25, get an HPV test every 5 years, or a Pap and HPV test together every 5 years." },
+          STI,
+          { tag: "Vaccine", title: "HPV vaccine", when: "Still possible through age 45",
+            text: "Even if you've already had sex, the vaccine can protect you from HPV types you haven't been exposed to." },
+          { tag: "Care", title: "Pregnancy testing", when: "If you think you might be pregnant",
+            text: "The only way to know for sure is a pregnancy test. Planned Parenthood can help you understand all of your options." }
+        ]
+      },
+      {
+        label: "30–45", eyebrow: "Ages 30 to 45", title: "Your thirties and early forties", sub: "Keeping up with routine care.",
+        items: [
+          { tag: "Screening", title: "Cervical cancer screening", when: "Every 5 years",
+            text: "Get an HPV test every 5 years, or a Pap and HPV test together (co-testing) every 5 years." },
+          { tag: "Vaccine", title: "HPV vaccine", when: "Available through age 45",
+            text: "Adults up to 45 can still get the vaccine. Ages 15 and up get 3 shots over about 6 months." },
+          STI,
+          { tag: "Prevention", title: "PrEP for HIV prevention", when: "Ask a provider",
+            text: "PrEP is medicine taken before a possible exposure to prevent HIV. A provider can talk with you about whether it's right for you." }
+        ]
+      },
+      {
+        label: "45–65", eyebrow: "Ages 45 to 65", title: "Midlife", sub: "New changes, same routine.",
+        items: [
+          { tag: "Screening", title: "Cervical cancer screening", when: "Every 5 years until 65",
+            text: "Keep up with an HPV test, or a Pap and HPV test together, every 5 years." },
+          { tag: "Care", title: "Menopause and perimenopause", when: "When symptoms start",
+            text: "Most people with ovaries and a uterus go through menopause. If you have hot flashes or trouble sleeping, a provider can check whether it's perimenopause and help you find relief." },
+          STI
+        ]
+      },
+      {
+        label: "65+", eyebrow: "Ages 65 and up", title: "Later life", sub: "Care that fits your history.",
+        items: [
+          { tag: "Screening", title: "Cervical cancer screening", when: "May no longer be needed",
+            text: "After 65, you may not need Pap or HPV tests anymore. You may need them more often if you've had cervical problems before or have a weakened immune system." },
+          STI
+        ]
+      }
+    ];
+
+    const ICONS = {
+      Vaccine: '<path d="M18 2l4 4M17 7l3-3M19 9l-8.7 8.7a1 1 0 0 1-1.4 0L6.3 15.1a1 1 0 0 1 0-1.4L15 5M9 11l4 4M5 19l-3 3M14 4l6 6"/>',
+      Testing: '<path d="M9 3h6M10 3v6L4.5 18.5A2 2 0 0 0 6.2 21.5h11.6a2 2 0 0 0 1.7-3L14 9V3M7 15h10"/>',
+      Screening: '<path d="M9 4H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2M9 2h6v4H9zM9 14l2 2 4-4"/>',
+      "Birth control": '<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/>',
+      "Your rights": '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+      Education: '<path d="M2 6h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2zM22 6h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z"/>',
+      Prevention: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM9 12l2 2 4-4"/>',
+      Care: '<path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/>'
+    };
+
+    const track = document.getElementById("track");
+    const fill = document.getElementById("fill");
+    const list = document.getElementById("items");
+    const prev = document.getElementById("prev");
+    const next = document.getElementById("next");
+    let current = 0;
+
+    const stops = STAGES.map((stage, i) => {
+      const li = document.createElement("li");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "stop";
+      btn.setAttribute("aria-label", stage.eyebrow);
+      btn.innerHTML = '<span class="dot" aria-hidden="true"><span class="heart"></span></span><span>' + stage.label + "</span>";
+      btn.addEventListener("click", () => show(i));
+      li.appendChild(btn);
+      track.appendChild(li);
+      return btn;
+    });
+
+    function show(i) {
+      current = i;
+      const stage = STAGES[i];
+      stops.forEach((btn, j) => {
+        btn.setAttribute("aria-current", j === i ? "true" : "false");
+        btn.classList.toggle("passed", j < i);
+      });
+      fill.style.width = "calc((100% - 100% / 6) * " + i / (STAGES.length - 1) + ")";
+      document.getElementById("stage-eyebrow").textContent = stage.eyebrow;
+      document.getElementById("stage-title").textContent = stage.title;
+      document.getElementById("stage-sub").textContent = stage.sub;
+      list.replaceChildren(...stage.items.map((item, k) => {
+        const li = document.createElement("li");
+        li.className = "item";
+        li.style.animationDelay = k * 60 + "ms";
+        const top = document.createElement("div");
+        top.className = "item-top";
+        const h = document.createElement("h3");
+        h.textContent = item.title;
+        const tag = document.createElement("span");
+        tag.className = "chip";
+        tag.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[item.tag] || ICONS.Care) + "</svg>";
+        tag.append(item.tag);
+        top.append(h, tag);
+        const when = document.createElement("span");
+        when.className = "when";
+        when.textContent = item.when;
+        const p = document.createElement("p");
+        p.textContent = item.text;
+        li.append(top, when, p);
+        return li;
+      }));
+      prev.disabled = i === 0;
+      next.disabled = i === STAGES.length - 1;
+    }
+
+    prev.addEventListener("click", () => show(Math.max(0, current - 1)));
+    next.addEventListener("click", () => show(Math.min(STAGES.length - 1, current + 1)));
+    show(0);
+  </script>
+</body>
+</html>

@@ -65,10 +65,10 @@ donateImpact: "Donations help finish 26 free, year-round Street Soccer Parks and
 # ── Your image ──
 
 # 16. Your image's file name: square, JPG or PNG, under 1 MB (you provide the photo)
-image: "image.png"
+image: "image.jpg"
 
 # 17. A few words describing the image, for screen readers (written for you)
-imageAlt: "Street Soccer USA logo: black hexagons beside the words Street Soccer USA on a white background"
+imageAlt: "Kids and teens playing street soccer on a concrete court between old buildings"
 
 # ── For the matcher on the home page (chosen for you to approve) ──
 

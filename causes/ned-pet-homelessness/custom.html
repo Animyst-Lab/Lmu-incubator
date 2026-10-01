@@ -100,8 +100,8 @@
     .overload small { display: block; font-weight: 500; color: var(--accent-from); font-size: 0.75rem; }
     .overload.on { opacity: 1; transform: scale(1) rotate(-4deg); animation: wiggle 1.6s var(--ease-spring) infinite; }
     @keyframes wiggle { 0%, 100% { transform: scale(1) rotate(-4deg); } 50% { transform: scale(1.06) rotate(3deg); } }
-    canvas#pit { display: block; width: 100%; height: 440px; background: linear-gradient(var(--bg), var(--surface)); }
-    @media (max-width: 480px) { canvas#pit { height: 400px; } }
+    canvas#pit { display: block; width: 100%; height: 600px; background: linear-gradient(var(--bg) 0%, var(--bg) 30%, var(--surface) 100%); }
+    @media (max-width: 480px) { canvas#pit { height: 520px; } }
     .pit-card.shake { animation: shake 0.45s var(--ease-snap); }
     @keyframes shake { 0%, 100% { transform: none; } 20% { transform: translateX(-5px) rotate(-0.4deg); } 40% { transform: translateX(5px) rotate(0.4deg); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
 
@@ -157,7 +157,7 @@
     <div class="intro">
       <span class="eyebrow">Spaymobile Ripple Effect Calculator</span>
       <h2>One surgery today, a flood of puppies prevented tomorrow</h2>
-      <p>Slide to pick how many female dogs the Amanda Spaymobile spays and how far ahead to look. Then watch the puppies pile up: every one is a puppy that won't be born into a crowded shelter.</p>
+      <p>Slide to pick how many female dogs the Amanda Spaymobile spays and how far ahead to look. Then watch the puppies pour in. Every one is a puppy that won't be born into a crowded shelter.</p>
     </div>
 
     <section class="card controls" aria-label="Calculator settings">
@@ -186,7 +186,7 @@
         </div>
         <div class="overload" id="overload">Puppy overload!<small id="overload-more"></small></div>
       </div>
-      <canvas id="pit" role="img" aria-label="A box filling up with cartoon puppies, one for each puppy prevented"></canvas>
+      <canvas id="pit" role="img" aria-label="Cartoon puppies dropping into a yard and playing: walking, sniffing, licking, and scratching. One for each puppy prevented."></canvas>
     </section>
 
     <section class="card stage" aria-label="Surgeries">
@@ -283,126 +283,201 @@
     var COATS = [
       { fur: C.from, ear: C.strong, muzzle: C.bg },
       { fur: C.surface2, ear: C.subtle, muzzle: C.bg },
-      { fur: C.card, ear: C.card, muzzle: C.subtle },
+      { fur: C.card, ear: C.ink, muzzle: C.subtle },
       { fur: C.bg, ear: C.from, muzzle: C.surface, spot: C.from },
       { fur: C.accent, ear: C.strong, muzzle: C.surface }
     ];
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var SPRITE = 64;
+    var SW = 96, SH = 72, FEET = 68, RES = dpr * 0.85;
 
-    function drawPuppy(coat, blink) {
-      var cv = document.createElement("canvas");
-      cv.width = cv.height = SPRITE * dpr;
-      var g = cv.getContext("2d");
-      g.scale(dpr * SPRITE / 100, dpr * SPRITE / 100);
-      g.translate(50, 54);
-      // floppy ears
-      g.fillStyle = coat.ear;
-      [[-1], [1]].forEach(function (side) {
-        var s = side[0];
-        g.save(); g.translate(s * 30, -14); g.rotate(s * 0.45);
-        g.beginPath(); g.ellipse(0, 0, 13, 24, 0, 0, Math.PI * 2); g.fill(); g.restore();
-      });
-      // head
-      g.fillStyle = coat.fur;
-      g.beginPath(); g.ellipse(0, 0, 34, 31, 0, 0, Math.PI * 2); g.fill();
-      if (coat.fur === C.bg) { g.strokeStyle = C.surface2; g.lineWidth = 2; g.stroke(); }
-      if (coat.spot) { g.fillStyle = coat.spot; g.beginPath(); g.ellipse(-14, -12, 12, 10, -0.4, 0, Math.PI * 2); g.fill(); }
-      // muzzle
-      g.fillStyle = coat.muzzle;
-      g.beginPath(); g.ellipse(0, 12, 17, 13, 0, 0, Math.PI * 2); g.fill();
-      // cheeks
-      g.fillStyle = C.from; g.globalAlpha = 0.35;
-      g.beginPath(); g.arc(-21, 9, 5.5, 0, Math.PI * 2); g.arc(21, 9, 5.5, 0, Math.PI * 2); g.fill();
-      g.globalAlpha = 1;
-      // eyes
-      var eye = coat.fur === C.card ? C.bg : C.ink;
-      if (blink) {
-        g.strokeStyle = eye; g.lineWidth = 3; g.lineCap = "round";
-        g.beginPath(); g.arc(-12, -5, 5, 0.2, Math.PI - 0.2); g.stroke();
-        g.beginPath(); g.arc(12, -5, 5, 0.2, Math.PI - 0.2); g.stroke();
-      } else {
-        g.fillStyle = eye;
-        g.beginPath(); g.arc(-12, -4, 5.5, 0, Math.PI * 2); g.arc(12, -4, 5.5, 0, Math.PI * 2); g.fill();
-        g.fillStyle = coat.fur === C.card ? C.card : C.bg;
-        g.beginPath(); g.arc(-10, -6, 2, 0, Math.PI * 2); g.arc(14, -6, 2, 0, Math.PI * 2); g.fill();
+    // Every pose a puppy can strike. Leg angles are radians from straight down:
+    // [far front, near front, far back, near back].
+    function walkLegs(k) { var s = [0, 1, 0, -1][k] * 0.4; return [-s, s, s, -s]; }
+    var POSES = {
+      stand:    { legs: [0, 0, 0, 0], head: "up", tail: 2.3 },
+      wag0:     { legs: [0, 0, 0, 0], head: "up", tail: 1.9, tongue: true },
+      wag1:     { legs: [0, 0, 0, 0], head: "up", tail: 2.7, tongue: true },
+      blink:    { legs: [0, 0, 0, 0], head: "up", tail: 2.3, blink: true },
+      walk0:    { legs: walkLegs(0), head: "up", tail: 2.2 },
+      walk1:    { legs: walkLegs(1), head: "up", tail: 2.4 },
+      walk2:    { legs: walkLegs(2), head: "up", tail: 2.2 },
+      walk3:    { legs: walkLegs(3), head: "up", tail: 2.0 },
+      sniff0:   { legs: [0.1, -0.1, 0, 0], head: "down", tail: 2.0 },
+      sniff1:   { legs: [0.1, -0.1, 0, 0], head: "down2", tail: 2.6 },
+      pee:      { legs: [0, 0.1, 0.1, -1.45], head: "proud", tail: 2.1 },
+      sit:      { sit: true, head: "sit", tail: 0 },
+      sitBlink: { sit: true, head: "sit", tail: 0.3, blink: true },
+      lick0:    { sit: true, head: "lick", tail: 0, blink: true },
+      lick1:    { sit: true, head: "lick2", tail: 0.3, blink: true, tongue: true },
+      scratch0: { sit: true, scratch: [52, 30], head: "scratch", tail: 0, blink: true, tongue: true },
+      scratch1: { sit: true, scratch: [48, 36], head: "scratch", tail: 0.3, blink: true, tongue: true }
+    };
+    var HEADS = {
+      up: [72, 28, 0], proud: [72, 26, -0.25], down: [74, 44, 0.7], down2: [75, 46, 0.8],
+      sit: [62, 20, -0.1], lick: [56, 34, 0.9], lick2: [57, 35, 1.0], scratch: [62, 22, -0.3]
+    };
+
+    function drawDog(g, coat, pose) {
+      g.lineCap = "round"; g.lineJoin = "round";
+      function ell(x, y, rx, ry, rot, color) { g.fillStyle = color; g.beginPath(); g.ellipse(x, y, rx, ry, rot || 0, 0, Math.PI * 2); g.fill(); }
+      function leg(hx, hy, a, len, color) {
+        var ex = hx + Math.sin(a) * len, ey = hy + Math.cos(a) * len;
+        g.strokeStyle = color; g.lineWidth = 7;
+        g.beginPath(); g.moveTo(hx, hy); g.lineTo(ex, ey); g.stroke();
+        ell(ex + 1.5, ey - 1, 4.5, 3.2, 0, color);
       }
-      // nose
-      g.fillStyle = C.ink;
-      g.beginPath(); g.ellipse(0, 6, 6.5, 4.5, 0, 0, Math.PI * 2); g.fill();
-      // mouth + tongue
-      g.fillStyle = C.from;
-      g.beginPath(); g.ellipse(0, 19, 4.5, 6, 0, 0, Math.PI * 2); g.fill();
-      g.strokeStyle = C.ink; g.lineWidth = 2; g.lineCap = "round";
-      g.beginPath(); g.moveTo(-8, 13); g.quadraticCurveTo(-4, 17, 0, 12); g.quadraticCurveTo(4, 17, 8, 13); g.stroke();
-      return cv;
-    }
-    var sprites = COATS.map(function (coat) { return [drawPuppy(coat, false), drawPuppy(coat, true)]; });
+      function outline() { if (coat.fur === C.bg) { g.strokeStyle = C.surface2; g.lineWidth = 1.5; g.stroke(); } }
 
-    /* ---------- The pit ---------- */
+      if (pose.sit) {
+        // tail resting on the ground
+        g.strokeStyle = coat.fur; g.lineWidth = 5;
+        g.beginPath(); g.moveTo(28, 62); g.quadraticCurveTo(18, 66, 10 + pose.tail * 8, 62 - pose.tail * 10); g.stroke();
+        g.lineWidth = 7; g.strokeStyle = coat.ear;
+        g.beginPath(); g.moveTo(58, 44); g.lineTo(60, 66); g.stroke(); ell(61.5, 66, 4.5, 3.2, 0, coat.ear);
+        g.fillStyle = coat.fur; g.beginPath(); g.ellipse(44, 46, 17, 15, -0.6, 0, Math.PI * 2); g.fill(); outline();
+        if (coat.spot) ell(40, 44, 7, 6, -0.4, coat.spot);
+        ell(36, 58, 13, 9, 0, coat.fur);
+        if (pose.scratch) {
+          g.strokeStyle = coat.fur; g.lineWidth = 7;
+          g.beginPath(); g.moveTo(38, 56); g.lineTo(pose.scratch[0], pose.scratch[1]); g.stroke();
+          ell(pose.scratch[0] + 1, pose.scratch[1], 4.5, 3.2, 0, coat.fur);
+        } else {
+          ell(45, 66, 8, 3.5, 0, coat.fur);
+        }
+        g.strokeStyle = coat.fur; g.lineWidth = 7;
+        g.beginPath(); g.moveTo(53, 44); g.lineTo(53, 66); g.stroke(); ell(54.5, 66, 4.5, 3.2, 0, coat.fur);
+      } else {
+        var t = pose.tail;
+        g.strokeStyle = coat.fur; g.lineWidth = 5;
+        g.beginPath(); g.moveTo(25, 40); g.quadraticCurveTo(16, 40, 22 + Math.cos(t) * 14, 38 - Math.sin(t) * 14); g.stroke();
+        leg(62, 48, pose.legs[0], 18, coat.ear);
+        leg(32, 48, pose.legs[2], 18, coat.ear);
+        g.fillStyle = coat.fur; g.beginPath(); g.ellipse(47, 44, 24, 13, 0, 0, Math.PI * 2); g.fill(); outline();
+        if (coat.spot) ell(40, 40, 9, 7, 0.2, coat.spot);
+        ell(50, 51, 13, 4, 0, coat.muzzle);
+        leg(58, 48, pose.legs[1], 18, coat.fur);
+        leg(36, 48, pose.legs[3], 18, coat.fur);
+      }
+
+      var h = HEADS[pose.head];
+      g.save(); g.translate(h[0], h[1]); g.rotate(h[2]);
+      g.fillStyle = coat.fur; g.beginPath(); g.arc(0, 0, 13, 0, Math.PI * 2); g.fill(); outline();
+      ell(11, 4, 8, 6, 0, coat.muzzle);
+      if (pose.tongue) ell(13, 11, 2.8, 4.5, 0, C.from);
+      ell(18, 2, 3.2, 2.8, 0, C.ink);
+      g.globalAlpha = 0.35; ell(5, 6, 3, 2.4, 0, C.from); g.globalAlpha = 1;
+      var eye = coat.fur === C.card ? C.bg : C.ink;
+      if (pose.blink) {
+        g.strokeStyle = eye; g.lineWidth = 1.8;
+        g.beginPath(); g.arc(4, -4, 2.4, 0.3, Math.PI - 0.3); g.stroke();
+      } else {
+        ell(4, -3, 2.5, 2.7, 0, eye);
+        ell(4.8, -3.9, 0.9, 0.9, 0, coat.fur === C.card ? C.card : C.bg);
+      }
+      ell(-4, 0, 5.5, 9.5, 0.3, coat.ear);
+      g.restore();
+    }
+
+    var POSE_NAMES = Object.keys(POSES);
+    var sprites = COATS.map(function (coat) {
+      var set = {};
+      POSE_NAMES.forEach(function (name) {
+        var cv = document.createElement("canvas");
+        cv.width = Math.ceil(SW * RES); cv.height = Math.ceil(SH * RES);
+        var g = cv.getContext("2d");
+        g.scale(RES, RES);
+        drawDog(g, coat, POSES[name]);
+        set[name] = cv;
+      });
+      return set;
+    });
+
+    /* ---------- The pit: puppies drop in, then go be dogs ---------- */
     var canvas = document.getElementById("pit");
     var ctx = canvas.getContext("2d");
-    var W = 0, H = 0, size = 34, slots = [];
-    var pups = [];   // settled pile
-    var rain = [];   // overflow puppies that bounce off the full pile
-    var running = false, visible = true, last = 0;
+    var W = 0, H = 0, TOP = 110;
+    var size = 40, targetSize = 40;
+    var dogs = [], rain = [], puddles = [];
+    var running = false, visible = true, last = 0, clock = 0;
 
     function rand(a, b) { return a + Math.random() * (b - a); }
+    function maxShown() { return W < 480 ? 350 : 500; }
+    function minX() { return size * 0.9; }
+    function maxX() { return W - size * 0.9; }
 
     function layout() {
-      var rect = canvas.getBoundingClientRect();
+      var rect = canvas.getBoundingClientRect(), wasEmpty = W < 10;
       W = rect.width; H = rect.height;
       canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
-      size = W < 420 ? 30 : 36;
-      var cellW = size * 0.92, cellH = size * 0.78;
-      var cols = Math.max(1, Math.floor(W / cellW));
-      var rows = Math.floor((H - size * 0.3) / cellH);
-      cellW = W / cols;
-      slots = [];
-      for (var r = 0; r < rows; r++) {
-        var odd = r % 2, n = odd ? cols - 1 : cols, order = [];
-        for (var c = 0; c < n; c++) order.push(c);
-        order.sort(function () { return Math.random() - 0.5; });
-        order.forEach(function (c) {
-          slots.push({
-            x: (c + 0.5 + odd * 0.5) * cellW + rand(-3, 3),
-            y: H - size * 0.5 - r * cellH + rand(-2, 2)
-          });
-        });
-      }
-      pups.forEach(function (p, i) {
-        if (i < slots.length) { p.tx = slots[i].x; p.ty = slots[i].y; p.x = p.tx; }
+      TOP = W < 480 ? 120 : 110;
+      dogs.forEach(function (d) {
+        d.x = wasEmpty ? rand(minX(), maxX()) : Math.min(Math.max(d.x, minX()), maxX());
+        if (wasEmpty || d.gy > H - 8) { d.gy = groundY(); if (d.state !== "fall") d.y = d.gy; }
       });
     }
 
-    function newPup(i) {
-      var s = slots[i];
-      return {
-        tx: s.x, ty: s.y, x: s.x + rand(-20, 20), y: -size - rand(0, H * 0.8), vy: rand(0, 2),
-        coat: Math.floor(Math.random() * COATS.length), rot: rand(-0.35, 0.35), spin: rand(-0.08, 0.08),
-        scale: 1, leaving: false, phase: rand(0, 6.28), blinkAt: rand(1, 6)
-      };
+    function sizeFor(n) {
+      var area = W * (H - TOP);
+      return Math.max(12, Math.min(W < 480 ? 34 : 44, Math.sqrt(area / (Math.max(n, 1) * 2.4))));
     }
 
-    function newRain() {
-      return {
-        x: rand(size, W - size), y: -size - rand(0, H * 0.5), vx: rand(-1.5, 1.5), vy: rand(1, 4),
-        coat: Math.floor(Math.random() * COATS.length), rot: rand(-0.5, 0.5), spin: rand(-0.1, 0.1), bounced: 0
+    function groundY() { return rand(TOP + 10, H - 8); }
+
+    function newDog(fallen) {
+      var gy = groundY();
+      var d = {
+        x: rand(minX(), maxX()), gy: gy, y: gy - H - rand(0, H * 0.7), vy: rand(0, 3),
+        coat: Math.floor(Math.random() * COATS.length), dir: Math.random() < 0.5 ? -1 : 1,
+        state: "fall", t: 0, dur: 0, stride: 0, speed: 0, vgy: 0, rot: rand(-0.6, 0.6), scale: 1, leaving: false
       };
+      if (fallen) { d.y = gy; d.vy = 0; d.rot = 0; d.state = Math.random() < 0.5 ? "sit" : "stand"; }
+      return d;
+    }
+
+    var BEHAVIORS = [
+      ["walk", 34], ["sniff", 12], ["sit", 10], ["lick", 10], ["scratch", 8], ["pee", 7], ["zoom", 7], ["wag", 12]
+    ];
+    function choose(d) {
+      var total = 0, r;
+      BEHAVIORS.forEach(function (b) { total += b[1]; });
+      r = Math.random() * total;
+      for (var i = 0; i < BEHAVIORS.length - 1; i++) { r -= BEHAVIORS[i][1]; if (r <= 0) break; }
+      d.state = BEHAVIORS[i][0]; d.t = 0;
+      d.dur = { walk: rand(1.5, 4), zoom: rand(0.8, 1.6), sniff: rand(1, 2.2), sit: rand(1.2, 3), lick: rand(1.5, 3), scratch: rand(1, 2), pee: 1.6, wag: rand(1, 2.5) }[d.state];
+      if (d.state === "walk" || d.state === "zoom") {
+        if (Math.random() < 0.4) d.dir = -d.dir;
+        d.speed = d.state === "zoom" ? rand(3.2, 4.2) : rand(0.8, 1.3);
+        d.vgy = rand(-0.25, 0.25);
+      }
+      d.peed = false;
+    }
+
+    function poseOf(d) {
+      var s = clock;
+      switch (d.state) {
+        case "walk": case "zoom": return "walk" + (Math.floor(d.stride / Math.max(size * 0.14, 2)) % 4);
+        case "sniff": return Math.floor(s * 4 + d.x) % 2 ? "sniff1" : "sniff0";
+        case "sit": return (s + d.x * 0.1) % 3 < 0.15 ? "sitBlink" : "sit";
+        case "lick": return Math.floor(s * 3.5) % 2 ? "lick1" : "lick0";
+        case "scratch": return Math.floor(s * 14) % 2 ? "scratch1" : "scratch0";
+        case "pee": return d.t > 0.2 && d.t < 1.4 ? "pee" : "stand";
+        case "wag": return Math.floor(s * 8) % 2 ? "wag1" : "wag0";
+        default: return (s + d.x * 0.1) % 4 < 0.15 ? "blink" : "stand";
+      }
     }
 
     function syncPit() {
-      var target = Math.min(state.pups, slots.length);
-      var active = pups.filter(function (p) { return !p.leaving; }).length;
-      if (target > active) {
-        pups = pups.filter(function (p) { return !p.leaving; });
-        for (var i = pups.length; i < target; i++) pups.push(newPup(i));
-      } else if (target < active) {
-        for (var j = target; j < pups.length; j++) pups[j].leaving = true;
+      targetSize = sizeFor(Math.min(state.pups, maxShown()));
+      var target = Math.min(state.pups, maxShown());
+      var active = dogs.filter(function (d) { return !d.leaving; });
+      if (target > active.length) {
+        dogs = active;
+        for (var i = active.length; i < target; i++) dogs.push(newDog(reduceMotion));
+      } else if (target < active.length) {
+        for (var j = target; j < active.length; j++) active[j].leaving = true;
       }
-      var over = state.pups - slots.length;
-      var rainCount = over > 0 ? Math.min(70, 12 + Math.floor(over / 40)) : 0;
-      if (reduceMotion) rainCount = 0;
+      var over = state.pups - maxShown();
+      var rainCount = over > 0 && !reduceMotion ? Math.min(30, 8 + Math.floor(over / 300)) : 0;
       while (rain.length < rainCount) rain.push(newRain());
       if (rain.length > rainCount) rain.length = rainCount;
 
@@ -415,65 +490,100 @@
       wasOverloaded = overloaded;
 
       if (reduceMotion) {
-        pups = pups.filter(function (p) { return !p.leaving; });
-        pups.forEach(function (p) { p.x = p.tx; p.y = p.ty; p.vy = 0; });
-        draw(0);
+        dogs = dogs.filter(function (d) { return !d.leaving; });
+        size = targetSize;
+        draw();
       } else start();
     }
 
-    function drawSprite(coat, blink, x, y, rot, scale) {
-      var s = size * scale, cos = Math.cos(rot) * dpr, sin = Math.sin(rot) * dpr;
-      ctx.setTransform(cos, sin, -sin, cos, x * dpr, y * dpr);
-      ctx.drawImage(sprites[coat][blink ? 1 : 0], -s / 2, -s / 2, s, s);
+    function newRain() {
+      var d = newDog(false);
+      d.rain = true; d.y = d.gy - H - rand(0, H);
+      return d;
     }
 
-    function step(dt, t) {
-      var g = 0.55 * dt;
-      for (var i = pups.length - 1; i >= 0; i--) {
-        var p = pups[i];
-        if (p.leaving) {
-          p.scale -= 0.12 * dt;
-          if (p.scale <= 0) pups.splice(i, 1);
-          continue;
-        }
-        p.x += (p.tx - p.x) * 0.15 * dt;
-        if (p.y < p.ty || Math.abs(p.vy) > 0.4) {
-          p.vy += g; p.y += p.vy * dt; p.rot += p.spin * dt;
-          if (p.y >= p.ty) { p.y = p.ty; p.vy = -p.vy * 0.38; p.spin *= 0.5; }
-        } else { p.y = p.ty; p.vy = 0; }
+    function fall(d, dt) {
+      d.vy += 0.55 * dt; d.y += d.vy * dt; d.rot *= 0.97;
+      if (d.y >= d.gy) {
+        d.y = d.gy; d.rot = 0;
+        if (Math.abs(d.vy) < 2.5) { d.vy = 0; return true; }
+        d.vy = -d.vy * 0.35;
       }
-      var floor = slots.length ? Math.max(size, slots[slots.length - 1].y) : H;
-      rain.forEach(function (r, k) {
-        r.vy += g; r.x += r.vx * dt; r.y += r.vy * dt; r.rot += r.spin * dt;
-        if (r.y > floor - size * 0.2 && r.vy > 0) {
-          r.y = floor - size * 0.2; r.vy = -r.vy * rand(0.45, 0.7); r.vx += rand(-2.5, 2.5); r.spin = rand(-0.2, 0.2); r.bounced++;
+      return false;
+    }
+
+    function step(dt) {
+      size += (targetSize - size) * 0.08 * dt;
+      var sec = dt / 60;
+      for (var i = dogs.length - 1; i >= 0; i--) {
+        var d = dogs[i];
+        if (d.leaving) { d.scale -= 0.1 * dt; if (d.scale <= 0) dogs.splice(i, 1); continue; }
+        if (d.state === "fall") { if (fall(d, dt)) { d.state = "stand"; d.t = 0; d.dur = rand(0.2, 0.8); } continue; }
+        d.t += sec;
+        if (d.state === "walk" || d.state === "zoom") {
+          var px = d.speed * dt * (size / 40);
+          d.x += px * d.dir; d.stride += px;
+          d.gy = Math.min(Math.max(d.gy + d.vgy * dt, TOP + 10), H - 8); d.y = d.gy;
+          if (d.x < minX()) { d.x = minX(); d.dir = 1; }
+          if (d.x > maxX()) { d.x = maxX(); d.dir = -1; }
         }
-        if (r.x < -size || r.x > W + size || r.bounced > 3) rain[k] = newRain();
+        if (d.state === "pee" && !d.peed && d.t > 0.5) {
+          d.peed = true;
+          puddles.push({ x: d.x - d.dir * size * 0.55, y: d.gy, r: size * 0.35, life: 1 });
+          if (puddles.length > 40) puddles.shift();
+        }
+        if (d.t >= d.dur) choose(d);
+      }
+      for (var p = puddles.length - 1; p >= 0; p--) {
+        puddles[p].life -= 0.004 * dt;
+        if (puddles[p].life <= 0) puddles.splice(p, 1);
+      }
+      rain.forEach(function (r, k) {
+        if (r.state === "fall") { if (fall(r, dt)) { r.state = "poof"; r.t = 0; } }
+        else { r.t += sec; r.scale = 1 - r.t * 2.5; if (r.scale <= 0) rain[k] = newRain(); }
       });
     }
 
-    function draw(t) {
+    function paint(d) {
+      var depth = 0.8 + 0.2 * (d.gy - TOP) / Math.max(H - TOP, 1);
+      var dw = size * 1.7 * depth * Math.max(d.scale, 0), dh = dw * SH / SW;
+      if (dw <= 0) return;
+      var img = sprites[d.coat][d.state === "fall" || d.state === "poof" ? "stand" : poseOf(d)];
+      var cos = Math.cos(d.rot) * dpr, sin = Math.sin(d.rot) * dpr;
+      ctx.setTransform(cos * d.dir, sin * d.dir, -sin, cos, d.x * dpr, d.y * dpr);
+      ctx.drawImage(img, -dw / 2, -dh * FEET / SH, dw, dh);
+    }
+
+    function draw() {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      var sec = t / 1000;
-      // draw from the top of the pile down so lower puppies overlap nicely
-      for (var i = pups.length - 1; i >= 0; i--) {
-        var p = pups[i];
-        var settled = p.vy === 0 && p.y === p.ty;
-        var bob = settled && !reduceMotion ? Math.sin(sec * 2 + p.phase) * 1.2 : 0;
-        var blink = !reduceMotion && ((sec + p.phase) % p.blinkAt) < 0.14;
-        drawSprite(p.coat, blink, p.x, p.y + bob, p.rot, p.scale);
-      }
-      rain.forEach(function (r) { drawSprite(r.coat, false, r.x, r.y, r.rot, 1); });
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = C.from;
+      puddles.forEach(function (p) {
+        ctx.globalAlpha = 0.4 * p.life;
+        ctx.beginPath(); ctx.ellipse(p.x, p.y, p.r * 1.4, p.r * 0.45, 0, 0, Math.PI * 2); ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      // shadows for dogs in the air, so you can see where they'll land
+      ctx.fillStyle = C.ink;
+      dogs.concat(rain).forEach(function (d) {
+        if (d.state !== "fall") return;
+        var lift = Math.min(Math.max((d.gy - d.y) / H, 0), 1);
+        ctx.globalAlpha = 0.12 * (1 - lift);
+        ctx.beginPath(); ctx.ellipse(d.x, d.gy, size * 0.6 * (1 - lift * 0.5), size * 0.15, 0, 0, Math.PI * 2); ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      var all = dogs.concat(rain).sort(function (a, b) { return a.gy - b.gy; });
+      all.forEach(paint);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     function frame(t) {
       if (!running) return;
       var dt = last ? Math.min((t - last) / 16.67, 3) : 1;
-      last = t;
-      step(dt, t);
-      draw(t);
+      last = t; clock = t / 1000;
+      step(dt);
+      draw();
       requestAnimationFrame(frame);
     }
     function start() {
@@ -556,7 +666,7 @@
       if (Math.abs(w - lastWidth) < 1) return;
       lastWidth = w;
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(function () { layout(); syncPit(); if (reduceMotion) draw(0); }, 120);
+      resizeTimer = setTimeout(function () { layout(); syncPit(); }, 120);
     }).observe(canvas);
 
     layout();

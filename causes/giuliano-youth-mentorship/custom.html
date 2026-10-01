@@ -53,566 +53,882 @@
     .chip[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
 
     .wrap { max-width: 720px; margin: 0 auto; }
-    .screen { min-height: 420px; }
-    .fade-in { animation: sceneIn 0.5s var(--ease-spring); }
-    @keyframes sceneIn { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
     .btn[disabled] { opacity: 0.4; cursor: not-allowed; transform: none; }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
-    .fine { font-size: 0.85rem; margin: 20px 0 0; }
 
-    /* Start screen */
-    .start { position: relative; overflow: hidden; background: var(--ink-card); color: #fff; border-radius: var(--radius-card); padding: 36px 28px; }
-    .start .eyebrow { color: var(--accent-from); }
-    .start h2 { color: #fff; font-size: clamp(1.75rem, 6vw, 2.4rem); line-height: 1.1; max-width: 15ch; margin-bottom: 14px; }
-    .start p { color: #d6d6d6; max-width: 46ch; }
-    .start .btn { background: #fff; color: var(--ink-card); }
-    .start .fine { color: #bdbdbd; }
-    .start-art { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 20px; }
-    .start-art svg { width: 72px; height: 96px; }
-    .start-art .little svg { width: 56px; height: 76px; }
-    .bob { animation: bob 2.4s var(--ease-spring) infinite alternate; }
-    .bob.delay { animation-delay: 0.6s; }
-    @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-6px); } }
-
-    /* Characters */
-    .fig-head { fill: var(--surface-2); }
-    .fig-big { fill: var(--accent-from); }
-    .fig-little { fill: var(--accent); }
-    .fig-hair { fill: var(--ink); }
-    .start .fig-hair { fill: var(--subtle); }
-    .fig-face { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
-    .fig-eye { fill: var(--ink); }
-
-    /* Adventure cards */
-    .choose h2 { margin-bottom: 4px; }
-    .adv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 16px; }
-    .adv {
-      display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; cursor: pointer;
-      background: var(--bg); color: var(--ink); border: 1px solid var(--border); border-radius: var(--radius-card-sm);
-      padding: 0 0 18px; overflow: hidden; font-size: 1rem;
-      transition: transform 0.3s var(--ease-snap), border-color 0.2s var(--ease-snap);
+    /* Heads-up display */
+    .hud { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .hud-level { flex: none; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent-strong); }
+    .meter { flex: 1; min-width: 0; }
+    .meter-label { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 500; color: var(--muted); margin-bottom: 4px; }
+    .meter-track { height: 12px; border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
+    .meter-fill { height: 100%; width: 0; border-radius: var(--radius-pill); background: var(--accent-gradient); transition: width 0.35s var(--ease-spring); }
+    .combo { flex: none; font-size: 0.8rem; font-weight: 600; padding: 4px 10px; border-radius: var(--radius-pill); background: var(--ink-card); color: #fff; opacity: 0; transform: scale(0.8); transition: opacity 0.2s var(--ease-snap), transform 0.3s var(--ease-spring); }
+    .combo.on { opacity: 1; transform: none; }
+    .combo.magnet { background: var(--accent); color: var(--accent-ink); }
+    .stats { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 0 0 12px; padding: 0; list-style: none; }
+    .stats li { background: rgba(255, 255, 255, 0.1); border-radius: var(--radius-control); padding: 8px 12px; font-size: 0.8rem; color: #e2e2e2; }
+    .stats strong { display: block; color: #fff; font-size: 1.2rem; }
+    .icon-btn {
+      flex: none; width: 44px; height: 44px; border-radius: var(--radius-pill); border: 1px solid var(--border);
+      background: var(--bg); color: var(--ink); font-size: 1rem; cursor: pointer; display: grid; place-items: center;
+      transition: transform 0.3s var(--ease-snap);
     }
-    .adv:hover { transform: translateY(-4px) scale(1.02); border-color: var(--ink); }
-    .adv-art { width: 100%; height: 120px; background: var(--surface); display: grid; place-items: center; margin-bottom: 8px; }
-    .adv-art svg { width: 84px; height: 84px; }
-    .adv strong { padding: 0 18px; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; }
-    .adv span { padding: 0 18px; font-size: 0.875rem; color: var(--muted); }
-    .art-line { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-    .art-fill { fill: var(--accent); }
-    .art-soft { fill: var(--accent-from); }
+    .icon-btn:hover { transform: scale(1.06); }
 
-    /* Adventure path */
-    .path { list-style: none; margin: 0 0 20px; padding: 0; display: flex; align-items: center; }
-    .path li { display: flex; align-items: center; flex: 1; }
-    .path li:last-child { flex: none; }
-    .node {
-      flex: none; width: 34px; height: 34px; border-radius: var(--radius-pill); display: grid; place-items: center;
-      background: var(--bg); border: 2px solid var(--border); color: var(--muted); font-size: 0.8rem; font-weight: 600;
-      transition: background 0.4s var(--ease-spring), border-color 0.4s var(--ease-spring), transform 0.4s var(--ease-spring);
+    /* Arena */
+    .arena { position: relative; border-radius: var(--radius-card-sm); overflow: hidden; background: var(--bg); border: 1px solid var(--border); touch-action: none; user-select: none; -webkit-user-select: none; }
+    canvas { display: block; width: 100%; }
+    .overlay {
+      position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 24px; background: rgba(10, 10, 10, 0.78); color: #fff;
+      animation: fadeIn 0.4s var(--ease-spring);
     }
-    .node.done { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-    .node.here { border-color: var(--ink-card); color: var(--ink); transform: scale(1.15); }
-    .link { flex: 1; height: 4px; margin: 0 4px; border-radius: var(--radius-pill); background: var(--border); overflow: hidden; }
-    .link span { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.6s var(--ease-spring); }
-    .link.done span { width: 100%; }
+    .overlay[hidden] { display: none; }
+    .overlay .eyebrow { color: var(--accent-from); }
+    .overlay h2 { color: #fff; font-size: clamp(1.4rem, 6vw, 2.1rem); line-height: 1.15; max-width: 18ch; margin-bottom: 10px; }
+    .overlay p { color: #e2e2e2; max-width: 40ch; margin-bottom: 12px; font-size: 0.95rem; }
+    .overlay .btn { background: #fff; color: var(--ink-card); margin-top: 6px; }
+    .overlay .btn-light { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.45); }
+    .overlay .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 4px 0 14px; padding: 0; list-style: none; }
+    .legend li { font-size: 0.8rem; padding: 4px 10px; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.12); }
+    .legend li.bad { background: transparent; border: 1px dashed rgba(255, 255, 255, 0.45); }
+    .big-emoji { font-size: 3rem; line-height: 1; margin-bottom: 8px; animation: pop 0.6s var(--ease-spring); }
+    .tip { background: rgba(255, 255, 255, 0.1); border-radius: var(--radius-control); padding: 10px 14px; max-width: 42ch; margin: 0 0 12px; text-align: left; }
+    .tip b { color: var(--accent-from); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; display: block; margin-bottom: 2px; }
+    .tip span { color: #fff; font-size: 0.9rem; }
+    .signup { margin-top: 12px; padding: 12px 14px; border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.1); max-width: 42ch; text-align: left; }
+    .signup p { margin: 0 0 4px; font-size: 0.85rem; }
+    .signup .address { color: #fff; font-weight: 600; font-size: 1rem; overflow-wrap: anywhere; user-select: all; }
 
-    /* Scene */
-    .scene-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-    .stage { display: flex; align-items: flex-end; gap: 12px; margin: 16px 0; padding: 18px 16px 0; background: var(--surface); border-radius: var(--radius-card-sm); overflow: hidden; }
-    .stage svg { flex: none; width: 64px; height: 86px; }
-    .stage .little svg { width: 52px; height: 70px; }
-    .bubbles { flex: 1; display: grid; gap: 8px; padding-bottom: 16px; min-width: 0; }
-    .bubble { position: relative; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-control); padding: 10px 14px; color: var(--ink); font-size: 0.95rem; }
-    .bubble b { display: block; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent-strong); margin-bottom: 2px; }
-    .narration { color: var(--ink); margin-bottom: 4px; }
-    .choices { display: grid; gap: 10px; margin-top: 8px; }
-    .choice {
-      width: 100%; text-align: left; cursor: pointer; padding: 16px 18px; min-height: 56px;
-      background: var(--bg); color: var(--ink); border: 1px solid var(--border); border-radius: var(--radius-control);
-      font-size: 1rem; font-weight: 500; line-height: 1.35;
-      transition: transform 0.3s var(--ease-snap), border-color 0.2s var(--ease-snap), background 0.2s var(--ease-snap);
+    .toast {
+      position: absolute; left: 50%; top: 12px; transform: translateX(-50%); max-width: calc(100% - 24px);
+      background: var(--ink-card); color: #fff; border-radius: var(--radius-control); padding: 8px 14px;
+      font-size: 0.85rem; font-weight: 500; text-align: center; pointer-events: none;
+      opacity: 0; transition: opacity 0.3s var(--ease-snap);
     }
-    .choice:hover { transform: scale(1.02); border-color: var(--ink); }
-    .choice.tried { color: var(--muted); border-style: dashed; }
-    .choice.tried::after { content: " · tried"; font-size: 0.8rem; }
+    .toast.show { opacity: 1; }
 
-    /* Outcome */
-    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: var(--radius-pill); padding: 4px 12px; font-size: 0.8rem; font-weight: 600; }
-    .badge.great { background: var(--accent); color: var(--accent-ink); }
-    .badge.okay { background: var(--surface-2); color: var(--ink); }
-    .badge.learn { background: var(--bg); color: var(--ink); border: 1px solid var(--border); }
-    .you-said { margin: 14px 0 10px; color: var(--muted); font-size: 0.9rem; }
-    .tip { margin-top: 16px; background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 18px 20px; }
-    .tip .eyebrow { color: var(--accent-from); margin-bottom: 4px; }
-    .tip p { color: #fff; margin: 0; }
+    /* Touch controls */
+    .controls { display: flex; justify-content: space-between; gap: 10px; margin-top: 10px; }
+    .move {
+      flex: 1; height: 56px; border-radius: var(--radius-pill); border: 1px solid var(--border); background: var(--bg);
+      color: var(--ink); font-size: 1.4rem; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none;
+      transition: transform 0.2s var(--ease-snap), background 0.2s var(--ease-snap);
+    }
+    .move.jump { flex: 1.4; font-size: 1rem; font-weight: 600; background: var(--ink-card); color: #fff; border-color: var(--ink-card); }
+    .move.jump.held { background: var(--accent); border-color: var(--accent); }
+    .move:active, .move.held { transform: scale(0.97); background: var(--ink-card); color: #fff; border-color: var(--ink-card); }
+    .how { font-size: 0.85rem; margin: 12px 0 0; text-align: center; }
+    .credit { margin: 14px 0 0; font-size: 0.85rem; text-align: center; }
 
-    /* Result */
-    .result { position: relative; overflow: hidden; background: var(--ink-card); color: #fff; border-radius: var(--radius-card); padding: 32px 24px; text-align: center; }
-    .result .eyebrow { color: var(--accent-from); }
-    .result h2 { color: #fff; font-size: clamp(1.8rem, 7vw, 2.6rem); margin-bottom: 10px; }
-    .result p { color: #d6d6d6; max-width: 46ch; margin-left: auto; margin-right: auto; }
-    .power-icon { font-size: 3.25rem; line-height: 1; margin-bottom: 10px; display: inline-block; }
-    .pop { animation: pop 0.7s var(--ease-spring); }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes pop { 0% { transform: scale(0.3) rotate(-20deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
-    .try { text-align: left; background: rgba(255, 255, 255, 0.08); border-radius: var(--radius-control); padding: 14px 16px; margin: 18px 0 0; }
-    .try p { margin: 0; color: #fff; }
-    .result .actions { justify-content: center; }
-    .result .btn { background: #fff; color: var(--ink-card); }
-    .result .btn-light { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.4); }
-    .signup { text-align: left; margin-top: 16px; padding: 14px 16px; border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.08); }
-    .signup p { margin: 0 0 4px; color: #fff; }
-    .signup .address { font-weight: 600; font-size: 1.05rem; overflow-wrap: anywhere; user-select: all; }
-    .result .fine { color: #bdbdbd; }
-    .confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-    .confetti i { position: absolute; top: -12px; width: 8px; height: 14px; border-radius: 2px; opacity: 0; animation: fall 1.8s var(--ease-snap) forwards; }
-    @keyframes fall { 0% { opacity: 1; transform: translateY(0) rotate(0); } 100% { opacity: 0; transform: translateY(380px) rotate(540deg); } }
-
-    .credit { margin: 20px 0 0; font-size: 0.85rem; text-align: center; }
 
     @media (max-width: 400px) {
-      body { padding: 16px; }
-      .card { padding: 18px; }
-      .start, .result { padding: 28px 20px; }
-      .stage svg { width: 50px; height: 68px; }
-      .stage .little svg { width: 42px; height: 56px; }
-      .actions .btn { flex: 1; justify-content: center; }
-      .node { width: 30px; height: 30px; }
+      body { padding: 12px; }
+      .overlay { padding: 16px; }
+      .overlay p { font-size: 0.875rem; }
     }
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; animation: none !important; }
-      .confetti { display: none; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div id="game" aria-live="polite"></div>
+    <span class="eyebrow">Mentor Mission · a mini game</span>
+
+    <div class="hud">
+      <span class="hud-level" id="hud-level">Level 1</span>
+      <div class="meter">
+        <div class="meter-label"><span id="meter-name">Confidence</span><span id="meter-num">0%</span></div>
+        <div class="meter-track" role="progressbar" aria-labelledby="meter-name" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="meter">
+          <div class="meter-fill" id="meter-fill"></div>
+        </div>
+      </div>
+      <span class="combo" id="combo" aria-hidden="true"></span>
+      <button type="button" class="icon-btn" id="pause" aria-label="Pause game" disabled>⏸</button>
+    </div>
+
+    <div class="arena" id="arena">
+      <canvas id="canvas" tabindex="0" aria-label="Mentor Mission game area. Arrow keys move, space bar jumps."></canvas>
+      <div class="toast" id="toast" aria-live="polite"></div>
+      <div class="overlay" id="overlay"></div>
+    </div>
+
+    <div class="controls" aria-label="Game controls">
+      <button type="button" class="move" id="left" aria-label="Move left">◀</button>
+      <button type="button" class="move jump" id="jump" aria-label="Jump">⤒ Jump</button>
+      <button type="button" class="move" id="right" aria-label="Move right">▶</button>
+    </div>
+
+    <p class="how">Move with ◀ ▶ or the arrow keys. Jump with the space bar, ↑, the Jump button, or a quick tap on the game. Jump again in mid-air for a double jump! Press P to pause.</p>
     <p class="credit">Mentor Mission is a student-created educational game by Giuliano L. supporting Big Brothers Big Sisters of Greater Los Angeles. It isn't official mentor training, and it isn't created by or affiliated with BBBSLA.</p>
   </div>
 
   <script>
-    // ── Characters ───────────────────────────────────────
-    // Simple SVG people: the Big (you) and each adventure's Little.
-    const hair = {
-      big: '<path class="fig-hair" d="M18 26c0-12 8-18 18-18s18 6 18 18c-4-6-10-8-18-8s-14 2-18 8z"/>',
-      leo: '<path class="fig-hair" d="M19 24c1-10 8-15 17-15s16 5 17 15c-3-3-6-4-9-3-2-3-5-4-8-4s-7 2-9 5c-3-1-6 0-8 2z"/>',
-      ava: '<path class="fig-hair" d="M16 34c-2-16 6-26 20-26s22 10 20 26c-2-8-4-12-8-14-4 4-12 6-22 5-4 2-8 5-10 9z"/><path class="fig-hair" d="M14 30c-2 10 0 18 4 22l4-20zM58 30c2 10 0 18-4 22l-4-20z"/>',
-      sam: '<circle class="fig-hair" cx="22" cy="18" r="7"/><circle class="fig-hair" cx="50" cy="18" r="7"/><path class="fig-hair" d="M19 26c1-10 8-16 17-16s16 6 17 16c-6-4-11-5-17-5s-11 1-17 5z"/>'
+    // ── Setup ────────────────────────────────────────────
+    const css = getComputedStyle(document.documentElement);
+    const token = (name) => css.getPropertyValue(name).trim();
+    const C = {
+      accent: token('--accent'), accentFrom: token('--accent-from'), accentStrong: token('--accent-strong'),
+      ink: token('--ink'), card: token('--ink-card'), bg: token('--bg'), surface: token('--surface'),
+      surface2: token('--surface-2'), border: token('--border'), muted: token('--muted'), subtle: token('--subtle')
     };
-    function figure(who, mood) {
-      const body = who === 'big' ? 'fig-big' : 'fig-little';
-      const mouth = mood === 'sad'
-        ? '<path class="fig-face" d="M30 42q6-4 12 0"/>'
-        : mood === 'unsure'
-          ? '<path class="fig-face" d="M30 41h12"/>'
-          : '<path class="fig-face" d="M29 39q7 6 14 0"/>';
-      return '<svg viewBox="0 0 72 96" aria-hidden="true">' +
-        '<path class="' + body + '" d="M12 96c0-22 10-34 24-34s24 12 24 34z"/>' +
-        '<circle class="fig-head" cx="36" cy="32" r="20"/>' + hair[who] +
-        '<circle class="fig-eye" cx="29" cy="31" r="2.2"/><circle class="fig-eye" cx="43" cy="31" r="2.2"/>' + mouth +
-        '</svg>';
-    }
+    const FONT = token('--font-sans') || 'system-ui, sans-serif';
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // ── Adventure art ────────────────────────────────────
-    const art = {
-      hoops: '<svg viewBox="0 0 84 84" aria-hidden="true"><path class="art-line" d="M50 8h26v18H50z"/><path class="art-line" d="M56 26h14l-3 14h-8z"/><circle class="art-fill" cx="26" cy="54" r="18"/><path class="art-line" d="M8 54h36M26 36v36M14 41c8 6 8 20 0 26M38 41c-8 6-8 20 0 26"/></svg>',
-      music: '<svg viewBox="0 0 84 84" aria-hidden="true"><path class="art-line" d="M30 62V18l36-8v44"/><path class="art-line" d="M30 30l36-8"/><ellipse class="art-fill" cx="22" cy="62" rx="10" ry="8"/><ellipse class="art-soft" cx="58" cy="54" rx="10" ry="8"/></svg>',
-      create: '<svg viewBox="0 0 84 84" aria-hidden="true"><path class="art-soft" d="M42 10C22 10 8 24 8 40c0 14 10 22 20 20 6-1 6 8 12 10 22 6 36-10 36-28 0-18-14-32-34-32z"/><circle class="art-fill" cx="26" cy="34" r="5"/><circle class="art-fill" cx="42" cy="24" r="5"/><circle class="art-fill" cx="58" cy="32" r="5"/><path class="art-line" d="M50 74l20-30"/></svg>'
-    };
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const arena = document.getElementById('arena');
+    const overlay = document.getElementById('overlay');
+    const toastEl = document.getElementById('toast');
+    const comboEl = document.getElementById('combo');
+    const pauseBtn = document.getElementById('pause');
+    let W = 600, H = 440, GROUND = 400;
 
-    // ── Stories ──────────────────────────────────────────
-    // quality: great = a strong move, okay = kind but could go further, learn = less helpful.
-    // power: the mentoring superpower a strong move shows.
-    const adventures = [
+    // Physics
+    const GRAVITY = 1900;
+    const JUMP_V = 680;
+    const DOUBLE_V = 580;
+
+    // ── Game content ─────────────────────────────────────
+    const goods = [
+      { icon: '⭐', name: 'Encouragement', power: 'encouragement', say: 'Encouraged!' },
+      { icon: '👂', name: 'Listening', power: 'listening', say: 'Listened!' },
+      { icon: '🔍', name: 'Curiosity', power: 'curiosity', say: 'Asked a question!' },
+      { icon: '🌱', name: 'Patience', power: 'patience', say: 'Stayed patient!' }
+    ];
+    const bads = [
+      { icon: '📱', name: 'On your phone', tip: 'Put the phone away. Your full attention says "you matter to me."' },
+      { icon: '⏩', name: 'Rushing', tip: 'Slow down. Trying new things takes time, and that\'s okay.' },
+      { icon: '🛑', name: 'Giving up', tip: 'Don\'t quit too soon. Breaking it into small steps helps you both keep going.' }
+    ];
+
+    const levels = [
       {
-        id: 'hoops', art: 'hoops', little: 'leo', name: 'Leo', title: 'Basketball at the Park',
-        blurb: 'Shoot hoops with Leo, 11, at a neighborhood court.',
-        scenes: [
-          {
-            setting: 'You and Leo arrive at the court. He misses five shots in a row and slams the ball down.',
-            line: 'I\'m terrible at this. Can we just leave?', mood: 'sad',
-            choices: [
-              { text: '"That last one was so close. Want to try from a little closer?"', quality: 'great', power: 'encouragement',
-                outcome: 'Leo shrugs but steps in. The next shot rolls around the rim… and drops. He tries not to smile, and fails.',
-                tip: 'Shrinking a challenge into small wins helps a young person feel progress instead of failure.' },
-              { text: '"Sounds like you\'re pretty frustrated. What\'s going on?"', quality: 'great', power: 'listening',
-                outcome: 'Leo admits kids at school laugh when he misses. You just listen. After a minute, he picks the ball back up, a little looser.',
-                tip: 'Frustration is sometimes about something bigger. Listening first can help them feel ready to try again.' },
-              { text: '"Okay, no problem. Let\'s go get a snack instead."', quality: 'learn',
-                outcome: 'Leo looks relieved, but he\'s quiet on the walk. He didn\'t get the chance to feel what pushing through is like.',
-                tip: 'Respecting their feelings matters. But leaving right away can quietly say "I don\'t think you can do it either." What else could you try?' }
-            ]
-          },
-          {
-            setting: 'After a few more shots, Leo tries to spin the ball on his finger.',
-            line: 'My cousin plays for his high school. He can dunk!', mood: 'happy',
-            choices: [
-              { text: '"No way! Can you teach me that spin trick?"', quality: 'great', power: 'curiosity',
-                outcome: 'Leo shows you. You\'re terrible at it, and he laughs so hard he has to sit down. For ten minutes, he\'s the coach.',
-                tip: 'Letting a young person be the expert flips the script and builds real confidence.' },
-              { text: '"What\'s it like watching your cousin play?"', quality: 'great', power: 'listening',
-                outcome: 'Leo talks about going to every game and wanting to make the team himself one day. It\'s the most he\'s said all afternoon.',
-                tip: 'Open-ended questions invite young people to share their hopes, not just yes or no.' },
-              { text: '"Dunking is really hard. Most people never get there."', quality: 'learn',
-                outcome: 'Leo\'s smile fades. "I know," he mumbles, and stops spinning the ball.',
-                tip: 'Being realistic has its place, but meet their excitement first. Dreams can be big right now.' }
-            ]
-          },
-          {
-            setting: 'A pickup game starts on the next court. The players are a few years older. Leo watches, then looks at his shoes.',
-            line: 'They\'d never let me play.', mood: 'unsure',
-            choices: [
-              { text: '"Want to practice passing with me first, then decide if you want to ask?"', quality: 'great', power: 'patience',
-                outcome: 'You pass back and forth for a while. Then Leo says, "Maybe next time." And that\'s okay: it was his call.',
-                tip: 'Letting a young person set the pace shows you trust them. Ready looks different for everyone.' },
-              { text: '"Honestly, I get nervous trying new things too."', quality: 'great', power: 'encouragement',
-                outcome: 'Leo looks surprised. "Grown-ups get nervous?" You both laugh, and he stands a little taller.',
-                tip: 'Sharing your own feelings shows that being nervous is normal, not a sign of weakness.' },
-              { text: '"I\'ll go ask them for you."', quality: 'learn',
-                outcome: 'The players say sure, but Leo looks embarrassed and plays stiffly. It didn\'t feel like his win.',
-                tip: 'Stepping in can feel helpful, but it can take away their chance to be brave. How could you support him instead?' }
-            ]
-          }
-        ]
+        name: 'Basketball at the Park', little: 'Leo', theme: 'hoops', emoji: '🏀',
+        intro: 'Leo, 11, keeps missing his shots and wants to quit. Catch good moves, jump over bad habits, and build his confidence!',
+        lines: ['I\'m terrible at this…', 'Okay… one more try.', 'I think I\'m getting it!', 'Watch this shot!'],
+        cheers: ['Nice catch!', 'Whoa, you can jump!', 'Keep going!'],
+        win: 'Swish! Leo made the shot, and he wants to keep playing.',
+        tip: 'Celebrate effort and small wins, not just the final score.',
+        speed: 1, fallBad: 0.12, rollEvery: 3.4
       },
       {
-        id: 'music', art: 'music', little: 'ava', name: 'Ava', title: 'Make Some Music',
-        blurb: 'Swap songs and make beats with Ava, 13, at the park.',
-        scenes: [
-          {
-            setting: 'You and Ava sit on a park bench with your phones, about to swap favorite songs. She hesitates.',
-            line: 'You\'ll probably think my music is weird.', mood: 'unsure',
-            choices: [
-              { text: '"I\'d love to hear it. What\'s a song you can\'t stop playing?"', quality: 'great', power: 'curiosity',
-                outcome: 'Ava plays a song and explains the lyrics mean a lot to her. You ask what her favorite line is. She has an answer ready.',
-                tip: 'Genuine interest in their world tells a young person that what they love matters.' },
-              { text: '"Whatever you like is cool with me. No judging here."', quality: 'great', power: 'encouragement',
-                outcome: 'Ava relaxes and hands you one earbud. "Okay, but you have to listen to the whole thing."',
-                tip: 'A judgment-free space makes it easier for young people to open up.' },
-              { text: '"Ha, mine\'s weirder. Here, listen to this one first."', quality: 'learn',
-                outcome: 'You play three of your songs. Ava nods politely, but she never shares hers.',
-                tip: 'Sharing about yourself builds connection, but make room for them first. How could you invite her in?' }
-            ]
-          },
-          {
-            setting: 'You try a beat on an upside-down bucket. Ava keeps losing the rhythm and drops the sticks.',
-            line: 'I have zero rhythm. Forget it.', mood: 'sad',
-            choices: [
-              { text: '"Let\'s slow it way down and clap it together."', quality: 'great', power: 'patience',
-                outcome: 'Clap… clap-clap. Slowly she gets it, then speeds up, then you\'re both laughing when it falls apart and starting again.',
-                tip: 'Slowing down can turn a "can\'t" into a "not yet."' },
-              { text: '"Which part feels tricky?"', quality: 'great', power: 'listening',
-                outcome: 'Ava points out the switch in the middle. You practice just that part until it clicks.',
-                tip: 'Asking what\'s hard helps you support what they actually need.' },
-              { text: '"Here, just watch me do it."', quality: 'learn',
-                outcome: 'You play it perfectly. Ava watches with her arms crossed, looking more discouraged than before.',
-                tip: 'Showing can help, but doing it for them can make the goal feel further away. What could you do together?' }
-            ]
-          },
-          {
-            setting: 'On the walk back, Ava goes quiet, then says something softly.',
-            line: 'I write song lyrics sometimes. I\'ve never shown anyone.', mood: 'unsure',
-            choices: [
-              { text: '"That\'s really cool. You can share some or keep them private. Either is okay."', quality: 'great', power: 'listening',
-                outcome: 'Ava thinks, then reads you one line. You tell her exactly what you liked about it. She grins.',
-                tip: 'Giving a choice builds trust on their terms.' },
-              { text: '"What do you like to write about?"', quality: 'great', power: 'curiosity',
-                outcome: 'She talks about her family and her neighborhood. Then: "Maybe I\'ll show you one next time."',
-                tip: 'Curiosity about the "why" shows you care about them, not just what they make.' },
-              { text: '"You should post them online!"', quality: 'learn',
-                outcome: 'Ava tenses up. "No way." The conversation stalls.',
-                tip: 'Big leaps can feel scary. Celebrate small steps first. What would feel safer for her?' }
-            ]
-          }
-        ]
+        name: 'Make Some Music', little: 'Ava', theme: 'music', emoji: '🎵',
+        intro: 'Ava, 13, is nervous to share her music. Bad habits roll faster now, so time your jumps!',
+        lines: ['You\'ll think my music is weird…', 'Okay, maybe one song.', 'This part is my favorite!', 'I wrote some lyrics. Want to hear?'],
+        cheers: ['That\'s the beat!', 'You\'re on fire!', 'Encore!'],
+        win: 'Ava shared a song she wrote. That took courage, and you helped make it feel safe.',
+        tip: 'A judgment-free space makes it easier for young people to open up.',
+        speed: 1.22, fallBad: 0.16, rollEvery: 2.7
       },
       {
-        id: 'create', art: 'create', little: 'sam', name: 'Sam', title: 'Create Something',
-        blurb: 'Draw and dream up stories with Sam, 9, on a sunny afternoon.',
-        scenes: [
-          {
-            setting: 'You and Sam are drawing at a picnic table. Sam\'s marker smudges across their dragon, and they crumple the paper.',
-            line: 'It\'s ruined. I\'m bad at drawing.', mood: 'sad',
-            choices: [
-              { text: '"Can I see? I really liked the wings you were drawing."', quality: 'great', power: 'encouragement',
-                outcome: 'Sam uncrumples it slowly. You wonder out loud if the smudge could be smoke. Sam\'s eyes light up: "Fire smoke!"',
-                tip: 'Specific praise ("I liked the wings") feels more real than "good job."' },
-              { text: '"Every artist messes up. Want to start new ones together?"', quality: 'great', power: 'patience',
-                outcome: 'You both start over. Your dragon looks like a potato. Sam laughs and offers to help you.',
-                tip: 'Showing that mistakes are part of making things helps them keep going.' },
-              { text: '"It\'s okay, it\'s just a drawing."', quality: 'learn',
-                outcome: 'Sam frowns. "It\'s not just a drawing to me."',
-                tip: 'Small things can matter a lot to a young person. Take their feelings seriously. What could you say instead?' }
-            ]
-          },
-          {
-            setting: 'Sam starts telling you all about the dragon\'s kingdom, with mountains, a castle, and a secret lake.',
-            line: 'And the dragon protects everybody, but nobody knows!', mood: 'happy',
-            choices: [
-              { text: '"What\'s the dragon\'s name? Does it have a superpower?"', quality: 'great', power: 'curiosity',
-                outcome: 'Sam lights up and invents a whole world: names, powers, and a villain. You could listen for hours.',
-                tip: 'Questions about their ideas show their imagination is worth exploring.' },
-              { text: '"So it\'s a secret hero? That\'s so cool. Then what happens?"', quality: 'great', power: 'listening',
-                outcome: 'Sam nods eagerly and keeps going, adding new details every time you reflect one back.',
-                tip: 'Repeating back what you heard shows you\'re truly listening.' },
-              { text: 'Nod along while checking a text on your phone.', quality: 'learn',
-                outcome: 'Sam\'s story trails off. "Never mind," they say, and go back to coloring.',
-                tip: 'Your full attention is a gift. Putting the phone away says "you matter to me."' }
-            ]
-          },
-          {
-            setting: 'Sam wants to show the new drawing to their mom at pickup but looks worried.',
-            line: 'What if she thinks it\'s not good?', mood: 'unsure',
-            choices: [
-              { text: '"What do you like most about it?"', quality: 'great', power: 'encouragement',
-                outcome: 'Sam points to the wings and the secret lake. By the time their mom arrives, they can\'t wait to show her.',
-                tip: 'Helping them see their own strengths builds confidence that lasts beyond one compliment.' },
-              { text: '"Want to practice what you\'ll say when you show her?"', quality: 'great', power: 'patience',
-                outcome: 'You rehearse twice. The second time, Sam does a dramatic dragon roar. They feel ready.',
-                tip: 'A little practice makes a scary moment feel manageable.' },
-              { text: '"It\'s perfect! Everyone will love it!"', quality: 'okay', power: 'encouragement',
-                outcome: 'Sam smiles, then asks, "Really?" The praise feels nice, but they\'re not sure it\'s true.',
-                tip: 'Big praise is kind. Specific, honest praise sticks longer.' }
-            ]
-          }
-        ]
+        name: 'Create Something', little: 'Sam', theme: 'art', emoji: '🎨',
+        intro: 'Sam, 9, smudged their drawing and thinks it\'s ruined. The final level is the fastest. Use your double jump!',
+        lines: ['It\'s ruined…', 'Maybe the smudge could be smoke?', 'My dragon has a secret lake!', 'Can I show my mom?'],
+        cheers: ['So creative!', 'Masterpiece!', 'You\'re amazing!'],
+        win: 'Sam proudly showed their dragon drawing at pickup. Mission complete!',
+        tip: 'Specific praise ("I love the wings!") feels more real than "good job."',
+        speed: 1.45, fallBad: 0.2, rollEvery: 2.1
       }
     ];
 
     const powers = {
-      encouragement: { icon: '🌟', name: 'Encouragement', text: 'You notice effort and small wins, and you help young people believe in themselves, especially when they\'re ready to give up.', tryIt: 'On a real outing, point out one specific thing your Little did well, like "You kept trying even when it was hard."' },
-      listening: { icon: '👂', name: 'Listening', text: 'You make space for young people to share what\'s really on their mind. They feel heard, and that\'s where trust begins.', tryIt: 'On a real outing, try repeating back what your Little tells you before you give advice.' },
-      curiosity: { icon: '🔍', name: 'Curiosity', text: 'You ask questions that light people up. Young people feel like their ideas and interests are worth exploring.', tryIt: 'On a real outing, ask your Little to teach you something they love.' },
-      patience: { icon: '🌱', name: 'Patience', text: 'You let young people go at their own pace, so trying new things feels safe instead of scary.', tryIt: 'On a real outing, if something feels hard, slow down and break it into smaller steps together.' }
+      encouragement: { icon: '🌟', name: 'Encouragement', text: 'You notice effort and help young people believe in themselves.', tryIt: 'On a real outing, point out one specific thing your Little did well.' },
+      listening: { icon: '👂', name: 'Listening', text: 'You make space for young people to share what\'s on their mind. That\'s where trust begins.', tryIt: 'On a real outing, repeat back what your Little tells you before giving advice.' },
+      curiosity: { icon: '🔍', name: 'Curiosity', text: 'You ask questions that help young people discover what they care about.', tryIt: 'On a real outing, ask your Little to teach you something they love.' },
+      patience: { icon: '🌱', name: 'Patience', text: 'You let young people go at their own pace, so new things feel safe instead of scary.', tryIt: 'On a real outing, if something is hard, break it into smaller steps together.' }
     };
 
-    const badges = { great: '✓ A strong move', okay: '◐ Kind, and there\'s more you could do', learn: '↺ Something to learn from' };
-
     // ── State ────────────────────────────────────────────
-    const game = document.getElementById('game');
-    let adv = null;
-    let sceneIndex = 0;
-    let tried = [];
-    let earned = [];
+    let state = 'intro';
+    let levelIndex = 0;
+    let meter = 0;
+    let items = [];
+    let rollers = [];
+    let hearts = [];
+    let particles = [];
+    let floaters = [];
+    let spawnTimer = 0, rollTimer = 0, heartTimer = 0;
+    let shake = 0;
+    let caught = { encouragement: 0, listening: 0, curiosity: 0, patience: 0 };
+    let streak = 0, bestStreak = 0, dodged = 0;
+    let magnetT = 0;
+    let cheerT = 0, cheerText = '';
+    let celebrateT = 0;
+    let t = 0;
+    const player = { x: 300, z: 0, vz: 0, jumps: 0, targetX: null, catchT: 0, landT: 0, moving: 0, face: 1 };
+    const keys = { left: false, right: false };
+    const clouds = [0, 1, 2].map((i) => ({ x: i * 240 + 40, y: 30 + i * 22, s: 0.6 + i * 0.25 }));
+    const drift = Array.from({ length: 7 }, (_, i) => ({ x: Math.random(), s: 0.3 + Math.random() * 0.6 }));
 
+    const level = () => levels[levelIndex];
+    const lineFor = () => level().lines[Math.min(3, Math.floor(meter / 26))];
+    const mood = () => (meter < 26 ? 'sad' : meter < 52 ? 'unsure' : 'happy');
+    const mult = () => Math.min(3, 1 + Math.floor(streak / 5));
+    const littleX = () => (levelIndex === 0 ? W - 120 : 64);
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = arena.clientWidth;
+      H = Math.round(Math.min(470, Math.max(390, W * 0.78)));
+      GROUND = H - 40;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.height = H + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      player.x = Math.min(Math.max(player.x, 30), W - 30);
+      if (state !== 'playing') draw(0);
+    }
+
+    // ── Drawing helpers ──────────────────────────────────
+    function roundRect(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    // A simple person whose feet sit at (x, feetY). size is roughly their height.
+    function person(x, feetY, size, body, faceMood, hairStyle, opts) {
+      opts = opts || {};
+      const s = size / 80;
+      ctx.save();
+      ctx.translate(x, feetY);
+      ctx.scale(s * (opts.sx || 1), s * (opts.sy || 1));
+      // legs
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 5; ctx.lineCap = 'round';
+      const step = opts.step || 0;
+      ctx.beginPath();
+      ctx.moveTo(-8, -14); ctx.lineTo(-8 + step * 6, 0);
+      ctx.moveTo(8, -14); ctx.lineTo(8 - step * 6, 0);
+      ctx.stroke();
+      // body
+      ctx.fillStyle = body;
+      ctx.beginPath();
+      ctx.moveTo(-22, -12); ctx.quadraticCurveTo(-22, -46, 0, -46); ctx.quadraticCurveTo(22, -46, 22, -12); ctx.closePath();
+      ctx.fill();
+      // arms up when cheering
+      if (opts.armsUp) {
+        ctx.strokeStyle = body; ctx.lineWidth = 6;
+        ctx.beginPath(); ctx.moveTo(-18, -38); ctx.lineTo(-28, -60); ctx.moveTo(18, -38); ctx.lineTo(28, -60); ctx.stroke();
+      }
+      // head
+      ctx.fillStyle = C.surface2;
+      ctx.beginPath(); ctx.arc(0, -62, 17, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = C.ink;
+      if (hairStyle === 'puffs') { ctx.beginPath(); ctx.arc(-14, -76, 6.5, 0, Math.PI * 2); ctx.arc(14, -76, 6.5, 0, Math.PI * 2); ctx.fill(); }
+      ctx.beginPath();
+      if (hairStyle === 'long') {
+        ctx.moveTo(-19, -46); ctx.quadraticCurveTo(-23, -81, 0, -81); ctx.quadraticCurveTo(23, -81, 19, -46);
+        ctx.lineTo(13, -64); ctx.quadraticCurveTo(0, -70, -13, -64); ctx.closePath();
+      } else {
+        ctx.moveTo(-17, -64); ctx.quadraticCurveTo(-17, -81, 0, -81); ctx.quadraticCurveTo(17, -81, 17, -64);
+        ctx.quadraticCurveTo(0, -74, -17, -64); ctx.closePath();
+      }
+      ctx.fill();
+      const look = (opts.face || 0) * 2;
+      ctx.beginPath(); ctx.arc(-6 + look, -62, 2, 0, Math.PI * 2); ctx.arc(6 + look, -62, 2, 0, Math.PI * 2); ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      if (faceMood === 'sad') { ctx.moveTo(-5 + look, -52); ctx.quadraticCurveTo(look, -56, 5 + look, -52); }
+      else if (faceMood === 'unsure') { ctx.moveTo(-5 + look, -53); ctx.lineTo(5 + look, -53); }
+      else if (faceMood === 'ouch') { ctx.arc(look, -53, 3, 0, Math.PI * 2); }
+      else { ctx.moveTo(-6 + look, -55); ctx.quadraticCurveTo(look, -48, 6 + look, -55); }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function bubble(x, y, text, maxW) {
+      ctx.font = '500 13px ' + FONT;
+      const words = text.split(' ');
+      const lines = [];
+      let line = '';
+      words.forEach((w) => {
+        const test = line ? line + ' ' + w : w;
+        if (ctx.measureText(test).width > maxW - 20 && line) { lines.push(line); line = w; } else line = test;
+      });
+      lines.push(line);
+      const bw = Math.min(maxW, Math.max(...lines.map((l) => ctx.measureText(l).width)) + 22);
+      const bh = lines.length * 17 + 14;
+      const bx = Math.min(Math.max(x - bw / 2, 8), W - bw - 8);
+      const by = y - bh;
+      ctx.fillStyle = C.bg; ctx.strokeStyle = C.border; ctx.lineWidth = 1;
+      roundRect(bx, by, bw, bh, 12);
+      ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - 6, by + bh - 0.5); ctx.lineTo(x, by + bh + 8); ctx.lineTo(x + 6, by + bh - 0.5); ctx.fill();
+      ctx.fillStyle = C.ink; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+      lines.forEach((l, i) => ctx.fillText(l, bx + 11, by + 8 + i * 17));
+    }
+
+    function drawBackground(dt) {
+      ctx.fillStyle = C.surface;
+      ctx.fillRect(0, 0, W, H);
+      // ground with scrolling stripes
+      ctx.fillStyle = C.surface2;
+      ctx.fillRect(0, GROUND, W, H - GROUND);
+      ctx.strokeStyle = C.border; ctx.lineWidth = 2;
+      const off = reduceMotion ? 0 : (t * 30) % 40;
+      for (let x = -40 + off; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, GROUND + 26); ctx.lineTo(x + 18, GROUND + 26); ctx.stroke(); }
+
+      ctx.fillStyle = C.bg;
+      clouds.forEach((c) => {
+        if (!reduceMotion) c.x += c.s * 12 * dt;
+        if (c.x > W + 80) c.x = -80;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 16, 0, Math.PI * 2); ctx.arc(c.x + 18, c.y - 6, 20, 0, Math.PI * 2); ctx.arc(c.x + 38, c.y, 15, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      const theme = level().theme;
+      if (theme === 'hoops') {
+        const hx = W - 60, hy = 120;
+        ctx.fillStyle = C.subtle; ctx.fillRect(hx + 22, hy - 10, 6, GROUND - hy + 10);
+        ctx.fillStyle = C.bg; ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+        ctx.fillRect(hx - 6, hy - 40, 40, 30); ctx.strokeRect(hx - 6, hy - 40, 40, 30);
+        ctx.strokeStyle = C.accent; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.ellipse(hx - 4, hy - 8, 16, 4, 0, 0, Math.PI * 2); ctx.stroke();
+        // Leo's ball arcs into the hoop when the level is won
+        if (state === 'levelDone' || state === 'finished') {
+          const p = Math.min(1, celebrateT / 1.1);
+          const sx = littleX(), sy = GROUND - 90;
+          const bx = sx + (hx - 4 - sx) * p, by = sy + (hy - 8 - sy) * p - Math.sin(p * Math.PI) * 120;
+          ctx.font = '22px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText('🏀', bx, p < 1 ? by : hy + Math.min(60, (celebrateT - 1.1) * 120));
+        }
+      } else if (theme === 'music') {
+        ctx.strokeStyle = C.border; ctx.lineWidth = 1.5;
+        for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.moveTo(0, 100 + i * 10); ctx.lineTo(W, 100 + i * 10); ctx.stroke(); }
+        ctx.fillStyle = C.subtle; ctx.font = '22px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        drift.forEach((d, i) => {
+          if (!reduceMotion) { d.x += d.s * 0.03 * dt; if (d.x > 1.05) d.x = -0.05; }
+          ctx.fillText(i % 2 ? '♪' : '♫', d.x * W, 105 + Math.sin(t * 1.5 + i) * 20 + (i % 3) * 8);
+        });
+      } else {
+        ctx.fillStyle = C.accentFrom; ctx.globalAlpha = 0.35;
+        ctx.beginPath(); ctx.arc(W - 60, 70, 28 + Math.sin(t * 2) * 2, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = C.bg; ctx.lineWidth = 3; ctx.lineCap = 'round';
+        drift.forEach((d, i) => {
+          const x = (i + 0.5) * (W / drift.length), y = GROUND + 14;
+          ctx.beginPath();
+          if (i % 3 === 0) ctx.arc(x, y, 6, 0, Math.PI * 2);
+          else if (i % 3 === 1) { ctx.moveTo(x - 7, y); ctx.lineTo(x + 7, y); ctx.moveTo(x, y - 7); ctx.lineTo(x, y + 7); }
+          else { ctx.moveTo(x - 8, y + 4); ctx.quadraticCurveTo(x, y - 8, x + 8, y + 4); }
+          ctx.stroke();
+        });
+      }
+    }
+
+    function token3(x, y, icon, kind, rot) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rot || 0);
+      if (kind === 'bad') {
+        ctx.fillStyle = C.card; ctx.globalAlpha = 0.12;
+        ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1; ctx.setLineDash([4, 4]); ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+      } else {
+        const glow = kind === 'heart' || kind === 'magnet';
+        ctx.fillStyle = glow ? C.accentFrom : C.bg; ctx.globalAlpha = glow ? 0.35 : 0.9;
+        ctx.beginPath(); ctx.arc(0, 0, glow ? 26 : 22, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1; ctx.strokeStyle = C.accent; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.stroke();
+      }
+      ctx.font = '24px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(icon, 0, 1);
+      ctx.restore();
+    }
+
+    function drawThings() {
+      items.forEach((it) => token3(it.x, it.y, it.icon, it.bad ? 'bad' : it.magnet ? 'magnet' : 'good', Math.sin(it.wob) * 0.25));
+      hearts.forEach((h) => token3(h.x, h.y + Math.sin(h.wob) * 8, '💛', 'heart', 0));
+      rollers.forEach((r) => {
+        // shadow + rolling bad habit
+        ctx.fillStyle = C.ink; ctx.globalAlpha = 0.1;
+        ctx.beginPath(); ctx.ellipse(r.x, GROUND + 2, 20, 5, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
+        token3(r.x, GROUND - 22, r.icon, 'bad', r.rot);
+        if (r.warn > 0) {
+          ctx.font = '600 12px ' + FONT; ctx.fillStyle = C.ink; ctx.textAlign = 'center';
+          ctx.fillText('JUMP!', Math.min(Math.max(r.x, 30), W - 30), GROUND - 56);
+        }
+      });
+    }
+
+    function drawPeople() {
+      const lx = littleX();
+      const celebrating = state === 'levelDone' || state === 'finished';
+      const cheering = celebrating || cheerT > 0;
+      const hop = cheering && !reduceMotion ? Math.abs(Math.sin((celebrating ? celebrateT : cheerT) * 9)) * 16 : 0;
+      const hairs = ['short', 'long', 'puffs'];
+      person(lx, GROUND - hop, 62, C.accent, cheering ? 'happy' : mood(), hairs[levelIndex], { armsUp: cheering, face: player.x > lx ? 1 : -1 });
+      if (state === 'playing' || celebrating) {
+        const text = celebrating ? level().lines[3] : cheerT > 0 ? cheerText : lineFor();
+        bubble(lx, GROUND - 92 - hop, text, Math.min(220, W * 0.55));
+      }
+
+      // You, with squash and stretch
+      const air = player.z > 0;
+      let sx = 1, sy = 1;
+      if (!reduceMotion) {
+        if (air) { sy = 1 + Math.min(0.12, Math.abs(player.vz) / 5000); sx = 1 / sy; }
+        if (player.landT > 0) { sy = 1 - player.landT * 0.18; sx = 1 + player.landT * 0.14; }
+        if (player.catchT > 0) { sy *= 1 + player.catchT * 0.06; }
+      }
+      const step = air ? 0.8 : player.moving ? Math.sin(t * 18) : 0;
+      const hurt = shake > 0.4;
+      const wob = shake && !reduceMotion ? Math.sin(t * 60) * shake * 4 : 0;
+      // shadow shrinks as you jump
+      ctx.fillStyle = C.ink; ctx.globalAlpha = 0.12;
+      const shadow = Math.max(0.4, 1 - player.z / 220);
+      ctx.beginPath(); ctx.ellipse(player.x, GROUND + 2, 24 * shadow, 6 * shadow, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+      person(player.x + wob, GROUND - player.z, 86, C.card, hurt ? 'ouch' : 'happy', 'short', { sx, sy, step, face: player.face, armsUp: player.catchT > 0.5 });
+      if (magnetT > 0) {
+        ctx.strokeStyle = C.accent; ctx.lineWidth = 2; ctx.globalAlpha = 0.35 + Math.sin(t * 10) * 0.2;
+        ctx.beginPath(); ctx.arc(player.x, GROUND - player.z - 40, 70, 0, Math.PI * 2); ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+      ctx.font = '600 11px ' + FONT; ctx.fillStyle = C.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText('YOU', player.x, GROUND + 8);
+    }
+
+    function drawEffects(dt) {
+      particles.forEach((p) => {
+        p.x += p.vx * dt; p.y += p.vy * dt; p.vy += (p.dust ? 0 : 500) * dt; p.life -= dt * (p.dust ? 2.2 : 1);
+        ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
+        ctx.fillStyle = p.color;
+        if (p.dust) { ctx.beginPath(); ctx.arc(p.x, p.y, 5 * (1.4 - p.life), 0, Math.PI * 2); ctx.fill(); }
+        else { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.life * 6); ctx.fillRect(-4, -6, 8, 12); ctx.restore(); }
+      });
+      ctx.globalAlpha = 1;
+      particles = particles.filter((p) => p.life > 0 && p.y < H + 20);
+
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      floaters.forEach((f) => {
+        f.y -= 40 * dt; f.life -= dt;
+        ctx.globalAlpha = Math.max(0, Math.min(1, f.life * 2));
+        ctx.font = (f.big ? '700 18px ' : '600 14px ') + FONT;
+        ctx.fillStyle = f.bad ? C.ink : C.accentStrong;
+        ctx.fillText(f.text, Math.min(Math.max(f.x, 60), W - 60), f.y);
+      });
+      ctx.globalAlpha = 1;
+      floaters = floaters.filter((f) => f.life > 0);
+    }
+
+    function burst(x, y, count) {
+      if (reduceMotion) return;
+      const colors = [C.accent, C.accentFrom, C.card, C.subtle];
+      for (let i = 0; i < count; i++) {
+        particles.push({ x, y, vx: (Math.random() - 0.5) * 360, vy: -Math.random() * 380 - 80, life: 1 + Math.random() * 0.6, color: colors[i % colors.length] });
+      }
+    }
+    function dust(x) {
+      if (reduceMotion) return;
+      for (let i = 0; i < 6; i++) particles.push({ dust: true, x: x + (Math.random() - 0.5) * 30, y: GROUND - 2, vx: (Math.random() - 0.5) * 80, vy: -Math.random() * 30, life: 1, color: C.subtle });
+    }
+
+    // ── Game logic ───────────────────────────────────────
+    function spawnFalling() {
+      const lv = level();
+      const r = Math.random();
+      let it;
+      if (r < lv.fallBad) it = Object.assign({ bad: true }, bads[Math.floor(Math.random() * bads.length)]);
+      else if (r < lv.fallBad + 0.035 && magnetT <= 0) it = { magnet: true, icon: '🧲', name: 'Mentor Magnet' };
+      else it = Object.assign({}, goods[Math.floor(Math.random() * goods.length)]);
+      it.x = 30 + Math.random() * (W - 60);
+      it.y = -30;
+      it.vy = (115 + Math.random() * 55) * lv.speed;
+      it.wob = Math.random() * 6;
+      items.push(it);
+    }
+    function spawnRoller() {
+      const fromLeft = Math.random() < 0.5;
+      const b = bads[Math.floor(Math.random() * bads.length)];
+      rollers.push(Object.assign({ x: fromLeft ? -30 : W + 30, dir: fromLeft ? 1 : -1, v: (150 + Math.random() * 50) * level().speed, rot: 0, warn: 0.9 }, b));
+    }
+    function spawnHeart() {
+      const fromLeft = Math.random() < 0.5;
+      hearts.push({ x: fromLeft ? -30 : W + 30, dir: fromLeft ? 1 : -1, y: GROUND - 175 - Math.random() * 40, v: 90 + Math.random() * 40, wob: 0 });
+    }
+
+    let toastTimer = 0;
+    function toast(text, seconds) {
+      toastEl.textContent = text;
+      toastEl.classList.add('show');
+      toastTimer = seconds || 2.6;
+    }
+
+    function setMeter(v) {
+      const before = meter;
+      meter = Math.max(0, Math.min(100, v));
+      document.getElementById('meter-fill').style.width = meter + '%';
+      document.getElementById('meter-num').textContent = Math.round(meter) + '%';
+      document.getElementById('meter').setAttribute('aria-valuenow', String(Math.round(meter)));
+      if (Math.floor(meter / 26) > Math.floor(before / 26) && meter < 100) toast(level().little + ': "' + lineFor() + '"', 2.2);
+    }
+
+    function updateCombo() {
+      if (magnetT > 0) { comboEl.textContent = '🧲 Magnet'; comboEl.className = 'combo on magnet'; }
+      else if (mult() > 1) { comboEl.textContent = '🔥 x' + mult(); comboEl.className = 'combo on'; }
+      else comboEl.className = 'combo';
+    }
+
+    function cheer(text) { cheerText = text; cheerT = 1.4; }
+
+    function good(x, y, base, label, power) {
+      const m = mult();
+      const gain = Math.round(base * (1 + (m - 1) * 0.5));
+      streak++;
+      bestStreak = Math.max(bestStreak, streak);
+      if (power) caught[power]++;
+      player.catchT = 1;
+      floaters.push({ x, y, text: label + ' +' + gain, life: 1.2 });
+      burst(x, y, 8);
+      if (streak % 5 === 0) {
+        floaters.push({ x: player.x, y: y - 26, text: '🔥 Combo x' + mult() + '!', big: true, life: 1.4 });
+        const lines = level().cheers;
+        cheer(lines[Math.floor(Math.random() * lines.length)]);
+      }
+      setMeter(meter + gain);
+      updateCombo();
+    }
+
+    function hit(it, x, y) {
+      setMeter(meter - 12);
+      streak = 0;
+      shake = reduceMotion ? 0.5 : 1;
+      floaters.push({ x, y, text: it.name + '! −12', bad: true, life: 1.4 });
+      toast(it.icon + ' ' + it.tip, 3.4);
+      updateCombo();
+    }
+
+    function jump() {
+      if (state !== 'playing') return;
+      if (player.z <= 0) { player.vz = JUMP_V; player.jumps = 1; dust(player.x); }
+      else if (player.jumps < 2) { player.vz = DOUBLE_V; player.jumps = 2; burst(player.x, GROUND - player.z, 6); }
+    }
+
+    function update(dt) {
+      t += dt;
+      if (toastTimer > 0) { toastTimer -= dt; if (toastTimer <= 0) toastEl.classList.remove('show'); }
+      if (state !== 'playing') { celebrateT += dt; return; }
+      if (cheerT > 0) cheerT -= dt;
+
+      // Run left and right
+      const speed = Math.max(330, W * 0.9);
+      const before = player.x;
+      if (keys.left || keys.right) {
+        player.targetX = null;
+        player.x += ((keys.right ? 1 : 0) - (keys.left ? 1 : 0)) * speed * dt;
+      } else if (player.targetX != null) {
+        player.x += (player.targetX - player.x) * Math.min(1, dt * 14);
+      }
+      player.x = Math.min(Math.max(player.x, 30), W - 30);
+      const dx = player.x - before;
+      player.moving = Math.abs(dx) > 0.5;
+      if (player.moving) player.face = dx > 0 ? 1 : -1;
+
+      // Jump physics
+      if (player.z > 0 || player.vz > 0) {
+        player.vz -= GRAVITY * dt;
+        player.z += player.vz * dt;
+        if (player.z <= 0) { player.z = 0; player.vz = 0; player.jumps = 0; player.landT = 1; dust(player.x); }
+      }
+      if (player.landT > 0) player.landT = Math.max(0, player.landT - dt * 6);
+      if (player.catchT > 0) player.catchT = Math.max(0, player.catchT - dt * 4);
+      if (shake > 0) shake = Math.max(0, shake - dt * 3);
+      if (magnetT > 0) { magnetT -= dt; if (magnetT <= 0) updateCombo(); }
+
+      // Spawning
+      const lv = level();
+      spawnTimer -= dt;
+      if (spawnTimer <= 0) { spawnFalling(); spawnTimer = (0.8 - levelIndex * 0.1) * (0.75 + Math.random() * 0.5); }
+      rollTimer -= dt;
+      if (rollTimer <= 0) { spawnRoller(); rollTimer = lv.rollEvery * (0.7 + Math.random() * 0.6); }
+      heartTimer -= dt;
+      if (heartTimer <= 0) { spawnHeart(); heartTimer = 5 + Math.random() * 4; }
+
+      // Your body as a box: feet at the ground minus jump height
+      const feet = GROUND - player.z;
+      const top = feet - 92;
+      const overlaps = (x, y, r) => Math.abs(x - player.x) < 26 + r && y + r > top && y - r < feet;
+
+      items.forEach((it) => {
+        if (magnetT > 0 && !it.bad) {
+          const ddx = player.x - it.x, ddy = (feet - 50) - it.y, d = Math.hypot(ddx, ddy);
+          if (d < 220) { it.x += (ddx / d) * 260 * dt; it.y += (ddy / d) * 120 * dt; }
+        }
+        it.y += it.vy * dt;
+        it.wob += dt * 3;
+        if (!it.done && overlaps(it.x, it.y, 18)) {
+          it.done = true;
+          if (it.bad) hit(it, it.x, top - 10);
+          else if (it.magnet) {
+            magnetT = 6;
+            floaters.push({ x: it.x, y: top - 10, text: '🧲 Mentor Magnet!', big: true, life: 1.4 });
+            burst(it.x, it.y, 14);
+            updateCombo();
+          } else good(it.x, top - 10, 9, it.say, it.power);
+        }
+      });
+      items = items.filter((it) => !it.done && it.y < H + 40);
+
+      hearts.forEach((h) => {
+        h.x += h.dir * h.v * dt; h.wob += dt * 4;
+        if (!h.done && overlaps(h.x, h.y + Math.sin(h.wob) * 8, 22)) { h.done = true; good(h.x, h.y, 16, '💛 Quality time!', null); burst(h.x, h.y, 16); }
+      });
+      hearts = hearts.filter((h) => !h.done && h.x > -60 && h.x < W + 60);
+
+      rollers.forEach((r) => {
+        if (r.warn > 0) { r.warn -= dt; return; }
+        r.x += r.dir * r.v * dt;
+        r.rot += r.dir * r.v * dt / 22;
+        const close = Math.abs(r.x - player.x) < 40;
+        if (!r.done && close && player.z < 40) { r.done = true; hit(r, r.x, GROUND - 70); }
+        if (!r.done && !r.passed && close && player.z >= 40) {
+          r.passed = true;
+          dodged++;
+          setMeter(meter + 3);
+          floaters.push({ x: r.x, y: GROUND - 80, text: 'Dodged! +3', life: 1 });
+        }
+      });
+      rollers = rollers.filter((r) => !r.done && r.x > -60 && r.x < W + 60);
+
+      if (meter >= 100) levelComplete();
+    }
+
+    function draw(dt) {
+      ctx.save();
+      drawBackground(dt);
+      drawThings();
+      drawPeople();
+      drawEffects(dt);
+      ctx.restore();
+    }
+
+    let last = 0;
+    let rafId = null;
+    function loop(now) {
+      const dt = Math.min(0.05, (now - last) / 1000 || 0);
+      last = now;
+      update(dt);
+      draw(dt);
+      const celebrating = (state === 'levelDone' || state === 'finished') && celebrateT < 5;
+      rafId = (state === 'playing' || particles.length || celebrating) ? requestAnimationFrame(loop) : null;
+    }
+    function run() {
+      if (rafId == null) { last = performance.now(); rafId = requestAnimationFrame(loop); }
+    }
+
+    // ── Screens ──────────────────────────────────────────
     function el(tag, className, text) {
       const node = document.createElement(tag);
       if (className) node.className = className;
       if (text != null) node.textContent = text;
       return node;
     }
-    function button(text, className, onClick) {
+    function btn(text, className, onClick) {
       const b = el('button', className, text);
       b.type = 'button';
       b.addEventListener('click', onClick);
       return b;
     }
-    function show(screen, focusTarget) {
-      game.innerHTML = '';
-      screen.classList.add('screen', 'fade-in');
-      game.append(screen);
-      if (focusTarget) focusTarget.focus({ preventScroll: true });
+    function showOverlay(children, focusEl) {
+      overlay.innerHTML = '';
+      children.forEach((c) => overlay.append(c));
+      overlay.hidden = false;
+      pauseBtn.disabled = true;
+      if (focusEl) focusEl.focus({ preventScroll: true });
     }
 
-    // ── Screens ──────────────────────────────────────────
-    function startScreen(focus) {
-      const s = el('section', 'start');
-      const figs = el('div', 'start-art');
-      const big = el('div', 'bob');
-      big.innerHTML = figure('big', 'happy');
-      const little = el('div', 'little bob delay');
-      little.innerHTML = figure('leo', 'happy');
-      figs.append(big, little);
-      const h = el('h2', '', 'You don\'t need superpowers to make a difference.');
-      h.tabIndex = -1;
-      s.append(
-        figs,
-        el('span', 'eyebrow', 'Mentor Mission · a short story game'),
-        h,
-        el('p', '', 'Step into the shoes of a Big: a volunteer mentor who spends one-on-one time with a young person. Pick an adventure, make choices in three short scenes, and discover your mentoring superpower.'),
-        el('p', '', 'There are no wrong turns here, just chances to learn how listening, patience, and encouragement build a connection.')
-      );
-      const actions = el('div', 'actions');
-      const go = button('Start Your Mission →', 'btn', chooseScreen);
-      actions.append(go);
-      s.append(actions, el('p', 'fine', 'A student-made game for learning and fun, not official mentor training.'));
-      show(s, focus ? h : null);
+    function introScreen() {
+      state = 'intro';
+      const legend = el('ul', 'legend');
+      goods.forEach((g) => legend.append(el('li', '', g.icon + ' ' + g.name)));
+      legend.append(el('li', '', '💛 Jump for hearts'), el('li', '', '🧲 Magnet'));
+      bads.forEach((b) => legend.append(el('li', 'bad', b.icon + ' ' + b.name)));
+      const start = btn('Start Your Mission →', 'btn', () => startLevel(0, true));
+      showOverlay([
+        el('span', 'eyebrow', 'Mentor Mission'),
+        el('h2', '', 'You don\'t need superpowers to make a difference.'),
+        el('p', '', 'Run, jump, and catch good mentoring moves to build your Little\'s confidence. Jump over the bad habits rolling your way!'),
+        legend,
+        start
+      ], null);
+      draw(0);
     }
 
-    function chooseScreen() {
-      const s = el('section', 'choose card');
-      const h = el('h2', '', 'Choose your adventure');
-      h.tabIndex = -1;
-      s.append(el('span', 'eyebrow', 'Mission briefing'), h, el('p', '', 'Where will you and your Little spend the afternoon?'));
-      const grid = el('div', 'adv-grid');
-      adventures.forEach((a) => {
-        const b = button('', 'adv', () => { adv = a; sceneIndex = 0; earned = []; tried = []; sceneScreen(); });
-        const pic = el('div', 'adv-art');
-        pic.innerHTML = art[a.art];
-        b.append(pic, el('strong', '', a.title), el('span', '', a.blurb));
-        grid.append(b);
-      });
-      s.append(grid);
-      show(s, h);
+    function resetRound() {
+      items = []; rollers = []; hearts = []; floaters = []; particles = [];
+      player.z = 0; player.vz = 0; player.jumps = 0; player.targetX = null;
+      streak = 0; magnetT = 0; cheerT = 0;
+      updateCombo();
     }
 
-    function pathEl(doneCount, here) {
-      const ol = el('ol', 'path');
-      ol.setAttribute('aria-label', 'Adventure path: scene ' + Math.min(doneCount + 1, 3) + ' of 3');
-      const labels = ['1', '2', '3', '★'];
-      labels.forEach((label, i) => {
-        const li = el('li');
-        const node = el('span', 'node', label);
-        if (i < doneCount) node.classList.add('done');
-        if (i === here) node.classList.add('here');
-        node.setAttribute('aria-hidden', 'true');
-        li.append(node);
-        if (i < labels.length - 1) {
-          const link = el('span', 'link');
-          link.append(el('span'));
-          if (i < doneCount) link.classList.add('done');
-          li.append(link);
-        }
-        ol.append(li);
-      });
-      return ol;
+    function startLevel(i, fresh) {
+      if (fresh) { caught = { encouragement: 0, listening: 0, curiosity: 0, patience: 0 }; bestStreak = 0; dodged = 0; }
+      levelIndex = i;
+      const lv = level();
+      document.getElementById('hud-level').textContent = 'Level ' + (i + 1) + '/3';
+      document.getElementById('meter-name').textContent = lv.little + '\'s confidence';
+      resetRound();
+      setMeter(0);
+      state = 'ready';
+      draw(0);
+      const go = btn('Play →', 'btn', play);
+      showOverlay([
+        el('span', 'eyebrow', 'Level ' + (i + 1) + ' of 3'),
+        el('div', 'big-emoji', lv.emoji),
+        el('h2', '', lv.name),
+        el('p', '', lv.intro),
+        go
+      ], go);
     }
 
-    function stageEl(scene, bigLine) {
-      const st = el('div', 'stage');
-      const big = el('div', 'big');
-      big.innerHTML = figure('big', 'happy');
-      const little = el('div', 'little');
-      little.innerHTML = figure(adv.little, scene.mood);
-      const bubbles = el('div', 'bubbles');
-      const b1 = el('p', 'bubble');
-      b1.append(el('b', '', adv.name), scene.line);
-      bubbles.append(b1);
-      if (bigLine) {
-        const b2 = el('p', 'bubble');
-        b2.append(el('b', '', 'You'), bigLine);
-        bubbles.append(b2);
-      }
-      st.append(little, bubbles, big);
-      return st;
+    function play() {
+      overlay.hidden = true;
+      if (state === 'ready') { spawnTimer = 0.4; rollTimer = 2.2; heartTimer = 3.5; }
+      state = 'playing';
+      pauseBtn.disabled = false;
+      canvas.focus({ preventScroll: true });
+      run();
     }
 
-    function sceneScreen() {
-      const scene = adv.scenes[sceneIndex];
-      const s = el('section', 'card');
-      s.append(pathEl(sceneIndex, sceneIndex));
-      const head = el('div', 'scene-head');
-      const h = el('h2', '', adv.title);
-      h.tabIndex = -1;
-      head.append(h, el('span', 'eyebrow', 'Scene ' + (sceneIndex + 1) + ' of 3'));
-      s.append(head, el('p', 'narration', scene.setting), stageEl(scene));
-      s.append(el('p', '', 'What do you do?'));
-      const list = el('div', 'choices');
-      list.setAttribute('role', 'group');
-      list.setAttribute('aria-label', 'Your choices');
-      scene.choices.forEach((c, i) => {
-        const b = button(c.text, 'choice', () => outcomeScreen(i));
-        if (tried.includes(i)) b.classList.add('tried');
-        list.append(b);
-      });
-      s.append(list);
-      show(s, h);
+    function pause() {
+      if (state !== 'playing') return;
+      state = 'paused';
+      keys.left = keys.right = false;
+      const resume = btn('Resume ▶', 'btn', play);
+      showOverlay([el('span', 'eyebrow', 'Paused'), el('h2', '', 'Take a breather'), el('p', '', 'Good mentoring is patient, and so is this game.'), resume], resume);
     }
 
-    function outcomeScreen(i) {
-      const scene = adv.scenes[sceneIndex];
-      const c = scene.choices[i];
-      if (!tried.includes(i)) tried.push(i);
-      const s = el('section', 'card');
-      s.append(pathEl(c.quality === 'learn' ? sceneIndex : sceneIndex + 1, sceneIndex));
-      const badge = el('span', 'badge ' + c.quality, badges[c.quality]);
-      badge.tabIndex = -1;
-      s.append(badge);
-      const said = c.text.startsWith('"') ? c.text.slice(1, -1) : null;
-      s.append(stageEl({ line: scene.line, mood: c.quality === 'learn' ? 'sad' : 'happy' }, said));
-      if (!said) s.append(el('p', 'you-said', 'You: ' + c.text));
-      s.append(el('p', 'narration', c.outcome));
-      const tip = el('div', 'tip');
-      tip.append(el('span', 'eyebrow', 'Mentoring tip'), el('p', '', c.tip));
-      s.append(tip);
-
-      const actions = el('div', 'actions');
-      const last = sceneIndex === adv.scenes.length - 1;
-      const advance = () => {
-        if (c.quality !== 'learn' && c.power) earned.push(c.power);
-        tried = [];
-        if (last) resultScreen();
-        else { sceneIndex++; sceneScreen(); }
-      };
-      const nextLabel = last ? 'See your superpower ★' : 'Next scene →';
-      if (c.quality === 'great') {
-        actions.append(button(nextLabel, 'btn', advance));
-      } else {
-        actions.append(button('↺ Try a different choice', 'btn', sceneScreen));
-        actions.append(button(c.quality === 'okay' ? nextLabel : 'Continue anyway', 'btn btn-light', advance));
-      }
-      s.append(actions);
-      show(s, badge);
+    function levelComplete() {
+      state = 'levelDone';
+      celebrateT = 0;
+      items = []; rollers = []; hearts = [];
+      keys.left = keys.right = false;
+      player.z = 0; player.vz = 0;
+      pauseBtn.disabled = true;
+      magnetT = 0; updateCombo();
+      burst(W / 2, H / 2, 60);
+      const lv = level();
+      const lastLevel = levelIndex === levels.length - 1;
+      setTimeout(() => {
+        const tip = el('div', 'tip');
+        tip.append(el('b', '', 'Mentoring tip'), el('span', '', lv.tip));
+        const next = lastLevel
+          ? btn('See your superpower ★', 'btn', finish)
+          : btn('Next level →', 'btn', () => startLevel(levelIndex + 1, false));
+        showOverlay([el('div', 'big-emoji', '🎉'), el('h2', '', 'Level complete!'), el('p', '', lv.win), tip, next], next);
+      }, reduceMotion ? 200 : 1600);
     }
 
     function pickPower() {
-      if (!earned.length) return 'patience';
-      const count = {};
-      earned.forEach((p) => { count[p] = (count[p] || 0) + 1; });
-      const best = Math.max(...Object.values(count));
-      // On a tie, the most recent strong move decides.
-      for (let i = earned.length - 1; i >= 0; i--) if (count[earned[i]] === best) return earned[i];
+      const order = Object.keys(caught);
+      return order.reduce((best, k) => (caught[k] > caught[best] ? k : best), order[0]);
     }
 
-    function resultScreen() {
+    function finish() {
+      state = 'finished';
+      celebrateT = 0;
+      burst(W / 2, H / 3, 80);
+      run();
       const p = powers[pickPower()];
-      const s = el('section', 'result');
-      s.append(pathEl(4, -1));
-      const icon = el('div', 'power-icon pop', p.icon);
-      icon.setAttribute('aria-hidden', 'true');
-      const h = el('h2', '', p.name);
-      h.tabIndex = -1;
-      s.append(el('span', 'eyebrow', 'Mission complete · Your mentoring superpower'), icon, h, el('p', '', p.text));
-      s.append(el('p', '', 'You helped ' + adv.name + ' through a tough moment, a shared interest, and a nervous first step. That\'s what mentoring looks like: simple moments, repeated over time.'));
-      const tryBox = el('div', 'try');
-      tryBox.append(el('p', '', '💡 ' + p.tryIt));
-      s.append(tryBox);
-
-      const actions = el('div', 'actions');
+      const total = Object.values(caught).reduce((a, b) => a + b, 0);
+      const stats = el('ul', 'stats');
+      [[total, 'moves caught'], [bestStreak, 'best combo'], [dodged, 'habits dodged']].forEach(([n, label]) => {
+        const li = el('li');
+        li.append(el('strong', '', String(n)), label);
+        stats.append(li);
+      });
+      const tip = el('div', 'tip');
+      tip.append(el('b', '', 'Try it for real'), el('span', '', p.tryIt));
       const signup = el('div', 'signup');
       signup.id = 'signup';
       signup.hidden = true;
       // This section runs in a locked-down frame that can't open other websites,
       // so the button shows the volunteer page address instead.
       signup.append(
-        el('p', '', 'Big Brothers Big Sisters says you don\'t need any special degrees or job skills to be a mentor. Learn more and apply on their volunteer page:'),
+        el('p', '', 'Big Brothers Big Sisters says you don\'t need special degrees or job skills to be a mentor. Apply on their volunteer page:'),
         el('p', 'address', 'https://bbbsla.org/volunteer/'),
         el('p', '', 'Or use the volunteer link higher up on this page.')
       );
-      const join = button('Become a real-life Big →', 'btn', () => {
+      const join = btn('Become a real-life Big →', 'btn', () => {
         signup.hidden = !signup.hidden;
         join.setAttribute('aria-expanded', String(!signup.hidden));
       });
       join.setAttribute('aria-expanded', 'false');
       join.setAttribute('aria-controls', 'signup');
-      actions.append(join, button('Play Another Adventure', 'btn btn-light', chooseScreen));
-      s.append(actions, signup, el('p', 'fine', 'A student-made game for learning and fun, not official mentor training.'));
-
-      const confetti = el('div', 'confetti');
-      confetti.setAttribute('aria-hidden', 'true');
-      const colors = ['var(--accent)', 'var(--accent-from)', 'var(--bg)', 'var(--surface-2)'];
-      for (let i = 0; i < 36; i++) {
-        const bit = el('i');
-        bit.style.left = (Math.random() * 100) + '%';
-        bit.style.background = colors[i % colors.length];
-        bit.style.animationDelay = (Math.random() * 0.6) + 's';
-        confetti.append(bit);
-      }
-      s.prepend(confetti);
-      show(s, h);
+      const again = btn('Play Again', 'btn btn-light', () => startLevel(0, true));
+      const row = el('div', 'row');
+      row.append(join, again);
+      showOverlay([el('span', 'eyebrow', 'Mission complete · Your mentoring superpower'), el('h2', '', p.icon + ' ' + p.name), el('p', '', p.text), stats, tip, row, signup], join);
     }
 
-    startScreen(false);
+    // ── Controls ─────────────────────────────────────────
+    const JUMP_KEYS = [' ', 'Spacebar', 'ArrowUp', 'w', 'W'];
+    document.addEventListener('keydown', (e) => {
+      if (state !== 'playing') return;
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { keys.left = true; e.preventDefault(); }
+      else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { keys.right = true; e.preventDefault(); }
+      else if (JUMP_KEYS.includes(e.key)) { e.preventDefault(); if (!e.repeat) jump(); }
+      else if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') pause();
+    });
+    document.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+    });
+    pauseBtn.addEventListener('click', pause);
+
+    // Drag to run, quick tap to jump
+    let down = null;
+    function pointerX(e) { return e.clientX - canvas.getBoundingClientRect().left; }
+    canvas.addEventListener('pointerdown', (e) => {
+      if (state !== 'playing') return;
+      down = { x: e.clientX, time: performance.now(), moved: false };
+      canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener('pointermove', (e) => {
+      if (state !== 'playing' || !down) return;
+      if (Math.abs(e.clientX - down.x) > 10) down.moved = true;
+      if (down.moved) player.targetX = pointerX(e);
+    });
+    canvas.addEventListener('pointerup', () => {
+      if (down && !down.moved && performance.now() - down.time < 250) jump();
+      down = null;
+    });
+    canvas.addEventListener('pointercancel', () => { down = null; });
+
+    [['left', 'left'], ['right', 'right']].forEach(([id, dir]) => {
+      const b = document.getElementById(id);
+      const on = (e) => { e.preventDefault(); keys[dir] = true; b.classList.add('held'); };
+      const off = () => { keys[dir] = false; b.classList.remove('held'); };
+      b.addEventListener('pointerdown', on);
+      b.addEventListener('pointerup', off);
+      b.addEventListener('pointerleave', off);
+      b.addEventListener('pointercancel', off);
+    });
+    const jumpBtn = document.getElementById('jump');
+    jumpBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); jumpBtn.classList.add('held'); jump(); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => jumpBtn.addEventListener(ev, () => jumpBtn.classList.remove('held')));
+    // Keyboard users on the buttons: Enter or Space presses them.
+    jumpBtn.addEventListener('click', (e) => { if (e.detail === 0) jump(); });
+
+    document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+    window.addEventListener('blur', () => { keys.left = keys.right = false; });
+    if (window.ResizeObserver) new ResizeObserver(resize).observe(arena); else window.addEventListener('resize', resize);
+
+    resize();
+    introScreen();
   </script>
 </body>
 </html>

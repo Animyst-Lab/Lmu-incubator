@@ -68,7 +68,7 @@ donateImpact: "Donations keep every KEEN program free, so families are never ask
 image: "image.jpg"
 
 # 17. A few words describing the image, for screen readers (written for you)
-imageAlt: "Breanna as a young girl smiling on a tennis court at night, holding a pink tennis racket."
+imageAlt: "Breanna as a young girl in a pink tennis dress and visor, smiling and holding a pink tennis racket outside on a sunny day."
 
 # ── For the matcher on the home page (chosen for you to approve) ──
 

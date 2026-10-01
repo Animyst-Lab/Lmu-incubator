@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 1.5rem; text-wrap: balance; }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .eyebrow { display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark p { color: #d6d6d6; }
+    .card-dark h2, .card-dark h3 { color: #fff; }
+    .card-dark .eyebrow { color: var(--accent-from); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 0; border-radius: var(--radius-pill); padding: 14px 28px;
+      background: var(--ink-card); color: #fff; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: transform 0.3s var(--ease-snap);
+    }
+    .btn:hover { transform: scale(1.04); }
+    .btn-light { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+    .card-dark .btn-light { background: #fff; border-color: #fff; }
+
+    /* Intro */
+    .intro { max-width: 60ch; }
+    .hero { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .hero svg { width: 56px; height: 56px; flex: none; }
+
+    /* Quiz */
+    .progress-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; }
+    .progress { height: 6px; border-radius: var(--radius-pill); background: var(--surface); overflow: hidden; margin-bottom: 20px; }
+    .progress div { height: 100%; width: 0; background: var(--accent); border-radius: var(--radius-pill); transition: width 0.4s var(--ease-spring); }
+    .question { font-size: 1.25rem; margin-bottom: 16px; }
+    .answers { display: grid; gap: 10px; }
+    .answer {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%; text-align: left;
+      border: 1px solid var(--border); border-radius: var(--radius-control);
+      background: var(--bg); color: var(--ink);
+      padding: 14px 16px; font-size: 0.95rem; font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.3s var(--ease-snap), background 0.2s var(--ease-snap), border-color 0.2s var(--ease-snap);
+    }
+    .answer:hover { transform: scale(1.02); border-color: var(--ink); }
+    .answer[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
+    .answer .emoji { font-size: 1.4rem; line-height: 1; flex: none; }
+    .back { margin-top: 16px; background: none; border: 0; color: var(--muted); font-size: 0.85rem; cursor: pointer; padding: 4px 0; text-decoration: underline; }
+
+    .fade-in { animation: fade 0.4s var(--ease-spring); }
+    @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    /* Result */
+    .result-top { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+    .result-top svg { width: 72px; height: 72px; flex: none; }
+    .result-top h2 { font-size: 1.6rem; margin: 0; }
+    .traits { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; padding: 0; list-style: none; }
+    .traits li { border: 1px solid var(--muted); border-radius: var(--radius-pill); padding: 4px 12px; font-size: 0.8rem; font-weight: 500; }
+    .tip { background: var(--bg); color: var(--ink); border-radius: var(--radius-control); padding: 16px; margin-bottom: 12px; }
+    .tip h3 { font-size: 1rem; margin-bottom: 4px; color: var(--ink) !important; }
+    .tip p { margin: 0; color: var(--muted) !important; }
+    .tip strong { color: var(--ink); }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+
+    /* All the matches */
+    .all { margin-top: 24px; }
+    .ranks { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+    .rank {
+      display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center;
+      background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 10px 14px;
+    }
+    .rank.mine { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .rank svg { width: 40px; height: 40px; }
+    .rank strong { display: block; font-size: 0.9rem; line-height: 1.3; }
+    .rank small { display: block; color: var(--muted); font-size: 0.8rem; line-height: 1.35; }
+    .meter { height: 6px; border-radius: var(--radius-pill); background: var(--surface); overflow: hidden; margin-top: 6px; }
+    .meter div { height: 100%; background: var(--accent); border-radius: var(--radius-pill); transition: width 0.6s var(--ease-spring); }
+    .pct { font-weight: 600; font-size: 0.875rem; font-variant-numeric: tabular-nums; color: var(--accent-strong); }
+    .source { font-size: 0.8rem; color: var(--muted); margin: 16px 0 0; }
+
+    @media (max-width: 359px) {
+      body { padding: 16px; }
+      .card, .card-dark { padding: 18px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main id="app" aria-live="polite"></main>
+
+  <script>
+    // Simple dog faces drawn in SVG, with fur colors per breed.
+    function dogFace(fur, ear, extra) {
+      return '<svg viewBox="0 0 64 64" aria-hidden="true">' +
+        '<ellipse cx="14" cy="28" rx="9" ry="15" fill="' + ear + '" transform="rotate(15 14 28)"/>' +
+        '<ellipse cx="50" cy="28" rx="9" ry="15" fill="' + ear + '" transform="rotate(-15 50 28)"/>' +
+        '<circle cx="32" cy="34" r="20" fill="' + fur + '"/>' +
+        '<ellipse cx="32" cy="43" rx="10" ry="8" fill="#fff" opacity="0.85"/>' +
+        '<circle cx="25" cy="31" r="2.6" fill="#2a1d14"/><circle cx="39" cy="31" r="2.6" fill="#2a1d14"/>' +
+        '<ellipse cx="32" cy="39" rx="3.6" ry="2.6" fill="#2a1d14"/>' +
+        '<path d="M32 41.5v2.5M28.5 45c2 1.6 5 1.6 7 0" stroke="#2a1d14" stroke-width="1.6" fill="none" stroke-linecap="round"/>' +
+        (extra || '') + '</svg>';
+    }
+    // Pointy ears drawn over the face for breeds that have them.
+    const pointy = (c) => '<path d="M14 22L18 4l11 12z" fill="' + c + '"/><path d="M50 22L46 4 35 16z" fill="' + c + '"/>';
+
+    // Breed descriptions approved by Ellie. Breeds are ones Wags and Walks names on its site.
+    const breeds = {
+      bully: {
+        name: 'Bully breed / pit bull mix',
+        face: dogFace('#9c8577', '#9c8577', pointy('#9c8577')),
+        traits: ['Medium to large', 'Medium to high energy', 'Loves people'],
+        text: 'A loving, people-focused pup who does well in a house or apartment, as long as there are daily walks. Wags and Walks especially advocates for bully breeds, who are often wrongly stereotyped and overlooked.'
+      },
+      boxer: {
+        name: 'Boxer mix',
+        face: dogFace('#c7834a', '#a2652f', '<path d="M24 44c4 3 12 3 16 0" stroke="#2a1d14" stroke-width="1.2" fill="none"/>'),
+        traits: ['Large', 'High energy', 'Playful and goofy'],
+        text: 'A big, goofy ball of fun who would love a yard or an active person to keep up with. Get ready for lots of playtime!'
+      },
+      terrier: {
+        name: 'Terrier mix',
+        face: dogFace('#d8c3a0', '#a88a5c', pointy('#a88a5c') + '<path d="M22 25c3-2 6-2 8 0M34 25c2-2 5-2 8 0" stroke="#7a6038" stroke-width="2" fill="none" stroke-linecap="round"/>'),
+        traits: ['Small to medium', 'High energy', 'Smart and spunky'],
+        text: 'A smart, spunky companion who is happiest with an active person who has time to play and explore.'
+      },
+      spaniel: {
+        name: 'Spaniel mix',
+        face: dogFace('#b8743f', '#8a5228'),
+        traits: ['Medium', 'Medium energy', 'Gentle'],
+        text: 'A gentle, sweet pup who fits right into family life or an apartment with regular walks.'
+      },
+      dachshund: {
+        name: 'Dachshund',
+        face: dogFace('#7a4a2a', '#5a341c'),
+        traits: ['Small', 'Low to medium energy', 'Loves to cuddle'],
+        text: 'A small cuddle bug who is a great fit for apartments and busier schedules. Expect lots of lap time.'
+      },
+      mama: {
+        name: 'Mama dog or puppies',
+        face: dogFace('#e6d2b5', '#bfa27c', '<circle cx="52" cy="52" r="9" fill="#e6d2b5"/><circle cx="49.5" cy="51" r="1.2" fill="#2a1d14"/><circle cx="54.5" cy="51" r="1.2" fill="#2a1d14"/><circle cx="52" cy="54" r="1.3" fill="#2a1d14"/>'),
+        traits: ['Size varies', 'Energy varies', 'Needs patience'],
+        text: 'A mama dog or a litter of puppies needs someone who is home a lot and has patience for puppy energy. Wags and Walks rescues many mamas and puppies who are at risk in overcrowded shelters.'
+      }
+    };
+
+    // Each answer gives points to the breeds it fits best.
+    const questions = [
+      {
+        q: 'What kind of home do you live in?',
+        a: [
+          ['🏡', 'A house with a yard', { boxer: 3, bully: 2, mama: 2, terrier: 1, spaniel: 1 }, 'yard'],
+          ['🏠', 'A house or townhouse without a yard', { bully: 2, spaniel: 2, terrier: 1, dachshund: 1 }],
+          ['🏢', 'An apartment or condo', { dachshund: 3, spaniel: 2, bully: 1 }, 'apartment']
+        ]
+      },
+      {
+        q: 'How many hours a week are you away for work or class?',
+        a: [
+          ['🕐', 'Less than 20 hours', { mama: 3, terrier: 1, boxer: 1 }],
+          ['🕓', '20 to 40 hours', { spaniel: 2, bully: 1, terrier: 1, dachshund: 1 }],
+          ['🕗', 'More than 40 hours', { dachshund: 3, spaniel: 1 }, 'busy']
+        ]
+      },
+      {
+        q: 'How active are you?',
+        a: [
+          ['🛋️', 'I like to keep it chill', { dachshund: 3, spaniel: 1 }],
+          ['🚶', 'I take a walk most days', { spaniel: 2, bully: 2 }],
+          ['🏃', 'I run, hike, or play sports often', { boxer: 3, terrier: 2, bully: 1 }]
+        ]
+      },
+      {
+        q: 'Who else lives with you?',
+        a: [
+          ['🙋', 'Just me', { dachshund: 1, terrier: 1 }],
+          ['👯', 'Roommates or a partner', { bully: 2, boxer: 1 }],
+          ['👨‍👩‍👧', 'Family with kids', { spaniel: 3, boxer: 1 }]
+        ]
+      },
+      {
+        q: 'How much patience do you have for training and messes?',
+        a: [
+          ['🍼', 'Lots. Bring on the puppies!', { mama: 3, terrier: 1 }],
+          ['🙂', 'Some. I can teach a few good habits.', { boxer: 1, bully: 1, spaniel: 1 }],
+          ['😌', 'I’d like a calm pup who has settled in', { dachshund: 2, spaniel: 1 }]
+        ]
+      }
+    ];
+
+    // The most points a breed could possibly get, for the match percentage.
+    const maxScore = {};
+    Object.keys(breeds).forEach((b) => {
+      maxScore[b] = questions.reduce((sum, item) => sum + Math.max(0, ...item.a.map((a) => a[2][b] || 0)), 0);
+    });
+
+    const app = document.getElementById('app');
+    let picks = [];
+
+    function el(html) {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = html.trim();
+      return wrap.firstChild;
+    }
+
+    function showIntro() {
+      picks = [];
+      app.innerHTML = '';
+      const card = el(
+        '<section class="card fade-in" aria-labelledby="quiz-title">' +
+          '<div class="hero">' + breeds.spaniel.face +
+            '<div><span class="eyebrow">Quiz · 5 questions</span><h2 id="quiz-title">Find your foster dog</h2></div>' +
+          '</div>' +
+          '<p class="intro">Wags and Walks rescues dogs of every size, age, and breed from overcrowded shelters, and cares for them in foster homes until they’re adopted. Answer five questions about your lifestyle to find the kind of rescue dog that would fit your home.</p>' +
+          '<button class="btn" type="button" id="start">Start the quiz 🐾</button>' +
+        '</section>'
+      );
+      app.append(card);
+      document.getElementById('start').addEventListener('click', () => showQuestion(0));
+    }
+
+    function showQuestion(i) {
+      const item = questions[i];
+      app.innerHTML = '';
+      const card = el(
+        '<section class="card fade-in" aria-labelledby="q-title">' +
+          '<div class="progress-row"><span class="eyebrow" style="margin:0">Find your foster dog</span><span>' + (i + 1) + ' of ' + questions.length + '</span></div>' +
+          '<div class="progress" role="progressbar" aria-label="Quiz progress" aria-valuemin="0" aria-valuemax="' + questions.length + '" aria-valuenow="' + i + '"><div></div></div>' +
+          '<h3 class="question" id="q-title" tabindex="-1"></h3>' +
+          '<div class="answers"></div>' +
+        '</section>'
+      );
+      card.querySelector('.question').textContent = item.q;
+      const list = card.querySelector('.answers');
+      item.a.forEach((answer, n) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'answer';
+        b.setAttribute('aria-pressed', String(picks[i] === n));
+        b.innerHTML = '<span class="emoji" aria-hidden="true">' + answer[0] + '</span>';
+        b.append(answer[1]);
+        b.addEventListener('click', () => {
+          picks[i] = n;
+          list.querySelectorAll('.answer').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+          setTimeout(() => (i + 1 < questions.length ? showQuestion(i + 1) : showResult()), 250);
+        });
+        list.append(b);
+      });
+      if (i > 0) {
+        const back = document.createElement('button');
+        back.type = 'button';
+        back.className = 'back';
+        back.textContent = '← Back';
+        back.addEventListener('click', () => showQuestion(i - 1));
+        card.append(back);
+      }
+      app.append(card);
+      requestAnimationFrame(() => {
+        card.querySelector('.progress div').style.width = (i / questions.length * 100) + '%';
+      });
+      card.querySelector('.question').focus({ preventScroll: true });
+    }
+
+    function addTip(card, title, html) {
+      const tip = el('<div class="tip"><h3></h3><p></p></div>');
+      tip.querySelector('h3').textContent = title;
+      tip.querySelector('p').innerHTML = html;
+      card.querySelector('.tips').append(tip);
+    }
+
+    function showResult() {
+      const score = {};
+      const flags = new Set();
+      Object.keys(breeds).forEach((b) => { score[b] = 0; });
+      picks.forEach((n, i) => {
+        const answer = questions[i].a[n];
+        Object.entries(answer[2]).forEach(([b, pts]) => { score[b] += pts; });
+        if (answer[3]) flags.add(answer[3]);
+      });
+      const pct = (b) => Math.round(score[b] / maxScore[b] * 100);
+      const ranked = Object.keys(breeds).sort((x, y) => pct(y) - pct(x));
+      const winner = ranked[0];
+      const breed = breeds[winner];
+
+      app.innerHTML = '';
+      const card = el(
+        '<section class="card-dark fade-in" aria-labelledby="result-title">' +
+          '<span class="eyebrow">Your foster dog match</span>' +
+          '<div class="result-top">' + breed.face + '<h2 id="result-title" tabindex="-1"></h2></div>' +
+          '<ul class="traits"></ul>' +
+          '<p class="result-text"></p>' +
+          '<div class="tips"></div>' +
+          '<div class="actions"><button class="btn btn-light" type="button" id="again">Take it again</button></div>' +
+        '</section>'
+      );
+      card.querySelector('h2').textContent = breed.name;
+      card.querySelector('.result-text').textContent = breed.text;
+      const traits = card.querySelector('.traits');
+      breed.traits.forEach((t) => { const li = document.createElement('li'); li.textContent = t; traits.append(li); });
+
+      addTip(card, 'Meet your match',
+        'Look for <strong>' + breed.name.toLowerCase() + '</strong> dogs on the Adopt page at <strong>wagsandwalks.org/adopt-la</strong>. Dogs there change often, so check back! And don’t skip the <strong>mixed breeds</strong>: every one is one of a kind and could be a great fit for anyone.');
+      addTip(card, 'Ready to foster?',
+        'Fill out the LA Foster Application at <strong>wagsandwalks.org/foster-la</strong>, then attend a foster orientation. The average foster stay is about 2 weeks.');
+      if (flags.has('apartment')) {
+        addTip(card, 'Living in an apartment?',
+          'Good news: Wags and Walks says you can foster in an apartment, and they’ll do their best to match you with a pup who does well there. Check your building’s pet policy and any breed restrictions first.');
+      }
+      if (flags.has('busy')) {
+        addTip(card, 'Busy schedule?',
+          'Wags and Walks works with fosters of all lifestyles and careers, as long as your foster pup gets a break during the workday for exercise, food, and water.');
+      }
+
+      card.querySelector('#again').addEventListener('click', showIntro);
+      app.append(card);
+
+      const all = el(
+        '<section class="all fade-in" aria-labelledby="all-title">' +
+          '<span class="eyebrow">How every breed matched</span>' +
+          '<h3 id="all-title">Your full match list</h3>' +
+          '<ul class="ranks"></ul>' +
+          '<p class="source">Breeds are ones Wags and Walks names on its website. Foster details from wagsandwalks.org.</p>' +
+        '</section>'
+      );
+      const list = all.querySelector('.ranks');
+      ranked.forEach((key) => {
+        const b = breeds[key];
+        const li = el(
+          '<li class="rank' + (key === winner ? ' mine' : '') + '">' + b.face +
+            '<div><strong></strong><small></small><div class="meter"><div style="width:0"></div></div></div>' +
+            '<span class="pct">' + pct(key) + '%</span>' +
+          '</li>'
+        );
+        li.querySelector('strong').textContent = b.name + (key === winner ? ' (top match!)' : '');
+        li.querySelector('small').textContent = b.traits.join(' · ');
+        list.append(li);
+      });
+      app.append(all);
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        list.querySelectorAll('.meter div').forEach((m, n) => { m.style.width = pct(ranked[n]) + '%'; });
+      }));
+      card.querySelector('h2').focus({ preventScroll: true });
+    }
+
+    showIntro();
+  </script>
+</body>
+</html>

@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .eyebrow { display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark p { color: #d6d6d6; }
+    .card-dark .eyebrow { color: var(--accent-from); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 0; border-radius: var(--radius-pill); padding: 14px 28px;
+      background: var(--ink-card); color: #fff; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: transform 0.3s var(--ease-snap);
+    }
+    .btn:hover { transform: scale(1.04); }
+    .btn-light { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 6px 14px;
+      background: var(--bg); color: var(--ink); font-size: 0.875rem; font-weight: 500;
+    }
+
+    /* ── The game ── */
+    .game { max-width: 440px; margin: 0 auto; }
+    .intro { text-align: center; margin-bottom: 16px; }
+    .intro h2 { font-size: 1.75rem; }
+
+    .hud { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .hud .num { color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    .pitch {
+      position: relative;
+      border-radius: var(--radius-card-sm);
+      overflow: hidden;
+      background: var(--ink-card);
+    }
+    canvas { display: block; width: 100%; aspect-ratio: 3 / 4; touch-action: none; cursor: crosshair; }
+
+    .overlay {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; padding: 24px; text-align: center; color: #fff;
+      background: rgba(10, 10, 10, 0.78);
+      transition: opacity 0.4s var(--ease-spring);
+    }
+    .overlay[hidden] { display: none; }
+    .overlay p { color: #d6d6d6; margin: 0; max-width: 30ch; }
+    .overlay .eyebrow { color: var(--accent-from); margin: 0; }
+    .overlay h3 { font-size: 1.5rem; margin: 0; }
+    .overlay .btn { background: var(--bg); color: var(--ink); }
+
+    .big-score { font-size: 3rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1; color: var(--accent-from); }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 12px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .dot-ball { background: var(--bg); border: 1px solid var(--subtle); }
+    .dot-gold { background: var(--accent-from); }
+    .dot-you { background: var(--accent); }
+
+    /* Money flash */
+    .money { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .bill {
+      position: absolute; top: -40px;
+      font-size: 1.75rem;
+      animation: fall 2.2s var(--ease-line) forwards, flash 0.3s steps(2) infinite;
+    }
+    @keyframes fall {
+      to { transform: translateY(560px) rotate(var(--spin)); opacity: 0; }
+    }
+    @keyframes flash {
+      50% { filter: brightness(1.8); }
+    }
+    .flash { animation: bg-flash 0.25s steps(2) 6; }
+    @keyframes bg-flash {
+      50% { box-shadow: 0 0 0 4px var(--accent-from); }
+    }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .bill { top: auto; bottom: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="game">
+    <div class="intro">
+      <span class="eyebrow">Street Soccer mini game</span>
+      <h2>Do you think you can be #1?</h2>
+      <p>Push as many balls into the goal as you can in 10 seconds. Drag on the field (or use the arrow keys) to move. The golden ball runs from you. Score it and you're #1.</p>
+    </div>
+
+    <div class="hud" aria-hidden="true">
+      <span class="chip">Time <span class="num" id="time">10.0</span></span>
+      <span class="chip">Goals <span class="num" id="goals">0</span></span>
+      <span class="chip">Best <span class="num" id="best">0</span></span>
+    </div>
+
+    <div class="pitch" id="pitch">
+      <canvas id="field" tabindex="0" aria-label="Soccer field. Drag or use arrow keys to move your player."></canvas>
+
+      <div class="overlay" id="start">
+        <span class="eyebrow">10 seconds on the clock</span>
+        <h3>Ready to play?</h3>
+        <p>Every goal counts.</p>
+        <button class="btn" id="startBtn" type="button">Kick off</button>
+      </div>
+
+      <div class="overlay" id="end" hidden>
+        <span class="eyebrow" id="endEyebrow">Full time</span>
+        <div class="big-score" id="endScore">0</div>
+        <h3 id="endTitle">Goals</h3>
+        <p id="endText"></p>
+        <button class="btn" id="againBtn" type="button">Play again</button>
+      </div>
+
+      <div class="money" id="money" aria-hidden="true"></div>
+    </div>
+
+    <div class="legend" aria-hidden="true">
+      <span class="chip"><span class="dot dot-you"></span>You</span>
+      <span class="chip"><span class="dot dot-ball"></span>Ball: 1 goal</span>
+      <span class="chip"><span class="dot dot-gold"></span>Golden ball: 5 goals</span>
+    </div>
+
+    <p class="sr-only" aria-live="polite" id="status"></p>
+  </div>
+
+  <script>
+    (function () {
+      // The field uses its own units; it is scaled to fit the screen when drawn.
+      var FW = 300, FH = 400;
+      var GOAL_L = 100, GOAL_R = 200, LINE = 22;
+      var BALL_R = 10, PLAYER_R = 16;
+      var GAME_TIME = 10;
+
+      var canvas = document.getElementById("field");
+      var ctx = canvas.getContext("2d");
+      var pitch = document.getElementById("pitch");
+      var timeEl = document.getElementById("time");
+      var goalsEl = document.getElementById("goals");
+      var bestEl = document.getElementById("best");
+      var startOv = document.getElementById("start");
+      var endOv = document.getElementById("end");
+      var statusEl = document.getElementById("status");
+      var money = document.getElementById("money");
+
+      var css = getComputedStyle(document.documentElement);
+      function token(name, fallback) { return css.getPropertyValue(name).trim() || fallback; }
+      var C = {
+        field: token("--ink-card", "#0A0A0A"),
+        line: "rgba(255,255,255,0.35)",
+        ball: token("--bg", "#FFFFFF"),
+        hex: token("--ink", "#111111"),
+        gold: token("--accent-from", "#CF8047"),
+        you: token("--accent", "#B15F2C"),
+        net: "rgba(255,255,255,0.12)"
+      };
+
+      var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      var state = "idle", startTime = 0, goals = 0, best = 0, goldScored = false;
+      var player, balls, target, keys = {};
+
+      function reset() {
+        player = { x: FW / 2, y: FH - 50, vx: 0, vy: 0 };
+        target = null;
+        balls = [];
+        var spots = [[70, 250], [150, 220], [230, 250], [110, 300], [190, 300], [150, 140], [60, 160], [240, 160]];
+        spots.forEach(function (s) { balls.push({ x: s[0], y: s[1], vx: 0, vy: 0, gold: false }); });
+        balls.push({ x: 150, y: 80, vx: 0, vy: 0, gold: true });
+        goals = 0; goldScored = false;
+        goalsEl.textContent = "0";
+        timeEl.textContent = GAME_TIME.toFixed(1);
+      }
+
+      // ── Drawing ──
+      function resize() {
+        var dpr = window.devicePixelRatio || 1;
+        var w = canvas.clientWidth;
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(w * (FH / FW) * dpr);
+        draw();
+      }
+
+      function hexagon(x, y, r) {
+        ctx.beginPath();
+        for (var i = 0; i < 6; i++) {
+          var a = Math.PI / 3 * i + Math.PI / 6;
+          ctx.lineTo(x + r * Math.cos(a), y + r * Math.sin(a));
+        }
+        ctx.closePath();
+      }
+
+      function draw() {
+        var s = canvas.width / FW;
+        ctx.setTransform(s, 0, 0, s, 0, 0);
+        ctx.fillStyle = C.field;
+        ctx.fillRect(0, 0, FW, FH);
+
+        // Lines
+        ctx.strokeStyle = C.line;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(8, LINE, FW - 16, FH - LINE - 8);
+        ctx.beginPath(); ctx.moveTo(8, FH / 2 + 60); ctx.lineTo(FW - 8, FH / 2 + 60); ctx.stroke();
+        ctx.beginPath(); ctx.arc(FW / 2, FH / 2 + 60, 40, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeRect(GOAL_L - 30, LINE, GOAL_R - GOAL_L + 60, 60);
+
+        // Goal and net
+        ctx.fillStyle = C.net;
+        ctx.fillRect(GOAL_L, 0, GOAL_R - GOAL_L, LINE);
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(GOAL_L, LINE); ctx.lineTo(GOAL_L, 2); ctx.lineTo(GOAL_R, 2); ctx.lineTo(GOAL_R, LINE);
+        ctx.stroke();
+
+        // Balls
+        balls.forEach(function (b) {
+          if (b.gold) {
+            ctx.shadowColor = C.gold;
+            ctx.shadowBlur = 14;
+          }
+          ctx.fillStyle = b.gold ? C.gold : C.ball;
+          ctx.beginPath(); ctx.arc(b.x, b.y, BALL_R, 0, Math.PI * 2); ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = C.hex;
+          hexagon(b.x, b.y, 4); ctx.fill();
+        });
+
+        // Player
+        ctx.fillStyle = C.you;
+        ctx.beginPath(); ctx.arc(player.x, player.y, PLAYER_R, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = "#fff";
+        ctx.font = "600 9px " + token("--font-sans", "sans-serif");
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText("YOU", player.x, player.y + 0.5);
+      }
+
+      // ── Physics ──
+      function step(dt) {
+        // Player heads toward the finger, or moves with the arrow keys.
+        var maxV = 5.2;
+        var ax = 0, ay = 0;
+        if (keys.ArrowLeft) ax -= 1;
+        if (keys.ArrowRight) ax += 1;
+        if (keys.ArrowUp) ay -= 1;
+        if (keys.ArrowDown) ay += 1;
+        if (ax || ay) {
+          var m = Math.hypot(ax, ay);
+          player.vx = ax / m * maxV; player.vy = ay / m * maxV;
+        } else if (target) {
+          var dx = target.x - player.x, dy = target.y - player.y, d = Math.hypot(dx, dy);
+          var v = Math.min(maxV, d * 0.35);
+          player.vx = d > 0.5 ? dx / d * v : 0;
+          player.vy = d > 0.5 ? dy / d * v : 0;
+        } else {
+          player.vx *= 0.8; player.vy *= 0.8;
+        }
+        player.x = clamp(player.x + player.vx * dt, 8 + PLAYER_R, FW - 8 - PLAYER_R);
+        player.y = clamp(player.y + player.vy * dt, LINE + PLAYER_R, FH - 8 - PLAYER_R);
+
+        balls.forEach(function (b) {
+          if (b.gold) runAway(b, dt);
+
+          b.x += b.vx * dt; b.y += b.vy * dt;
+          var f = Math.pow(0.975, dt);
+          b.vx *= f; b.vy *= f;
+
+          // Push from the player
+          var dx = b.x - player.x, dy = b.y - player.y, d = Math.hypot(dx, dy), min = BALL_R + PLAYER_R;
+          if (d < min && d > 0) {
+            var nx = dx / d, ny = dy / d;
+            b.x = player.x + nx * min; b.y = player.y + ny * min;
+            var push = Math.max(2.5, (player.vx * nx + player.vy * ny) * 1.4);
+            b.vx = nx * push + player.vx * 0.3;
+            b.vy = ny * push + player.vy * 0.3;
+          }
+
+          // Side and bottom walls
+          if (b.x < 8 + BALL_R) { b.x = 8 + BALL_R; b.vx = Math.abs(b.vx) * 0.7; }
+          if (b.x > FW - 8 - BALL_R) { b.x = FW - 8 - BALL_R; b.vx = -Math.abs(b.vx) * 0.7; }
+          if (b.y > FH - 8 - BALL_R) { b.y = FH - 8 - BALL_R; b.vy = -Math.abs(b.vy) * 0.7; }
+
+          // Top: the goal mouth is open, the rest is the end line
+          var inMouth = b.x > GOAL_L + BALL_R * 0.5 && b.x < GOAL_R - BALL_R * 0.5;
+          if (b.y < LINE + BALL_R && !inMouth && !b.inGoal) { b.y = LINE + BALL_R; b.vy = Math.abs(b.vy) * 0.7; }
+          if (b.y < LINE && inMouth) b.inGoal = true;
+          if (b.inGoal && b.y < LINE - BALL_R) b.scored = true;
+        });
+
+        // Balls bump into each other
+        for (var i = 0; i < balls.length; i++) {
+          for (var j = i + 1; j < balls.length; j++) {
+            var a = balls[i], c = balls[j];
+            var dx2 = c.x - a.x, dy2 = c.y - a.y, d2 = Math.hypot(dx2, dy2);
+            if (d2 > 0 && d2 < BALL_R * 2) {
+              var nx2 = dx2 / d2, ny2 = dy2 / d2, overlap = (BALL_R * 2 - d2) / 2;
+              a.x -= nx2 * overlap; a.y -= ny2 * overlap; c.x += nx2 * overlap; c.y += ny2 * overlap;
+              var rel = (a.vx - c.vx) * nx2 + (a.vy - c.vy) * ny2;
+              if (rel > 0) {
+                a.vx -= rel * nx2; a.vy -= rel * ny2; c.vx += rel * nx2; c.vy += rel * ny2;
+              }
+            }
+          }
+        }
+
+        balls = balls.filter(function (b) {
+          if (!b.scored) return true;
+          goals += b.gold ? 5 : 1;
+          if (b.gold) goldScored = true;
+          goalsEl.textContent = goals;
+          goalFlash();
+          return false;
+        });
+      }
+
+      // The golden ball runs from you and steers away from the goal.
+      function runAway(b, dt) {
+        var dx = b.x - player.x, dy = b.y - player.y, d = Math.hypot(dx, dy);
+        var speed = 0;
+        if (d < 120 && d > 0) {
+          var urge = (120 - d) / 120;
+          b.vx += dx / d * 0.55 * urge * dt;
+          b.vy += dy / d * 0.55 * urge * dt;
+          speed = 3.4;
+        }
+        if (b.y < LINE + 70 && b.x > GOAL_L - 20 && b.x < GOAL_R + 20 && !b.inGoal) {
+          b.vx += (b.x < FW / 2 ? -0.18 : 0.18) * dt;
+        }
+        b.vx += (Math.random() - 0.5) * 0.3 * dt;
+        b.vy += (Math.random() - 0.5) * 0.3 * dt;
+        var v = Math.hypot(b.vx, b.vy), cap = Math.max(speed, 3.4) + (d < 30 ? 2 : 0);
+        if (v > cap) { b.vx = b.vx / v * cap; b.vy = b.vy / v * cap; }
+      }
+
+      function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+      // ── Game loop ──
+      var last = 0;
+      function frame(now) {
+        if (state !== "playing") return;
+        var dt = Math.min((now - last) / (1000 / 60), 3);
+        last = now;
+        step(dt);
+        draw();
+        var left = Math.max(0, GAME_TIME - (now - startTime) / 1000);
+        timeEl.textContent = left.toFixed(1);
+        if (left <= 0 || balls.length === 0) return finish();
+        requestAnimationFrame(frame);
+      }
+
+      function start() {
+        reset();
+        startOv.hidden = true; endOv.hidden = true;
+        state = "playing";
+        startTime = last = performance.now();
+        statusEl.textContent = "Kick off! 10 seconds.";
+        canvas.focus({ preventScroll: true });
+        requestAnimationFrame(frame);
+      }
+
+      function finish() {
+        state = "done";
+        keys = {}; target = null;
+        best = Math.max(best, goals);
+        bestEl.textContent = best;
+        document.getElementById("endScore").textContent = goals;
+        document.getElementById("endTitle").textContent = goals === 1 ? "Goal" : "Goals";
+        var eyebrow = document.getElementById("endEyebrow");
+        var text = document.getElementById("endText");
+        if (goldScored) {
+          eyebrow.textContent = "You're #1!";
+          text.textContent = "You beat the golden ball. Now help kids in LA score for real: tap the Donate button on this page to support Street Soccer USA.";
+        } else if (goals > 0) {
+          eyebrow.textContent = "Goal!";
+          text.textContent = "You scored, so it's your turn to give. Tap the Donate button on this page to help Street Soccer USA keep its parks free for kids.";
+        } else {
+          eyebrow.textContent = "Full time";
+          text.textContent = "No goals this time. Think you can be #1? Try again.";
+        }
+        endOv.hidden = false;
+        if (goals > 0) moneyRain();
+        statusEl.textContent = "Full time. You scored " + goals + (goals === 1 ? " goal." : " goals.") + (goldScored ? " You're number 1!" : "");
+        document.getElementById("againBtn").focus({ preventScroll: true });
+      }
+
+      function goalFlash() {
+        if (reduceMotion) return;
+        pitch.classList.remove("flash");
+        void pitch.offsetWidth;
+        pitch.classList.add("flash");
+      }
+
+      function moneyRain() {
+        money.innerHTML = "";
+        var count = reduceMotion ? 5 : 26;
+        for (var i = 0; i < count; i++) {
+          var el = document.createElement("span");
+          el.className = "bill";
+          el.textContent = i % 3 === 0 ? "💰" : "💵";
+          el.style.left = (reduceMotion ? 10 + i * 18 : Math.random() * 92) + "%";
+          el.style.animationDelay = (Math.random() * 0.9) + "s, 0s";
+          el.style.setProperty("--spin", (Math.random() * 360 - 180) + "deg");
+          money.appendChild(el);
+        }
+        setTimeout(function () { money.innerHTML = ""; }, reduceMotion ? 3000 : 3400);
+      }
+
+      // ── Input ──
+      function toField(e) {
+        var r = canvas.getBoundingClientRect();
+        return { x: (e.clientX - r.left) / r.width * FW, y: (e.clientY - r.top) / r.height * FH };
+      }
+      canvas.addEventListener("pointerdown", function (e) {
+        if (state !== "playing") return;
+        canvas.setPointerCapture(e.pointerId);
+        target = toField(e);
+      });
+      canvas.addEventListener("pointermove", function (e) {
+        if (state !== "playing") return;
+        if (e.pointerType === "mouse" || e.buttons) target = toField(e);
+      });
+      canvas.addEventListener("pointerup", function (e) {
+        if (e.pointerType !== "mouse") target = null;
+      });
+      canvas.addEventListener("keydown", function (e) {
+        if (e.key.indexOf("Arrow") === 0) {
+          if (state === "playing") { keys[e.key] = true; target = null; }
+          e.preventDefault();
+        }
+      });
+      canvas.addEventListener("keyup", function (e) { keys[e.key] = false; });
+
+      document.getElementById("startBtn").addEventListener("click", start);
+      document.getElementById("againBtn").addEventListener("click", start);
+
+      reset();
+      if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas);
+      else window.addEventListener("resize", resize);
+      resize();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 1.5rem; text-wrap: balance; }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .eyebrow { display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark h2 { color: #fff; }
+    .card-dark p { color: #d6d6d6; }
+    .card-dark .eyebrow { color: var(--accent-from); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 0; border-radius: var(--radius-pill); padding: 14px 28px;
+      background: var(--ink-card); color: #fff; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: transform 0.3s var(--ease-snap);
+    }
+    .btn:hover { transform: scale(1.04); }
+    .btn-light { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 8px 18px;
+      background: var(--bg); color: var(--ink); font-size: 0.875rem; font-weight: 500; cursor: pointer;
+      transition: transform 0.3s var(--ease-snap);
+    }
+    .chip:hover { transform: scale(1.04); }
+    .chip[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
+
+    /* Intro and progress */
+    .intro { max-width: 60ch; }
+    .progress { display: flex; align-items: center; gap: 12px; margin: 0 0 20px; font-size: 0.875rem; color: var(--muted); }
+    .progress-track { flex: 1; height: 6px; border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
+    .progress-fill { height: 100%; width: 0; background: var(--accent); transition: width 0.5s var(--ease-spring); }
+
+    /* Question cards */
+    .questions { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+    .q h3 { margin-bottom: 14px; }
+    .q-num { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+    .reveal { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.5s var(--ease-spring); }
+    .reveal > div { overflow: hidden; }
+    .q.answered .reveal { grid-template-rows: 1fr; }
+    .stat { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+    .stat-num { font-family: var(--font-display); font-size: 2.25rem; font-weight: 700; line-height: 1; color: var(--accent-strong); letter-spacing: -0.02em; }
+    .stat-text { color: var(--ink); font-weight: 500; }
+    .meter { height: 10px; margin: 12px 0 10px; border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
+    .meter-fill { height: 100%; width: 0; background: var(--accent); border-radius: var(--radius-pill); transition: width 0.8s var(--ease-spring) 0.15s; }
+    .stat-note { margin: 0; font-size: 0.875rem; }
+
+    /* Ending */
+    .ending { margin-top: 24px; }
+    .ending .big { display: block; font-family: var(--font-display); font-size: 3rem; font-weight: 700; line-height: 1; color: var(--accent-from); margin-bottom: 8px; }
+    .ending .lead { color: #fff; font-size: 1.125rem; font-weight: 500; }
+    .ending .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+    .ending .btn-light { background: #fff; border-color: #fff; }
+    .note { margin-top: 20px; font-size: 0.8rem; }
+    .source { font-size: 0.8rem; margin: 16px 0 0; }
+
+    @media (max-width: 400px) {
+      body { padding: 16px; }
+      .card, .card-dark { padding: 20px; }
+      .stat-num { font-size: 2rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <span class="eyebrow">Check in · You're not alone</span>
+  <h2>How does your experience compare?</h2>
+  <p class="intro">Tap an answer for each question to see how many students share that experience. Your answers stay on your screen; nothing is saved or sent anywhere.</p>
+
+  <div class="progress" aria-hidden="true">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <span id="progress-text">0 of 6</span>
+  </div>
+
+  <ol class="questions" id="questions"></ol>
+
+  <section class="card-dark ending" id="ending" hidden aria-live="polite">
+    <span class="eyebrow">Your results</span>
+    <span class="big" id="ending-count"></span>
+    <p class="lead" id="ending-lead"></p>
+    <p>When you see your own experience reflected back at you, it stops feeling like a statistic and starts feeling like something worth fighting for. #HappyPeriod is working for menstrual equity through health education, period products, and storytelling.</p>
+    <p>Use the <strong style="color:#fff">Volunteer</strong> and <strong style="color:#fff">Donate</strong> sections on this page to get involved. $10 funds a menstrual care kit for a teen experiencing period poverty.</p>
+    <div class="actions">
+      <button class="btn btn-light" type="button" id="restart">Start over</button>
+    </div>
+  </section>
+
+  <p class="note">This check-in is for awareness, not a diagnosis. If something about your period doesn't feel right, talk to a doctor or health provider you trust.</p>
+  <p class="source">Source: statistics from hashtaghappyperiod.org.</p>
+
+  <script>
+    // Every statistic comes from #HappyPeriod's website, hashtaghappyperiod.org.
+    const questions = [
+      {
+        text: 'Have you ever missed class because you didn\'t have period products?',
+        yes: 'Yes', no: 'No',
+        num: '1 in 4', pct: 25,
+        stat: 'teens miss class because of lack of access to period products.'
+      },
+      {
+        text: 'Have you ever struggled to afford period products?',
+        yes: 'Yes', no: 'No',
+        num: '23%', pct: 23,
+        stat: 'of U.S. teenagers have struggled to afford period products.'
+      },
+      {
+        text: 'Have you ever worn a period product for longer than recommended?',
+        yes: 'Yes', no: 'No',
+        num: '51%', pct: 51,
+        stat: 'of students have worn period products for longer than recommended.'
+      },
+      {
+        text: 'Do you feel society teaches people to be ashamed of their periods?',
+        yes: 'Yes', no: 'No',
+        num: '60%', pct: 60,
+        stat: 'of teens agree that society teaches people to be ashamed of their periods.'
+      },
+      {
+        text: 'Do you wish you\'d learned more about periods and menstrual health in school?',
+        yes: 'Yes', no: 'No',
+        num: '81%', pct: 81,
+        stat: 'of students believe there needs to be more in-depth menstrual education.'
+      },
+      {
+        text: 'Should public schools provide free period products?',
+        yes: 'Yes', no: 'No',
+        num: '89%', pct: 89,
+        stat: 'of students agree that public schools should provide free period products.'
+      }
+    ];
+
+    const list = document.getElementById('questions');
+    const ending = document.getElementById('ending');
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    const answers = new Array(questions.length).fill(null);
+
+    function el(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text) node.textContent = text;
+      return node;
+    }
+
+    const cards = questions.map((q, i) => {
+      const li = el('li', 'card q');
+      li.append(el('span', 'q-num', 'Question ' + (i + 1) + ' of ' + questions.length));
+      const h = el('h3', '', q.text);
+      h.id = 'q' + i;
+      li.append(h);
+
+      const choices = el('div', 'choices');
+      choices.setAttribute('role', 'group');
+      choices.setAttribute('aria-labelledby', h.id);
+      const buttons = [
+        { label: q.yes, value: true },
+        { label: q.no, value: false },
+        { label: 'Skip', value: 'skip' }
+      ].map((c) => {
+        const b = el('button', 'chip', c.label);
+        b.type = 'button';
+        b.setAttribute('aria-pressed', 'false');
+        b.addEventListener('click', () => answer(i, c.value));
+        choices.append(b);
+        return b;
+      });
+      li.append(choices);
+
+      const reveal = el('div', 'reveal');
+      reveal.setAttribute('aria-live', 'polite');
+      const inner = el('div');
+      const stat = el('div', 'stat');
+      stat.append(el('span', 'stat-num', q.num), el('span', 'stat-text', q.stat));
+      const meter = el('div', 'meter');
+      meter.setAttribute('aria-hidden', 'true');
+      const fill = el('div', 'meter-fill');
+      meter.append(fill);
+      const note = el('p', 'stat-note');
+      inner.append(stat, meter, note);
+      reveal.append(inner);
+      li.append(reveal);
+      list.append(li);
+
+      return { li, buttons, fill, note, inner };
+    });
+
+    function answer(i, value) {
+      answers[i] = value;
+      const card = cards[i];
+      const q = questions[i];
+      const values = [true, false, 'skip'];
+      card.buttons.forEach((b, j) => b.setAttribute('aria-pressed', String(values[j] === value)));
+      card.li.classList.add('answered');
+      card.note.textContent = value === true
+        ? 'You\'re not alone. Many students share this experience.'
+        : value === false
+          ? 'Even if it\'s not you, many students share this experience.'
+          : 'That\'s okay. Here\'s what students shared.';
+      requestAnimationFrame(() => { card.fill.style.width = q.pct + '%'; });
+      update();
+    }
+
+    function update() {
+      const done = answers.filter((a) => a !== null).length;
+      progressFill.style.width = (done / questions.length * 100) + '%';
+      progressText.textContent = done + ' of ' + questions.length;
+      if (done < questions.length) { ending.hidden = true; return; }
+
+      const yes = answers.filter((a) => a === true).length;
+      document.getElementById('ending-count').textContent = yes + ' of ' + questions.length;
+      document.getElementById('ending-lead').textContent = yes > 0
+        ? 'You said yes to ' + yes + (yes === 1 ? ' question' : ' questions') + '. Your experience is real, and it\'s worth speaking up about.'
+        : 'You didn\'t say yes to any of these, but many students would. Their experiences are real, and they\'re worth speaking up about.';
+      const wasHidden = ending.hidden;
+      ending.hidden = false;
+      if (wasHidden) {
+        const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        ending.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' });
+      }
+    }
+
+    document.getElementById('restart').addEventListener('click', () => {
+      answers.fill(null);
+      cards.forEach((c) => {
+        c.li.classList.remove('answered');
+        c.fill.style.width = '0';
+        c.buttons.forEach((b) => b.setAttribute('aria-pressed', 'false'));
+      });
+      update();
+      cards[0].buttons[0].focus();
+    });
+  </script>
+</body>
+</html>

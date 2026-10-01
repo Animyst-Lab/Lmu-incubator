@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 1.5rem; text-wrap: balance; }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .eyebrow { display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark h2, .card-dark h3 { color: #fff; }
+    .card-dark p { color: #d6d6d6; }
+    .card-dark .eyebrow { color: var(--accent-from); }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      border: 0; border-radius: var(--radius-pill); padding: 14px 28px;
+      background: var(--ink-card); color: #fff; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: transform 0.3s var(--ease-snap);
+    }
+    .btn:hover:not(:disabled) { transform: scale(1.04); }
+    .btn-light { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+
+    .intro { max-width: 60ch; }
+    .note { font-size: 0.85rem; }
+    section + section { margin-top: 32px; }
+
+    /* Quiz */
+    .progress-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; }
+    .progress-row strong { color: var(--ink); font-weight: 600; }
+    .track { height: 6px; background: var(--surface); border-radius: var(--radius-pill); overflow: hidden; margin-bottom: 24px; }
+    .fill { height: 100%; width: 0; background: var(--accent); border-radius: var(--radius-pill); transition: width 0.5s var(--ease-spring); }
+
+    .statement { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.3; margin: 0 0 20px; min-height: 3.9em; }
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .choice {
+      border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 14px 16px;
+      background: var(--bg); color: var(--ink); font-size: 1rem; font-weight: 600; cursor: pointer;
+      transition: transform 0.3s var(--ease-snap), background 0.2s var(--ease-snap), color 0.2s var(--ease-snap);
+    }
+    .choice:hover:not(:disabled) { transform: scale(1.04); }
+    .choice:disabled { cursor: default; }
+    .choice[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
+
+    .answer { margin-top: 20px; padding: 20px; border-radius: var(--radius-control); background: var(--surface); }
+    .verdict { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .tag { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 12px; border-radius: var(--radius-pill); background: var(--ink-card); color: #fff; }
+    .result { font-weight: 600; color: var(--ink); }
+    .result .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); margin-right: 6px; vertical-align: 1px; }
+    .answer p { color: var(--ink); margin: 0 0 12px; }
+    .answer .source { font-size: 0.8rem; color: var(--muted); margin: 0 0 16px; }
+    .answer .btn { width: 100%; }
+
+    /* Results */
+    .score { font-family: var(--font-display); font-size: 3rem; font-weight: 700; line-height: 1; color: var(--accent-strong); margin: 4px 0 12px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Support */
+    .steps { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 12px; }
+    .steps li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; color: #fff; }
+    .steps .num { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 0.85rem; }
+    .steps span:last-child { padding-top: 3px; }
+    .hotline { margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.15); }
+    .hotline strong { display: block; color: #fff; font-weight: 600; margin-bottom: 4px; }
+    .numbers { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .numbers span { border: 1px solid rgba(255, 255, 255, 0.25); border-radius: var(--radius-pill); padding: 6px 14px; color: #fff; font-weight: 500; font-variant-numeric: tabular-nums; font-size: 0.9rem; }
+
+    .pop { animation: pop 0.4s var(--ease-spring); }
+    @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    @media (max-width: 400px) {
+      body { padding: 16px; }
+      .card, .card-dark { padding: 20px; }
+      .statement { font-size: 1.125rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <section aria-labelledby="quiz-title">
+    <span class="eyebrow">Myth or fact?</span>
+    <h2 id="quiz-title">What do you really know about sexual and domestic violence?</h2>
+    <p class="intro">Myths about abuse can make survivors feel blamed and unheard. Read each statement and decide: myth or fact?</p>
+    <p class="note">Heads up: this quiz talks about sexual and domestic violence.</p>
+
+    <div class="card" id="quiz">
+      <div class="progress-row">
+        <span>Question <strong id="qnum">1</strong> of <span id="qtotal">8</span></span>
+        <span>Score: <strong id="score">0</strong></span>
+      </div>
+      <div class="track" aria-hidden="true"><div class="fill" id="fill"></div></div>
+
+      <p class="statement" id="statement"></p>
+      <div class="choices">
+        <button type="button" class="choice" id="pick-myth" aria-pressed="false">Myth</button>
+        <button type="button" class="choice" id="pick-fact" aria-pressed="false">Fact</button>
+      </div>
+
+      <div class="answer pop" id="answer" hidden aria-live="polite">
+        <div class="verdict">
+          <span class="tag" id="tag"></span>
+          <span class="result" id="result"></span>
+        </div>
+        <p id="explain"></p>
+        <p class="source" id="source"></p>
+        <button type="button" class="btn" id="next">Next statement</button>
+      </div>
+    </div>
+
+    <div class="card pop" id="done" hidden aria-live="polite">
+      <span class="eyebrow">Your result</span>
+      <div class="score" id="final"></div>
+      <h3 id="final-title"></h3>
+      <p id="final-text"></p>
+      <div class="actions">
+        <button type="button" class="btn" id="restart">Take it again</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card-dark" aria-labelledby="support-title">
+    <span class="eyebrow">If someone opens up to you</span>
+    <h2 id="support-title">How to be there for a survivor</h2>
+    <ul class="steps">
+      <li><span class="num">1</span><span>Believe them, and tell them you do.</span></li>
+      <li><span class="num">2</span><span>Never blame them for what happened to them.</span></li>
+      <li><span class="num">3</span><span>Help them connect to support and resources.</span></li>
+    </ul>
+    <div class="hotline">
+      <strong>Peace Over Violence's 24/7 LA Rape &amp; Battering Hotline</strong>
+      <p>Someone is there to talk, any time, day or night.</p>
+      <div class="numbers">
+        <span>626.793.3385</span>
+        <span>310.392.8381</span>
+        <span>213.626.3393</span>
+      </div>
+      <p class="note" style="margin: 12px 0 0;">ASL video phone: 213.785.2684 or 213.785.2749 (LA), 626.243.7972 (Pasadena)</p>
+    </div>
+  </section>
+
+  <script>
+    // Every statement and answer comes from Peace Over Violence's
+    // "Myths and Realities" pages on peaceoverviolence.org.
+    const SV = 'Peace Over Violence, Sexual Violence: Myths and Realities';
+    const DV = 'Peace Over Violence, Domestic Violence: Myths and Realities';
+    const questions = [
+      {
+        text: 'Most sexual assaults are committed by a stranger in a dark alley.',
+        myth: true,
+        explain: 'About 70% of female rape or sexual assault survivors say the offender was a partner, relative, friend, or acquaintance.',
+        source: SV + ' (citing the Bureau of Justice Statistics, 2005)'
+      },
+      {
+        text: 'No one asks for or deserves to be sexually assaulted, no matter what they wear or how they act.',
+        myth: false,
+        explain: 'No one asks for or deserves it. Rape does not happen in response to clothing or behavior.',
+        source: SV
+      },
+      {
+        text: 'Men can be sexually assaulted too.',
+        myth: false,
+        explain: '1 in 6 men have experienced sexual violence before the age of 18.',
+        source: SV
+      },
+      {
+        text: 'Domestic abuse is a private family matter.',
+        myth: true,
+        explain: 'Abuse is a crime, and its harm reaches far beyond one home: it affects survivors’ lives and can repeat across generations.',
+        source: DV
+      },
+      {
+        text: 'Alcohol and drugs cause domestic abuse.',
+        myth: true,
+        explain: 'Many abusers hurt their partners while completely sober. Alcohol and drugs don’t cause abuse, though they may make it worse.',
+        source: DV
+      },
+      {
+        text: 'If it were really that bad, they would just leave.',
+        myth: true,
+        explain: 'Emotional, financial, and social barriers can make leaving hard, and trying to leave can make things more dangerous for survivors and their children.',
+        source: DV
+      },
+      {
+        text: 'Abuse happens in every community, across all backgrounds and income levels.',
+        myth: false,
+        explain: 'Abuse crosses all ethnic and economic lines. What drives it is an abuser’s need for power and control, not their background or stress level.',
+        source: DV
+      },
+      {
+        text: 'You can usually tell who is abusive by how they act in public.',
+        myth: true,
+        explain: 'Many abusers seem charming and successful in public and keep the abuse private, which can make it harder for others to believe survivors.',
+        source: DV
+      }
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    const quiz = $('quiz'), done = $('done'), answer = $('answer');
+    const pickMyth = $('pick-myth'), pickFact = $('pick-fact');
+    let index = 0, score = 0;
+
+    $('qtotal').textContent = questions.length;
+
+    function show() {
+      const q = questions[index];
+      $('qnum').textContent = index + 1;
+      $('score').textContent = score;
+      $('statement').textContent = '“' + q.text + '”';
+      $('fill').style.width = (index / questions.length * 100) + '%';
+      [pickMyth, pickFact].forEach((b) => { b.disabled = false; b.setAttribute('aria-pressed', 'false'); });
+      answer.hidden = true;
+    }
+
+    function choose(saidMyth) {
+      const q = questions[index];
+      const right = saidMyth === q.myth;
+      if (right) score++;
+      pickMyth.setAttribute('aria-pressed', String(saidMyth));
+      pickFact.setAttribute('aria-pressed', String(!saidMyth));
+      [pickMyth, pickFact].forEach((b) => { b.disabled = true; });
+
+      $('tag').textContent = q.myth ? 'Myth' : 'Fact';
+      $('result').innerHTML = right ? '<span class="dot" aria-hidden="true"></span>You got it' : 'Not quite';
+      $('explain').textContent = q.explain;
+      $('source').textContent = 'Source: ' + q.source;
+      $('score').textContent = score;
+      $('fill').style.width = ((index + 1) / questions.length * 100) + '%';
+      $('next').textContent = index === questions.length - 1 ? 'See my result' : 'Next statement';
+      answer.hidden = false;
+      $('next').focus({ preventScroll: true });
+    }
+
+    function finish() {
+      quiz.hidden = true;
+      done.hidden = false;
+      $('final').textContent = score + ' / ' + questions.length;
+      if (score === questions.length) {
+        $('final-title').textContent = 'You know the facts.';
+        $('final-text').textContent = 'Now share them. When the people around you know the truth, survivors are more likely to be believed.';
+      } else if (score >= questions.length - 3) {
+        $('final-title').textContent = 'You’re well on your way.';
+        $('final-text').textContent = 'A few of these myths are really common. Knowing the facts helps you support survivors instead of blaming them.';
+      } else {
+        $('final-title').textContent = 'Thanks for learning.';
+        $('final-text').textContent = 'These myths are everywhere, and that’s exactly why this quiz exists. Try it again, and share what surprised you.';
+      }
+      $('restart').focus({ preventScroll: true });
+    }
+
+    pickMyth.addEventListener('click', () => choose(true));
+    pickFact.addEventListener('click', () => choose(false));
+    $('next').addEventListener('click', () => {
+      index++;
+      if (index < questions.length) show();
+      else finish();
+    });
+    $('restart').addEventListener('click', () => {
+      index = 0; score = 0;
+      done.hidden = true;
+      quiz.hidden = false;
+      show();
+      pickMyth.focus({ preventScroll: true });
+    });
+
+    show();
+  </script>
+</body>
+</html>

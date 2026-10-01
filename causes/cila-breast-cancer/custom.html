@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    /* The pink of the awareness ribbon. Used only for the ribbon drawing. */
+    :root { --ribbon-light: #F8B4CC; --ribbon: #E45C8C; --ribbon-deep: #C9467A; }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    section + section { margin-top: 32px; }
+    h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 1.5rem; text-wrap: balance; }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .eyebrow { display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark h2 { color: #fff; }
+    .card-dark p { color: #d6d6d6; }
+    .card-dark .eyebrow { color: var(--accent-from); }
+    .card-dark .lead { color: #fff; font-size: 1.15rem; font-weight: 500; margin: 0; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 0; border-radius: var(--radius-pill); padding: 14px 28px;
+      background: var(--ink-card); color: #fff; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: transform 0.3s var(--ease-snap);
+    }
+    .btn:hover { transform: scale(1.04); }
+    .btn-light { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+
+    /* The ribbon */
+    .hope { text-align: center; }
+    .hope .intro { max-width: 46ch; margin-left: auto; margin-right: auto; }
+    .stage { position: relative; display: flex; justify-content: center; margin: 8px 0 16px; }
+    .ribbon {
+      position: relative;
+      width: 150px;
+      padding: 12px;
+      border: 0;
+      border-radius: var(--radius-card-sm);
+      background: transparent;
+      cursor: pointer;
+      transition: transform 0.4s var(--ease-spring);
+    }
+    .ribbon:hover { transform: scale(1.05) rotate(-2deg); }
+    .ribbon:active { transform: scale(0.96); }
+    .ribbon svg { display: block; width: 100%; height: auto; }
+    .ribbon.pulse { animation: pulse 0.6s var(--ease-spring); }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    .hint { font-size: 0.875rem; font-weight: 500; color: var(--ink); margin: 0 0 20px; }
+
+    /* Floating hearts */
+    .heart {
+      position: absolute;
+      left: 50%;
+      top: 45%;
+      width: 18px;
+      height: 18px;
+      pointer-events: none;
+      fill: var(--ribbon);
+      opacity: 0;
+      animation: float 1.4s var(--ease-spring) forwards;
+    }
+    @keyframes float {
+      0% { opacity: 0; transform: translate(-50%, 0) scale(0.4); }
+      20% { opacity: 1; }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), -120px) scale(1.1); }
+    }
+
+    /* The note */
+    .note {
+      position: relative;
+      max-width: 520px;
+      margin: 0 auto;
+      text-align: left;
+      border-top: 4px solid var(--ribbon);
+    }
+    .note[hidden] { display: none; }
+    .note.show { animation: rise 0.5s var(--ease-spring); }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: none; }
+    }
+    .note .count { font-size: 0.8rem; color: var(--muted); margin: 0 0 8px; }
+    .note blockquote {
+      margin: 0 0 20px;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.35;
+      color: var(--ink);
+      text-wrap: pretty;
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .dots { display: flex; justify-content: center; gap: 6px; margin-top: 20px; }
+    .dots span {
+      width: 8px; height: 8px; border-radius: var(--radius-pill);
+      background: var(--surface-2);
+      transition: background 0.3s var(--ease-snap), width 0.3s var(--ease-spring);
+    }
+    .dots span.seen { background: var(--ribbon-light); }
+    .dots span.now { background: var(--ribbon); width: 20px; }
+
+    /* Angel Party picker */
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 8px 14px;
+      background: var(--bg); color: var(--ink); font-size: 0.875rem; font-weight: 500; cursor: pointer;
+      transition: transform 0.2s var(--ease-spring);
+    }
+    .chip:hover { transform: translateY(-1px); }
+    .chip[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .plan h3 { margin-bottom: 12px; }
+    .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; counter-reset: step; }
+    .steps li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; color: var(--ink); }
+    .steps li::before {
+      counter-increment: step; content: counter(step);
+      display: grid; place-items: center; width: 28px; height: 28px;
+      border-radius: var(--radius-pill); background: var(--surface);
+      color: var(--accent-strong); font-weight: 600; font-size: 0.875rem;
+    }
+    .source { font-size: 0.8rem; color: var(--muted); margin: 12px 0 0; }
+
+    /* Breathing moment */
+    .breathe { text-align: center; }
+    .breathe .intro { max-width: 46ch; margin-left: auto; margin-right: auto; }
+    .orb-wrap { display: grid; place-items: center; height: 220px; margin: 8px 0 16px; }
+    .orb {
+      display: grid; place-items: center;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%, var(--ribbon-light), var(--ribbon));
+      opacity: 0.85;
+      transform: scale(0.55);
+      transition: transform 4s ease-in-out, opacity 4s ease-in-out;
+    }
+    .orb.in { transform: scale(1); opacity: 1; }
+    .orb span { color: #fff; font-weight: 600; font-size: 1rem; letter-spacing: -0.01em; }
+    .breathe .count { font-size: 0.875rem; color: var(--muted); margin: 0 0 16px; min-height: 1.5em; }
+
+    /* Show-up bouquet badge */
+    .badge-card {
+      text-align: center;
+      max-width: 420px;
+      margin: 0 auto 16px;
+      padding: 24px 20px 28px;
+      border-radius: var(--radius-card-sm);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 30px -18px var(--ribbon-deep);
+    }
+    .badge-card .eyebrow { color: var(--ribbon-deep); }
+    .bouquet { display: block; width: 220px; max-width: 100%; height: auto; margin: 0 auto 8px; }
+    .bloom { transform-box: fill-box; transform-origin: center; animation: pop 0.6s var(--ease-spring); }
+    @keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: none; opacity: 1; } }
+    .badge-title { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.3; margin: 0 0 12px; color: var(--ink); }
+    .badge-title.placeholder { color: var(--muted); font-weight: 500; font-size: 1rem; }
+    .did { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; text-align: left; justify-content: center; }
+    .did li { display: flex; align-items: center; gap: 8px; color: var(--ink); font-size: 0.9rem; }
+    .did li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ribbon); flex: none; }
+    .badge-foot { margin: 14px 0 0; font-size: 0.8rem; color: var(--muted); }
+    .show-count { text-align: center; font-weight: 600; color: var(--ink); margin: 0 0 16px; }
+    .showup .chips { justify-content: center; }
+
+    /* Card of support */
+    .writer { display: grid; gap: 16px; }
+    .writer label { display: block; font-weight: 500; font-size: 0.875rem; margin-bottom: 6px; color: var(--ink); }
+    .writer textarea {
+      width: 100%; min-height: 96px; resize: vertical;
+      padding: 12px 14px;
+      border: 1px solid var(--border); border-radius: var(--radius-control);
+      background: var(--bg); color: var(--ink);
+      font: inherit; font-size: 1rem;
+    }
+    .writer textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .chars { font-size: 0.8rem; color: var(--muted); margin: 6px 0 0; text-align: right; }
+    .starters { display: flex; flex-wrap: wrap; gap: 8px; }
+    .postcard {
+      position: relative;
+      display: grid; grid-template-columns: 1fr 56px; gap: 16px; align-items: start;
+      padding: 28px 24px;
+      border-radius: var(--radius-card-sm);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 30px -18px var(--ribbon-deep);
+    }
+    .postcard::before {
+      content: ""; position: absolute; inset: 0 0 auto 0; height: 6px;
+      border-radius: var(--radius-card-sm) var(--radius-card-sm) 0 0;
+      background: linear-gradient(90deg, var(--ribbon-light), var(--ribbon));
+    }
+    .postcard .to { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ribbon-deep); margin: 0 0 10px; }
+    .postcard .msg {
+      margin: 0; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.35;
+      color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere;
+    }
+    .postcard .sign { margin: 14px 0 0; font-size: 0.875rem; color: var(--muted); }
+    .postcard svg { width: 56px; height: auto; }
+
+    @media (max-width: 359px) {
+      body { padding: 16px; }
+      .card, .card-dark { padding: 18px; }
+      .note blockquote { font-size: 1.1rem; }
+      .postcard { grid-template-columns: 1fr; padding: 24px 18px; }
+      .postcard svg { width: 40px; order: -1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .heart { display: none; }
+      .orb { transform: scale(0.8); }
+      .orb.in { transform: scale(0.8); }
+    }
+  </style>
+</head>
+<body>
+  <section class="card-dark" aria-labelledby="why-title">
+    <span class="eyebrow">Why I made this page · Cila David</span>
+    <h2 id="why-title">For someone I love</h2>
+    <p class="lead">A very close family member is struggling with breast cancer. This page is for them, and for every family going through the same thing.</p>
+  </section>
+
+  <section class="hope" aria-labelledby="hope-title">
+    <span class="eyebrow">A note of hope</span>
+    <h2 id="hope-title">Tap the ribbon for a little hope</h2>
+    <p class="intro">For patients, survivors, and the people who love them. Each tap shows a new note.</p>
+
+    <div class="stage" id="stage">
+      <button class="ribbon" id="ribbon" type="button" aria-controls="note" aria-label="Show a note of hope">
+        <svg viewBox="240 120 320 600" aria-hidden="true">
+          <defs>
+            <linearGradient id="front" gradientUnits="userSpaceOnUse" x1="270" y1="150" x2="530" y2="700">
+              <stop offset="0" style="stop-color: var(--ribbon-light)"/>
+              <stop offset="1" style="stop-color: var(--ribbon)"/>
+            </linearGradient>
+            <linearGradient id="back" gradientUnits="userSpaceOnUse" x1="530" y1="150" x2="270" y2="700">
+              <stop offset="0" style="stop-color: var(--ribbon-light)"/>
+              <stop offset="1" style="stop-color: var(--ribbon-deep)"/>
+            </linearGradient>
+          </defs>
+          <g fill="none" stroke-width="78">
+            <path d="M395 150 C450 150 485 210 485 310 C485 440 380 540 270 690" stroke="url(#back)"/>
+            <path d="M530 690 C420 540 315 440 315 310 C315 210 350 150 405 150" stroke="url(#front)"/>
+          </g>
+          <path d="M296 330 C296 230 330 172 380 168" fill="none" stroke="#fff" stroke-opacity="0.4" stroke-width="9" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <p class="hint" id="hint">Tap the ribbon</p>
+
+    <div class="card note" id="note" hidden aria-live="polite">
+      <p class="count" id="count"></p>
+      <blockquote id="message"></blockquote>
+      <div class="actions">
+        <button class="btn" id="next" type="button">Next note</button>
+        <button class="btn btn-light" id="restart" type="button" hidden>Start over</button>
+      </div>
+    </div>
+
+    <div class="dots" id="dots" aria-hidden="true"></div>
+  </section>
+
+  <section class="breathe card" aria-labelledby="breathe-title">
+    <span class="eyebrow">Take a breath</span>
+    <h2 id="breathe-title">A calm minute, just for you</h2>
+    <p class="intro">Hard days happen, for patients and for the people who care for them. Follow the circle: breathe in as it grows, out as it shrinks.</p>
+    <div class="orb-wrap" aria-hidden="true">
+      <div class="orb" id="orb"><span id="orb-label">Ready</span></div>
+    </div>
+    <p class="count" id="breath-status" aria-live="polite"></p>
+    <button class="btn" id="breathe-btn" type="button">Start breathing</button>
+  </section>
+
+  <section class="showup" aria-labelledby="showup-title">
+    <span class="eyebrow">I showed up</span>
+    <h2 id="showup-title">Fill your bouquet</h2>
+    <p>Did you donate, volunteer, or check in on someone? Tap everything you did. Each one adds a flower to your bouquet. Then take a screenshot to share it and inspire others.</p>
+
+    <div class="badge-card">
+      <span class="eyebrow">Breast Cancer Angels supporter</span>
+      <svg class="bouquet" id="bouquet" viewBox="0 0 240 240" aria-hidden="true">
+        <g id="stems"></g>
+        <g id="heads"></g>
+        <path d="M58 140 L182 140 L136 232 L104 232 Z" style="fill: var(--ribbon-light)"/>
+        <path d="M58 140 L120 140 L120 232 L104 232 Z" style="fill: var(--ribbon); opacity: 0.35"/>
+        <g transform="translate(120 178) scale(0.09) translate(-400 -420)" fill="none" stroke-width="78">
+          <path d="M395 150 C450 150 485 210 485 310 C485 440 380 540 270 690" style="stroke: var(--ribbon-deep)"/>
+          <path d="M530 690 C420 540 315 440 315 310 C315 210 350 150 405 150" style="stroke: var(--ribbon-deep)"/>
+        </g>
+      </svg>
+      <p class="badge-title placeholder" id="badge-title">Tap what you did to add your first flower</p>
+      <ul class="did" id="did"></ul>
+      <p class="badge-foot" id="badge-foot" hidden>Thank you for showing up 💗</p>
+    </div>
+
+    <p class="show-count" id="show-count" aria-live="polite"></p>
+    <div class="chips" id="showup" role="group" aria-label="What did you do?"></div>
+    <p class="source">Nothing you tap is saved or sent anywhere. Use the volunteer and donate buttons on this page to take action.</p>
+  </section>
+
+  <section aria-labelledby="card-title">
+    <span class="eyebrow">Send some love</span>
+    <h2 id="card-title">Write a card of support</h2>
+    <p>Write a few words for someone you love, then take a screenshot and send it to them. Nothing you type is saved or sent anywhere.</p>
+    <div class="writer">
+      <div>
+        <label for="card-text">Your message</label>
+        <textarea id="card-text" maxlength="160" placeholder="Thinking of you today…"></textarea>
+        <p class="chars" id="chars">0 / 160</p>
+      </div>
+      <div>
+        <label id="starters-label">Need a start? Tap one</label>
+        <div class="starters" id="starters" role="group" aria-labelledby="starters-label"></div>
+      </div>
+      <div class="postcard" aria-live="polite">
+        <div>
+          <p class="to">A note for you</p>
+          <p class="msg" id="card-msg"></p>
+          <p class="sign">With love 💗</p>
+        </div>
+        <svg viewBox="240 120 320 600" aria-hidden="true">
+          <g fill="none" stroke-width="78">
+            <path d="M395 150 C450 150 485 210 485 310 C485 440 380 540 270 690" stroke="url(#back)"/>
+            <path d="M530 690 C420 540 315 440 315 310 C315 210 350 150 405 150" stroke="url(#front)"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="party-title">
+    <span class="eyebrow">Turn hope into help</span>
+    <h2 id="party-title">Throw an Angel Party</h2>
+    <p>An Angel Party is a get-together that raises money for Breast Cancer Angels. It can be whatever you'd like it to be. Pick an idea to plan yours.</p>
+
+    <div class="chips" id="ideas" role="group" aria-label="Angel Party ideas"></div>
+
+    <div class="card plan" aria-live="polite">
+      <h3 id="plan-title"></h3>
+      <ol class="steps">
+        <li>Pick a date and give Breast Cancer Angels a call. They're happy to support you, and can even come speak about their work.</li>
+        <li>Plan it your way, and ask a friend or two to help. Simple or an extravaganza, it's up to you.</li>
+        <li>Invite friends and family, and share why it matters. Wear pink if you like!</li>
+      </ol>
+    </div>
+    <p class="source">Ideas and tips from Breast Cancer Angels' Get Involved page. Use the volunteer and donate buttons on this page to reach them.</p>
+  </section>
+
+  <script>
+    // Notes of hope, written for this page.
+    const notes = [
+      "You are not alone in this. So many people are walking beside you.",
+      "Some days are hard. Rest is part of healing, too.",
+      "You are so much more than a diagnosis.",
+      "Every scientist, doctor, and advocate working on breast cancer is working for you.",
+      "It's okay to ask for help. Letting people in is a kind of strength.",
+      "To the families and caregivers: your love matters more than you know.",
+      "Small steps still move you forward.",
+      "Hope isn't pretending things are easy. It's believing better days can come.",
+      "Your story is still being written.",
+      "Sending love to you today, and every day after."
+    ];
+
+    const ribbon = document.getElementById('ribbon');
+    const stage = document.getElementById('stage');
+    const hint = document.getElementById('hint');
+    const note = document.getElementById('note');
+    const count = document.getElementById('count');
+    const message = document.getElementById('message');
+    const next = document.getElementById('next');
+    const restart = document.getElementById('restart');
+    const dots = document.getElementById('dots');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const dotEls = notes.map(() => {
+      const d = document.createElement('span');
+      dots.append(d);
+      return d;
+    });
+
+    let i = -1;
+
+    function hearts() {
+      if (reduceMotion) return;
+      for (let k = 0; k < 5; k++) {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('class', 'heart');
+        svg.innerHTML = '<path d="M12 21s-7.5-4.6-7.5-10.4A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.6C19.5 16.4 12 21 12 21z"/>';
+        svg.style.setProperty('--dx', (Math.random() * 140 - 70) + 'px');
+        svg.style.animationDelay = (k * 80) + 'ms';
+        stage.append(svg);
+        setTimeout(() => svg.remove(), 1800);
+      }
+      ribbon.classList.remove('pulse');
+      void ribbon.offsetWidth;
+      ribbon.classList.add('pulse');
+    }
+
+    function show(n) {
+      i = n;
+      message.textContent = notes[i];
+      count.textContent = 'Note ' + (i + 1) + ' of ' + notes.length;
+      note.hidden = false;
+      note.classList.remove('show');
+      void note.offsetWidth;
+      note.classList.add('show');
+      hint.textContent = 'Tap the ribbon again for another note';
+
+      const last = i === notes.length - 1;
+      next.hidden = last;
+      restart.hidden = !last;
+      dotEls.forEach((d, k) => {
+        d.className = k === i ? 'now' : (k < i ? 'seen' : '');
+      });
+      hearts();
+    }
+
+    function advance() {
+      show((i + 1) % notes.length);
+    }
+
+    ribbon.addEventListener('click', advance);
+    next.addEventListener('click', advance);
+    restart.addEventListener('click', () => show(0));
+
+    // ── Breathing moment: 4 seconds in, 4 seconds out ──
+    const orb = document.getElementById('orb');
+    const orbLabel = document.getElementById('orb-label');
+    const breathStatus = document.getElementById('breath-status');
+    const breatheBtn = document.getElementById('breathe-btn');
+    const BREATHS = 6;
+    let breathTimer = null;
+    let phase = 0;
+
+    function stopBreathing(done) {
+      clearTimeout(breathTimer);
+      breathTimer = null;
+      orb.classList.remove('in');
+      orbLabel.textContent = done ? 'Well done' : 'Ready';
+      breathStatus.textContent = done ? 'You took a calm minute for yourself. 💗' : '';
+      breatheBtn.textContent = done ? 'Breathe again' : 'Start breathing';
+    }
+
+    function breathStep() {
+      if (phase >= BREATHS * 2) { stopBreathing(true); return; }
+      const inhale = phase % 2 === 0;
+      orb.classList.toggle('in', inhale);
+      orbLabel.textContent = inhale ? 'Breathe in' : 'Breathe out';
+      breathStatus.textContent = 'Breath ' + (Math.floor(phase / 2) + 1) + ' of ' + BREATHS;
+      phase++;
+      breathTimer = setTimeout(breathStep, 4000);
+    }
+
+    breatheBtn.addEventListener('click', () => {
+      if (breathTimer) { stopBreathing(false); return; }
+      phase = 0;
+      breatheBtn.textContent = 'Stop';
+      breathStep();
+    });
+
+    // ── Show-up bouquet ──
+    const actions = [
+      { tap: 'I donated', badge: 'Donated to Breast Cancer Angels', color: 'var(--ribbon)' },
+      { tap: 'I volunteered', badge: 'Volunteered my time', color: 'var(--ribbon-deep)' },
+      { tap: 'I hosted an Angel Party', badge: 'Hosted an Angel Party', color: 'var(--accent-from)' },
+      { tap: 'I became an Angel with monthly dues', badge: 'Became a monthly Angel', color: 'var(--ribbon-light)' },
+      { tap: 'I shared this page', badge: 'Spread the word', color: 'var(--ribbon)' },
+      { tap: 'I checked in on someone', badge: 'Checked in on someone I love', color: 'var(--ribbon-deep)' }
+    ];
+    // Where each flower sits in the bouquet, filled in this order.
+    const slots = [[120, 44], [72, 72], [168, 72], [92, 112], [148, 112], [120, 84]];
+    const SVGNS = 'http://www.w3.org/2000/svg';
+    const stems = document.getElementById('stems');
+    const heads = document.getElementById('heads');
+    const badgeTitle = document.getElementById('badge-title');
+    const did = document.getElementById('did');
+    const badgeFoot = document.getElementById('badge-foot');
+    const showCount = document.getElementById('show-count');
+    const chosen = [];
+
+    function drawFlower(x, y, color) {
+      const stem = document.createElementNS(SVGNS, 'path');
+      stem.setAttribute('d', 'M' + x + ' ' + y + ' Q' + ((x + 120) / 2) + ' ' + (y + 60) + ' 120 190');
+      stem.setAttribute('style', 'stroke: var(--muted); stroke-width: 3; fill: none');
+      stems.append(stem);
+
+      const g = document.createElementNS(SVGNS, 'g');
+      g.setAttribute('class', 'bloom');
+      let html = '';
+      for (let a = 0; a < 360; a += 60) {
+        html += '<ellipse cx="' + x + '" cy="' + (y - 12) + '" rx="8" ry="12" transform="rotate(' + a + ' ' + x + ' ' + y + ')" style="fill:' + color + '"/>';
+      }
+      html += '<circle cx="' + x + '" cy="' + y + '" r="7" style="fill: var(--bg)"/>';
+      g.innerHTML = html;
+      heads.append(g);
+    }
+
+    function renderBouquet() {
+      stems.innerHTML = '';
+      heads.innerHTML = '';
+      did.innerHTML = '';
+      chosen.forEach((a, k) => {
+        drawFlower(slots[k][0], slots[k][1], a.color);
+        const li = document.createElement('li');
+        li.textContent = a.badge;
+        did.append(li);
+      });
+      const n = chosen.length;
+      badgeTitle.classList.toggle('placeholder', n === 0);
+      badgeTitle.textContent = n === 0 ? 'Tap what you did to add your first flower'
+        : 'I showed up for families facing breast cancer';
+      badgeFoot.hidden = n === 0;
+      showCount.textContent = n === 0 ? '' :
+        n === actions.length ? 'A full bouquet! Thank you for showing up in every way. 🌸' :
+        n + (n === 1 ? ' way' : ' ways') + ' you showed up';
+    }
+
+    actions.forEach((a) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.textContent = a.tap;
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', () => {
+        const at = chosen.indexOf(a);
+        if (at >= 0) chosen.splice(at, 1); else chosen.push(a);
+        b.setAttribute('aria-pressed', String(at < 0));
+        renderBouquet();
+      });
+      document.getElementById('showup').append(b);
+    });
+    renderBouquet();
+
+    // ── Card of support ──
+    const cardText = document.getElementById('card-text');
+    const cardMsg = document.getElementById('card-msg');
+    const chars = document.getElementById('chars');
+    const starters = [
+      'Thinking of you today and every day.',
+      "You don't have to be strong all the time. I'm here.",
+      "I'm so proud of you.",
+      'Sending you the biggest hug.'
+    ];
+    function renderCard() {
+      const v = cardText.value.trim();
+      cardMsg.textContent = v || 'Thinking of you today…';
+      chars.textContent = cardText.value.length + ' / 160';
+    }
+    starters.forEach((s) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.textContent = s;
+      b.addEventListener('click', () => { cardText.value = s; renderCard(); cardText.focus(); });
+      document.getElementById('starters').append(b);
+    });
+    cardText.addEventListener('input', renderCard);
+    renderCard();
+
+    // Angel Party ideas from breastcancerangels.org/get-involved
+    const ideas = ['BBQ', 'Bunko Night', 'Book Club', 'Dance-a-Thon', 'Fitness and Awareness',
+      'Garden Tea', 'Beach Party', "St. Patrick's Day", 'Cinco de Mayo', 'Friendsgiving'];
+    const ideasEl = document.getElementById('ideas');
+    const planTitle = document.getElementById('plan-title');
+    const ideaButtons = ideas.map((idea) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.textContent = idea;
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', () => pick(idea));
+      ideasEl.append(b);
+      return b;
+    });
+    function pick(idea) {
+      ideaButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.textContent === idea)));
+      planTitle.textContent = 'Your Angel Party: ' + idea;
+    }
+    pick('Beach Party');
+  </script>
+</body>
+</html>

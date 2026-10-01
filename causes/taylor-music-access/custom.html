@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 1.5rem; text-wrap: balance; }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    [hidden] { display: none !important; }
+
+    .eyebrow { display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark { background: var(--ink-card); color: #fff; border-radius: var(--radius-card); padding: 24px; }
+    .card-dark h2, .card-dark h3 { color: #fff; }
+    .card-dark p { color: #d6d6d6; }
+    .card-dark .eyebrow { color: var(--accent-from); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 0; border-radius: var(--radius-pill); padding: 14px 28px;
+      background: var(--ink-card); color: #fff; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: transform 0.3s var(--ease-snap);
+    }
+    .btn:hover { transform: scale(1.04); }
+    .btn-light { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+
+    section + section { margin-top: 24px; }
+    .source { font-size: 0.8rem; color: var(--muted); margin: 16px 0 0; }
+
+    /* Glass surfaces inside the dark player, mixed from the site's tokens */
+    .player { --glass: color-mix(in srgb, var(--bg) 7%, transparent); --glass-hi: color-mix(in srgb, var(--bg) 14%, transparent); --line: color-mix(in srgb, var(--bg) 12%, transparent); }
+
+    /* Equalizer bars */
+    .eq { display: inline-flex; align-items: flex-end; gap: 3px; height: 16px; }
+    .eq i { display: block; width: 3px; height: 100%; border-radius: 2px; background: var(--accent-from); transform-origin: bottom; animation: bounce 1s var(--ease-snap) infinite; }
+    .eq i:nth-child(2) { animation-delay: -0.4s; animation-duration: 0.8s; }
+    .eq i:nth-child(3) { animation-delay: -0.2s; animation-duration: 1.2s; }
+    .eq i:nth-child(4) { animation-delay: -0.6s; animation-duration: 0.9s; }
+    @keyframes bounce { 0%, 100% { transform: scaleY(0.25); } 50% { transform: scaleY(1); } }
+
+    .topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .topline .eyebrow { margin: 0; }
+    .player > h2 { font-size: 1.75rem; margin-top: 12px; }
+
+    /* Instrument tiles, like album covers */
+    .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; margin-top: 20px; }
+    .tile {
+      position: relative; text-align: left; cursor: pointer;
+      padding: 10px 10px 12px; border: 0; border-radius: var(--radius-control);
+      background: var(--glass); color: #fff;
+      transition: background 0.3s var(--ease-snap), transform 0.3s var(--ease-snap);
+    }
+    .tile:hover { background: var(--glass-hi); transform: translateY(-2px); }
+    .art {
+      position: relative; aspect-ratio: 1; border-radius: calc(var(--radius-control) - 4px);
+      display: grid; place-items: center; margin-bottom: 10px; overflow: hidden;
+      background:
+        radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--accent-from) 45%, transparent), transparent 60%),
+        radial-gradient(circle at 80% 90%, color-mix(in srgb, var(--accent-to) 50%, transparent), transparent 55%),
+        var(--glass);
+    }
+    .art svg { width: 46%; height: 46%; fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .tile-name { display: block; font-weight: 600; font-size: 0.95rem; letter-spacing: -0.01em; text-transform: capitalize; }
+    .tile-sub { display: block; font-size: 0.75rem; color: #bdbdbd; }
+    .play-dot {
+      position: absolute; right: 8px; bottom: 8px; width: 36px; height: 36px; border-radius: var(--radius-pill);
+      background: var(--accent); display: grid; place-items: center;
+      box-shadow: 0 8px 16px color-mix(in srgb, var(--ink-card) 50%, transparent);
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 0.3s var(--ease-snap), transform 0.3s var(--ease-snap);
+    }
+    .play-dot svg { width: 14px; height: 14px; fill: #fff; stroke: none; }
+    .tile:hover .play-dot, .tile:focus-visible .play-dot, .tile[aria-pressed="true"] .play-dot { opacity: 1; transform: none; }
+    .tile[aria-pressed="true"] { background: var(--glass-hi); box-shadow: inset 0 0 0 2px var(--accent-from); }
+    .tile[aria-pressed="true"] .tile-sub { color: var(--accent-from); }
+
+    /* Now playing */
+    .now { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--line); }
+    .now-head { display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; }
+    .cover {
+      position: relative; flex: none; width: 148px; aspect-ratio: 1; border-radius: var(--radius-control);
+      background: var(--accent-gradient); display: grid; place-items: center; overflow: hidden;
+      box-shadow: 0 16px 40px color-mix(in srgb, var(--accent-to) 35%, transparent);
+    }
+    .cover svg { width: 52%; height: 52%; fill: none; stroke: #fff; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .cover .eq { position: absolute; left: 12px; bottom: 12px; }
+    .cover .eq i { background: #fff; }
+    .now-meta { flex: 1; min-width: 200px; }
+    .now-meta .eyebrow { margin-bottom: 4px; }
+    .now-meta h2 { font-size: 1.75rem; margin: 0 0 6px; text-transform: none; }
+    .now-meta p { margin: 0; font-size: 0.875rem; color: #bdbdbd; }
+
+    .controls { display: flex; align-items: center; gap: 14px; margin: 20px 0 8px; }
+    .big-play {
+      width: 52px; height: 52px; border-radius: var(--radius-pill); border: 0; cursor: pointer;
+      background: var(--accent); display: grid; place-items: center;
+      transition: transform 0.3s var(--ease-snap);
+    }
+    .big-play:hover { transform: scale(1.06); }
+    .big-play svg { width: 20px; height: 20px; fill: #fff; }
+    .controls span { font-size: 0.8rem; color: #bdbdbd; }
+
+    .tracks { list-style: none; margin: 0; padding: 0; }
+    .track {
+      display: grid; grid-template-columns: 28px 1fr auto; gap: 14px; align-items: center;
+      padding: 12px 10px; border-radius: var(--radius-control);
+      opacity: 0.45; transition: opacity 0.4s var(--ease-spring), background 0.4s var(--ease-spring);
+    }
+    .track.played { opacity: 1; }
+    .track.playing { opacity: 1; background: var(--glass); }
+    .track-num { display: grid; place-items: center; font-size: 0.9rem; color: #bdbdbd; font-variant-numeric: tabular-nums; }
+    .track-num .eq { display: none; }
+    .track.playing .track-num .n { display: none; }
+    .track.playing .track-num .eq { display: inline-flex; }
+    .track h3 { font-size: 1rem; margin: 0 0 2px; color: #fff; }
+    .track.playing h3 { color: var(--accent-from); }
+    .track p { margin: 0; font-size: 0.85rem; color: #bdbdbd; }
+    .tag {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap;
+      padding: 4px 10px; border-radius: var(--radius-pill); border: 1px solid var(--line); color: #d6d6d6;
+    }
+    .track.free-track { box-shadow: inset 0 0 0 1px var(--accent-from); }
+    .track.free-track .tag { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+    .scrub { margin-top: 16px; }
+    .bar { position: relative; height: 4px; border-radius: var(--radius-pill); background: var(--glass-hi); }
+    .bar span { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: inherit; background: var(--accent-from); transition: width 0.6s var(--ease-spring); }
+    .bar span::after { content: ""; position: absolute; right: -6px; top: -4px; width: 12px; height: 12px; border-radius: 50%; background: #fff; }
+    .scrub-labels { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.75rem; color: #bdbdbd; }
+
+    /* Wrapped-style stats */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 20px 0; }
+    .stat { padding: 18px; border-radius: var(--radius-control); background: var(--surface); border: 1px solid var(--border); }
+    .stat strong { display: block; font-size: 2.25rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; margin-bottom: 8px; }
+    .stat span { font-size: 0.875rem; color: var(--muted); }
+    .quote { margin: 0; padding-left: 16px; border-left: 4px solid var(--accent); color: var(--ink); font-weight: 500; font-size: 1.05rem; }
+    .quote cite { display: block; font-style: normal; font-size: 0.85rem; color: var(--muted); margin-top: 4px; font-weight: 400; }
+
+    /* Hand-off, like a "now sending" bar */
+    .send {
+      display: flex; align-items: center; gap: 14px; margin: 20px 0;
+      padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-control); background: var(--surface);
+    }
+    .send-art { flex: none; width: 52px; height: 52px; border-radius: calc(var(--radius-control) - 4px); background: var(--ink-card); display: grid; place-items: center; }
+    .send-art svg { width: 28px; height: 28px; fill: none; stroke: var(--accent-from); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .send-body { flex: 1; min-width: 0; }
+    .send-title { font-weight: 600; font-size: 0.95rem; margin: 0 0 2px; color: var(--ink); text-transform: capitalize; }
+    .send-sub { font-size: 0.8rem; color: var(--muted); margin: 0 0 8px; }
+    .send .bar { background: var(--surface-2); }
+    .send .bar span { background: var(--accent); transition: width 1.6s var(--ease-line); }
+    .send .bar span::after { display: none; }
+    .gift-msg { opacity: 0; transition: opacity 0.5s var(--ease-spring); }
+    .gift-msg.in { opacity: 1; }
+    .gift-msg h3 { margin-top: 4px; }
+
+    @media (max-width: 420px) {
+      body { padding: 16px; }
+      .card, .card-dark { padding: 20px; }
+      .tiles { grid-template-columns: repeat(2, 1fr); }
+      .cover { width: 120px; }
+      .now-meta h2, .player > h2 { font-size: 1.4rem; }
+      .track { grid-template-columns: 22px 1fr; }
+      .track .tag { grid-column: 2; justify-self: start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .eq i { transform: scaleY(0.6); }
+    }
+  </style>
+</head>
+<body>
+  <section class="card-dark player">
+    <div class="topline">
+      <span class="eyebrow">What would it cost you to play?</span>
+      <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    </div>
+    <h2>Pick the instrument you'd want to learn.</h2>
+    <p>Imagine you're a kid in LA who wants to play. Choose your dream instrument and see what your family would have to cover to get you started.</p>
+    <div class="tiles" id="tiles" role="group" aria-label="Instruments"></div>
+
+    <div class="now" id="now" hidden>
+      <div class="now-head">
+        <div class="cover" aria-hidden="true"><span id="cover-icon"></span><span class="eq"><i></i><i></i><i></i><i></i></span></div>
+        <div class="now-meta">
+          <span class="eyebrow">Now playing</span>
+          <h2>The real cost of the <span class="inst-name"></span></h2>
+          <p>Playlist · 4 tracks</p>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="big-play" id="replay" type="button" aria-label="Play the playlist again">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 3l12 7-12 7z"/></svg>
+        </button>
+        <span>What a family covers on its own</span>
+      </div>
+      <ol class="tracks" id="tracks" aria-live="polite"></ol>
+      <div class="scrub" aria-hidden="true">
+        <div class="bar"><span id="progress"></span></div>
+        <div class="scrub-labels"><span id="track-label">Track 1 of 4</span><span>Harmony Project</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="changes" hidden>
+    <span class="eyebrow">What changes when kids get music</span>
+    <h2>More than a song.</h2>
+    <p>Harmony Project teamed up with researchers at Northwestern University, who found that its students become better listeners, which can help their reading and their focus in a noisy classroom.</p>
+    <div class="stats">
+      <div class="stat"><strong data-to="3516" data-comma="1">0</strong><span>active students (2025-26)</span></div>
+      <div class="stat"><strong data-to="98" data-suffix="%">0</strong><span>of the 2026 senior class admitted to college</span></div>
+      <div class="stat"><strong data-to="87" data-suffix="%">0</strong><span>first-generation college students (2026)</span></div>
+      <div class="stat"><strong data-to="89" data-suffix="%">0</strong><span>of students said it helped them focus</span></div>
+    </div>
+    <blockquote class="quote">"I also learned how to be confident in myself."<cite>Jennifer, 17, Harmony Project student</cite></blockquote>
+    <p class="source">Source: harmony-project.org</p>
+  </section>
+
+  <section class="card" id="give" hidden>
+    <span class="eyebrow">Your turn</span>
+    <h2>Now pass your <span class="inst-name"></span> on.</h2>
+    <p>You picked it. Now imagine it going home with a Harmony Project student.</p>
+    <div class="send">
+      <div class="send-art" id="send-icon" aria-hidden="true"></div>
+      <div class="send-body">
+        <p class="send-title"><span class="inst-name"></span></p>
+        <p class="send-sub" id="send-sub">Ready to send to a Harmony Project student</p>
+        <div class="bar" aria-hidden="true"><span id="send-bar"></span></div>
+      </div>
+    </div>
+    <button class="btn" id="give-btn" type="button">Hand it off</button>
+    <div class="gift-msg" id="gift-msg" hidden aria-live="polite">
+      <h3>Your <span class="inst-name"></span> just found a new player.</h3>
+      <p>On this page, anyway. A real donation can put an instrument in a child's hands and start them on an inspiring new path. Use the <strong>Donate</strong> and <strong>Volunteer</strong> buttons on this page to help Harmony Project make it happen.</p>
+      <button class="btn btn-light" id="again" type="button">Pick another instrument</button>
+    </div>
+  </section>
+
+  <script>
+    var ICONS = {
+      strings: '<svg viewBox="0 0 32 32"><path d="M20 4l-2 6"/><path d="M14 12c-3-1-6 1-6 4s2 3 2 5-2 3 0 5 5 2 7 0c1-1 1-3 3-3s4-1 4-4-3-5-6-4"/><path d="M13 22l4-10"/></svg>',
+      guitar: '<svg viewBox="0 0 32 32"><path d="M27 5l-9 9"/><path d="M15 13c-2-2-6-1-7 1s0 3-2 5 0 7 4 8 6-1 7-3 2-1 3-3-1-4-3-6"/><circle cx="13" cy="20" r="2"/></svg>',
+      brass: '<svg viewBox="0 0 32 32"><path d="M3 16h6l3-3h10l7-5v16l-7-5H12l-3-3"/><path d="M14 13v-4M17 13v-4M20 13v-4"/></svg>',
+      wind: '<svg viewBox="0 0 32 32"><path d="M5 25L25 5"/><path d="M8 22l2 2M24 4l4 4"/><circle cx="15" cy="15" r="1"/><circle cx="18" cy="12" r="1"/><circle cx="12" cy="18" r="1"/></svg>',
+      drums: '<svg viewBox="0 0 32 32"><ellipse cx="16" cy="14" rx="10" ry="4"/><path d="M6 14v8c0 2 4.5 4 10 4s10-2 10-4v-8"/><path d="M9 3l5 9M23 3l-5 9"/></svg>',
+      piano: '<svg viewBox="0 0 32 32"><rect x="4" y="8" width="24" height="16" rx="2"/><path d="M10 8v16M16 8v16M22 8v16"/><path d="M8 8v9h4V8M14 8v9M20 8v9h4V8"/></svg>'
+    };
+    var PLAY = '<span class="play-dot" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M5 3l12 7-12 7z"/></svg></span>';
+
+    // Gear is what usually comes with each instrument. No prices on purpose.
+    var INSTRUMENTS = [
+      { name: "violin", family: "Strings", icon: "strings", gear: "A bow, rosin, a case, a shoulder rest, and new strings when they wear out." },
+      { name: "cello", family: "Strings", icon: "strings", gear: "A bow, rosin, a case, an endpin stop, and new strings when they wear out." },
+      { name: "guitar", family: "Strings", icon: "guitar", gear: "A case, picks, a tuner, a strap, and new strings when they wear out." },
+      { name: "trumpet", family: "Brass", icon: "brass", gear: "A mouthpiece, a case, valve oil, and cleaning supplies." },
+      { name: "trombone", family: "Brass", icon: "brass", gear: "A mouthpiece, a case, slide grease, and cleaning supplies." },
+      { name: "saxophone", family: "Woodwinds", icon: "wind", gear: "A mouthpiece, a neck strap, a case, and a steady supply of reeds." },
+      { name: "clarinet", family: "Woodwinds", icon: "wind", gear: "A mouthpiece, a case, and a steady supply of reeds." },
+      { name: "flute", family: "Woodwinds", icon: "wind", gear: "A case, a cleaning rod, and cloths to keep it in shape." },
+      { name: "drum set", family: "Percussion", icon: "drums", gear: "Sticks, cymbals, a throne to sit on, a practice pad, and new drumheads." },
+      { name: "piano", family: "Keys", icon: "piano", gear: "A piano or keyboard at home, a bench, and books of sheet music." }
+    ];
+
+    var $ = function (id) { return document.getElementById(id); };
+    var tiles = $("tiles"), now = $("now"), tracks = $("tracks"), progress = $("progress"), trackLabel = $("track-label");
+    var changes = $("changes"), give = $("give"), giveBtn = $("give-btn"), giftMsg = $("gift-msg"), sendBar = $("send-bar"), sendSub = $("send-sub");
+    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var timers = [];
+    var current = null;
+
+    INSTRUMENTS.forEach(function (inst, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "tile";
+      b.setAttribute("aria-pressed", "false");
+      b.innerHTML = '<span class="art" aria-hidden="true">' + ICONS[inst.icon] + PLAY + '</span>' +
+        '<span class="tile-name">' + inst.name + '</span><span class="tile-sub">' + inst.family + '</span>';
+      b.addEventListener("click", function () { choose(i, b); });
+      tiles.appendChild(b);
+    });
+
+    function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+    function choose(i, button) {
+      var inst = INSTRUMENTS[i];
+      current = inst;
+      clearTimers();
+      tiles.querySelectorAll(".tile").forEach(function (t) { t.setAttribute("aria-pressed", String(t === button)); });
+      document.querySelectorAll(".inst-name").forEach(function (el) { el.textContent = inst.name; });
+      $("cover-icon").innerHTML = ICONS[inst.icon];
+      $("send-icon").innerHTML = ICONS[inst.icon];
+
+      var items = [
+        { title: "The " + inst.name + " itself", text: "Buying or renting one, plus repairs as a kid grows and plays every day.", tag: "Family pays" },
+        { title: "Years of lessons", text: "Harmony Project graduates average 8.4 years of instruction, with 7 to 8 hours of instruction a week.", tag: "Family pays" },
+        { title: "The gear", text: inst.gear, tag: "Family pays" },
+        { title: "With Harmony Project", text: "An instrument to take home, lessons from professional instructors, and support all the way to college.", tag: "Free", free: true }
+      ];
+      tracks.innerHTML = items.map(function (it, n) {
+        return '<li class="track' + (it.free ? ' free-track' : '') + '">' +
+          '<span class="track-num"><span class="n">' + (n + 1) + '</span><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span></span>' +
+          '<div><h3>' + it.title + '</h3><p>' + it.text + '</p></div><span class="tag">' + it.tag + '</span></li>';
+      }).join("");
+
+      resetGive();
+      now.hidden = false;
+      changes.hidden = true;
+      give.hidden = true;
+      play();
+      now.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    }
+
+    function play() {
+      clearTimers();
+      var rows = tracks.querySelectorAll(".track");
+      var step = reduced ? 0 : 1100;
+      rows.forEach(function (r) { r.classList.remove("played", "playing"); });
+      progress.style.width = "0";
+      rows.forEach(function (row, n) {
+        timers.push(setTimeout(function () {
+          if (n > 0) { rows[n - 1].classList.remove("playing"); rows[n - 1].classList.add("played"); }
+          row.classList.add("playing");
+          progress.style.width = ((n + 1) / rows.length * 100) + "%";
+          trackLabel.textContent = "Track " + (n + 1) + " of " + rows.length;
+        }, step * n + (reduced ? 0 : 200)));
+      });
+      timers.push(setTimeout(function () {
+        rows[rows.length - 1].classList.remove("playing");
+        rows.forEach(function (r) { r.classList.add("played"); });
+        rows[rows.length - 1].classList.add("playing");
+        changes.hidden = false;
+        give.hidden = false;
+        countUp();
+      }, step * rows.length));
+    }
+
+    function countUp() {
+      changes.querySelectorAll("[data-to]").forEach(function (el) {
+        var to = +el.dataset.to, suffix = el.dataset.suffix || "", comma = el.dataset.comma;
+        var fmt = function (v) { return (comma ? v.toLocaleString("en-US") : v) + suffix; };
+        if (reduced) { el.textContent = fmt(to); return; }
+        var start = performance.now(), dur = 1400;
+        (function tick(t) {
+          var p = Math.min((t - start) / dur, 1);
+          el.textContent = fmt(Math.round(to * (1 - Math.pow(1 - p, 3))));
+          if (p < 1) requestAnimationFrame(tick);
+        })(start);
+      });
+    }
+
+    function resetGive() {
+      sendBar.style.width = "0";
+      sendSub.textContent = "Ready to send to a Harmony Project student";
+      giveBtn.hidden = false;
+      giftMsg.hidden = true;
+      giftMsg.classList.remove("in");
+    }
+
+    $("replay").addEventListener("click", function () { if (current) play(); });
+
+    giveBtn.addEventListener("click", function () {
+      giveBtn.hidden = true;
+      sendSub.textContent = "Sending to a Harmony Project student…";
+      sendBar.style.width = "100%";
+      timers.push(setTimeout(function () {
+        sendSub.textContent = "Delivered";
+        giftMsg.hidden = false;
+        requestAnimationFrame(function () { giftMsg.classList.add("in"); });
+      }, reduced ? 0 : 1700));
+    });
+
+    $("again").addEventListener("click", function () {
+      tiles.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+      tiles.querySelector(".tile").focus({ preventScroll: true });
+    });
+  </script>
+</body>
+</html>

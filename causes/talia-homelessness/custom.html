@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    /* Starter styles that match the Lion Share site. Reuse these classes. */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* Small uppercase label above a heading */
+    .eyebrow { display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+
+    /* Cards: .card on light, .card-dark for one standout card */
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark p { color: #d6d6d6; }
+    .card-dark .eyebrow { color: var(--accent-from); }
+
+    /* Pill buttons: .btn for the main action, .btn-light for the rest */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 0; border-radius: var(--radius-pill); padding: 14px 28px;
+      background: var(--ink-card); color: #fff; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: transform 0.3s var(--ease-snap);
+    }
+    .btn:hover { transform: scale(1.04); }
+    .btn-light { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+
+    /* Chips and toggles: add aria-pressed="true" for the selected state */
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 6px 14px;
+      background: var(--bg); color: var(--ink); font-size: 0.875rem; font-weight: 500; cursor: pointer;
+    }
+    .chip[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
+
+
+    /* Donation needs list */
+    .wrap { max-width: 760px; margin: 0 auto; }
+    .intro { margin-bottom: 20px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .chip { transition: transform 0.3s var(--ease-snap); }
+    .chip:hover { transform: scale(1.04); }
+    .group { margin-bottom: 16px; }
+    .group[hidden] { display: none; }
+    .group-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin-bottom: 4px; }
+    .count { font-size: 0.875rem; color: var(--muted); }
+    .count b { color: var(--accent-strong); font-weight: 600; }
+    .rule { font-size: 0.875rem; margin-bottom: 14px; }
+    .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+    .item {
+      display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+      border: 1px solid var(--border); border-radius: var(--radius-control); padding: 10px 12px;
+      background: var(--surface); color: var(--ink); font-size: 0.875rem; cursor: pointer;
+      transition: transform 0.3s var(--ease-snap), background 0.2s var(--ease-snap);
+    }
+    .item:hover { transform: scale(1.02); }
+    .box {
+      flex: none; display: grid; place-items: center; width: 22px; height: 22px;
+      border: 1px solid var(--border); border-radius: 50%; background: var(--bg);
+    }
+    .box svg { width: 12px; height: 12px; opacity: 0; transform: scale(0.4); transition: opacity 0.2s, transform 0.3s var(--ease-spring); }
+    .item[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
+    .item[aria-pressed="true"] .box { background: var(--accent); border-color: var(--accent); }
+    .item[aria-pressed="true"] .box svg { opacity: 1; transform: scale(1); }
+    .label { flex: 1; }
+    .tag { display: block; font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent-strong); }
+    .item[aria-pressed="true"] .tag { color: var(--accent-from); }
+
+    .bag { margin: 24px 0 16px; }
+    .bag h3 { margin-bottom: 4px; }
+    .bag-num { color: var(--accent-from); }
+    .picked { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 16px; padding: 0; list-style: none; }
+    .picked li { border: 1px solid rgba(255,255,255,0.25); border-radius: var(--radius-pill); padding: 4px 12px; font-size: 0.8125rem; }
+    .steps { margin: 0 0 20px; padding-left: 20px; color: #d6d6d6; }
+    .steps li { margin-bottom: 6px; }
+    .steps b { color: #fff; font-weight: 600; }
+    .bag .btn-light { padding: 10px 20px; }
+
+    details summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::after { content: "+"; color: var(--accent-strong); font-size: 1.25rem; line-height: 1; }
+    details[open] summary::after { content: "\2212"; }
+    details ul { margin: 14px 0 0; padding-left: 20px; color: var(--muted); }
+    details li { margin-bottom: 4px; }
+    .source { margin: 16px 0 0; font-size: 0.8125rem; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="intro">
+      <span class="eyebrow">Donation needs list</span>
+      <h2>What can you bring to DWC?</h2>
+      <p>Tap the items you have at home to pack a donation bag. Everything here comes from Downtown Women's Center's current needs list.</p>
+    </div>
+
+    <div class="filters" id="filters" role="group" aria-label="Show a category"></div>
+    <div id="groups"></div>
+
+    <section class="card-dark bag" aria-live="polite">
+      <span class="eyebrow">Your donation bag</span>
+      <h3 id="bag-title">Your bag is empty</h3>
+      <p id="bag-text">Tap an item above to add it.</p>
+      <div id="bag-more" hidden>
+        <ul class="picked" id="picked"></ul>
+        <ol class="steps">
+          <li><b>Check the condition.</b> Everything must be clean and in good shape. Personal care items must be new and unopened.</li>
+          <li><b>Pack it up.</b> Use 33-gallon trash bags or medium boxes, filled only about 3/4 full.</li>
+          <li><b>Schedule a drop-off.</b> Book an appointment on DWC's Donate Goods page. Drop-offs are Monday to Friday, 8am to 12pm.</li>
+          <li><b>Drop it off</b> at 442 S. San Pedro Street in Downtown LA.</li>
+        </ol>
+        <button class="btn btn-light" id="clear" type="button">Empty my bag</button>
+      </div>
+    </section>
+
+    <details class="card">
+      <summary>What DWC can't accept right now</summary>
+      <ul id="not"></ul>
+    </details>
+
+    <p class="source">Needs change often. Check DWC's Donate Goods page for the latest list before you drop off.</p>
+  </div>
+
+  <script>
+    const CHECK = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.5l2.2 2.2 4.8-5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+    const GROUPS = [
+      { id: "clothing", name: "Clothing",
+        rule: "New or gently worn, freshly washed within 2 weeks, in sizes XS to 3XL. Fold and sort by type, and no hangers.",
+        items: [
+          ["Underwear (XS to 2XL)", true], ["Bras (bands 34 to 42)", true], ["Sports bras", true],
+          ["Leggings and stretch pants", true], ["Seasonal clothing", true],
+          ["Women's, men's, and unisex clothing"]
+        ] },
+      { id: "bags", name: "Bags & outdoor gear",
+        rule: "Clean and in working order.",
+        items: [["Backpacks"], ["Duffle bags"], ["Gym bags"], ["Tote bags"], ["Suitcases"], ["Tarps"], ["Tents"], ["Sleeping bags"], ["Blankets"], ["Seasonal weather gear"]] },
+      { id: "care", name: "Personal care",
+        rule: "New and unopened, in standard or travel sizes.",
+        items: [["Hand soap"], ["Facial cleanser"], ["Facial moisturizer"], ["Body wash or soap"], ["Body lotion"], ["Shampoo"], ["Conditioner"], ["Toothbrush & toothpaste"], ["Pads with wings & tampons"], ["Incontinence briefs"], ["Makeup & accessories"], ["Perfume"]] },
+      { id: "home", name: "Household",
+        rule: "Clean and in working order, with all the parts included.",
+        items: [["Air mattresses"], ["Twin or full bedding"], ["Cleaning products"], ["Bath towels"], ["Kitchen towels"], ["Dishware"], ["Silverware"], ["Drinkware"], ["Basic cookware sets"], ["Hot water kettle"], ["Coffee maker with carafe"], ["Can opener"], ["Trash bags"], ["Toilet paper"], ["Lighting"], ["Journals, books & magazines"]] },
+      { id: "gift", name: "Gift cards",
+        rule: "Gift cards to Downtown LA stores. DWC recommends $20 to $50.",
+        items: [["Food 4 Less"], ["CVS"], ["Target"], ["Ralphs"]] }
+    ];
+
+    const NOT = [
+      "Worn down or torn items, like shoes, clothing, and books",
+      "Swimwear or beachwear",
+      "Baby and children's clothing or baby care items",
+      "Expired goods, like personal care items or canned food",
+      "Medicines or supplements",
+      "Panty liners or menstrual cups",
+      "Candles or incense",
+      "Large furniture, like mattresses and sofas",
+      "Large electronics, like TVs",
+      "Wine openers and butcher knives",
+      "Unwashed or deeply stained kitchen items",
+      "Appliances that are expensive to maintain, like pod coffee makers",
+      "Anything with mold"
+    ];
+
+    const picked = new Set();
+    const filters = document.getElementById("filters");
+    const groupsEl = document.getElementById("groups");
+
+    function chip(id, name) {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = name;
+      b.setAttribute("aria-pressed", id === "all" ? "true" : "false");
+      b.addEventListener("click", () => {
+        filters.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b ? "true" : "false"));
+        groupsEl.querySelectorAll(".group").forEach(g => { g.hidden = id !== "all" && g.dataset.id !== id; });
+      });
+      filters.appendChild(b);
+    }
+    chip("all", "All");
+
+    GROUPS.forEach(g => {
+      chip(g.id, g.name);
+      const card = document.createElement("section");
+      card.className = "card group"; card.dataset.id = g.id;
+      card.innerHTML = '<div class="group-head"><h3>' + g.name + '</h3><span class="count"></span></div><p class="rule">' + g.rule + '</p><div class="items"></div>';
+      const list = card.querySelector(".items");
+      g.items.forEach(([name, priority]) => {
+        const key = g.id + ":" + name;
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "item"; b.setAttribute("aria-pressed", "false");
+        b.innerHTML = '<span class="box">' + CHECK + '</span><span class="label">' + (priority ? '<span class="tag">High priority</span>' : '') + name + '</span>';
+        b.addEventListener("click", () => {
+          picked.has(key) ? picked.delete(key) : picked.add(key);
+          b.setAttribute("aria-pressed", picked.has(key) ? "true" : "false");
+          update();
+        });
+        list.appendChild(b);
+      });
+      groupsEl.appendChild(card);
+    });
+
+    document.getElementById("not").innerHTML = NOT.map(n => "<li>" + n + "</li>").join("");
+
+    function update() {
+      const n = picked.size;
+      GROUPS.forEach(g => {
+        const c = [...picked].filter(k => k.startsWith(g.id + ":")).length;
+        groupsEl.querySelector('[data-id="' + g.id + '"] .count').innerHTML = c ? "<b>" + c + "</b> in your bag" : "";
+      });
+      document.getElementById("bag-title").innerHTML = n
+        ? '<span class="bag-num">' + n + '</span> item' + (n === 1 ? "" : "s") + " in your bag"
+        : "Your bag is empty";
+      document.getElementById("bag-text").textContent = n
+        ? "Every item helps women and survivors of violence at DWC. Here's how to get it there:"
+        : "Tap an item above to add it.";
+      document.getElementById("bag-more").hidden = !n;
+      document.getElementById("picked").innerHTML = [...picked].map(k => "<li>" + k.split(":")[1] + "</li>").join("");
+    }
+
+    document.getElementById("clear").addEventListener("click", () => {
+      picked.clear();
+      groupsEl.querySelectorAll(".item").forEach(b => b.setAttribute("aria-pressed", "false"));
+      update();
+    });
+  </script>
+</body>
+</html>

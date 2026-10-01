@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 1.5rem; text-wrap: balance; }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .eyebrow { display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark h3 { color: #fff; }
+    .card-dark p { color: #d6d6d6; }
+    .card-dark .eyebrow { color: var(--accent-from); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 0; border-radius: var(--radius-pill); padding: 14px 28px;
+      background: var(--ink-card); color: #fff; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: transform 0.3s var(--ease-snap);
+    }
+    .btn:hover { transform: scale(1.04); }
+    .card-dark .btn { background: #fff; color: var(--ink); }
+
+    .stack > * + * { margin-top: 16px; }
+    .intro { max-width: 60ch; }
+
+    /* Sliders */
+    .controls { display: grid; gap: 22px; }
+    @media (min-width: 640px) { .controls { grid-template-columns: 1fr 1fr; gap: 32px; } }
+    .control-label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 600; margin-bottom: 6px; }
+    .control-label output { font-size: 1.75rem; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .control-label output small { font-size: 0.875rem; color: var(--muted); font-weight: 500; letter-spacing: 0; }
+
+    input[type="range"] {
+      --fill: 0%;
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 40px; margin: 0;
+      background: transparent; cursor: grab; touch-action: pan-y;
+    }
+    input[type="range"]:active { cursor: grabbing; }
+    input[type="range"]:focus-visible { outline: none; }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 12px; border-radius: var(--radius-pill);
+      background: linear-gradient(to right, var(--accent-from), var(--accent) var(--fill), var(--surface-2) var(--fill));
+    }
+    input[type="range"]::-moz-range-track { height: 12px; border-radius: var(--radius-pill); background: var(--surface-2); }
+    input[type="range"]::-moz-range-progress { height: 12px; border-radius: var(--radius-pill); background: var(--accent-gradient); }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 32px; height: 32px; margin-top: -10px; border-radius: 50%;
+      background: var(--bg); border: 3px solid var(--ink-card);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+      transition: transform 0.25s var(--ease-spring);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--bg); border: 3px solid var(--ink-card);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+      transition: transform 0.25s var(--ease-spring);
+    }
+    input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.2); }
+    input[type="range"]:active::-moz-range-thumb { transform: scale(1.2); }
+    input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--accent); outline-offset: 2px; }
+    input[type="range"]:focus-visible::-moz-range-thumb { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .ticks { display: flex; justify-content: space-between; padding: 0 8px; font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+    .ticks span { width: 2.5em; text-align: center; transition: color 0.2s var(--ease-snap); }
+    .ticks span.on { color: var(--ink); font-weight: 600; }
+
+    /* Puppy pit */
+    .pit-card { padding: 0; overflow: hidden; position: relative; }
+    .pit-head { position: absolute; top: 0; left: 0; right: 0; z-index: 2; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 18px 20px; pointer-events: none; }
+    .pit-count { background: rgba(255, 255, 255, 0.92); border: 1px solid var(--border); border-radius: var(--radius-control); padding: 10px 14px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06); }
+    .pit-count .num { display: block; font-size: 2rem; font-weight: 600; line-height: 1.05; letter-spacing: -0.02em; color: var(--accent); font-variant-numeric: tabular-nums; }
+    .pit-count .what { display: block; font-size: 0.8rem; color: var(--muted); font-weight: 500; }
+    .overload {
+      align-self: flex-start; background: var(--ink-card); color: #fff;
+      border-radius: var(--radius-pill); padding: 8px 14px; font-size: 0.8rem; font-weight: 600; text-align: center;
+      opacity: 0; transform: scale(0.6) rotate(-6deg); transition: opacity 0.3s var(--ease-spring), transform 0.4s var(--ease-spring);
+    }
+    .overload small { display: block; font-weight: 500; color: var(--accent-from); font-size: 0.75rem; }
+    .overload.on { opacity: 1; transform: scale(1) rotate(-4deg); animation: wiggle 1.6s var(--ease-spring) infinite; }
+    @keyframes wiggle { 0%, 100% { transform: scale(1) rotate(-4deg); } 50% { transform: scale(1.06) rotate(3deg); } }
+    canvas#pit { display: block; width: 100%; height: 600px; background: linear-gradient(var(--bg) 0%, var(--bg) 30%, var(--surface) 100%); }
+    @media (max-width: 480px) { canvas#pit { height: 520px; } }
+    .pit-card.shake { animation: shake 0.45s var(--ease-snap); }
+    @keyframes shake { 0%, 100% { transform: none; } 20% { transform: translateX(-5px) rotate(-0.4deg); } 40% { transform: translateX(5px) rotate(0.4deg); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+
+    /* Van + spayed dogs */
+    .stage { display: grid; gap: 20px; }
+    @media (min-width: 640px) { .stage { grid-template-columns: 200px 1fr; align-items: center; } }
+    .van-wrap { text-align: center; }
+    .van { width: 100%; max-width: 200px; height: auto; animation: bob 2.4s var(--ease-spring) infinite alternate; }
+    .van .body { fill: var(--ink-card); }
+    .van .stripe { fill: var(--accent); }
+    .van .window { fill: var(--surface-2); }
+    .van .wheel { fill: var(--ink); }
+    .van .hub { fill: var(--surface); }
+    .van .label { fill: #fff; font-family: var(--font-sans); font-weight: 600; font-size: 11px; letter-spacing: 0.06em; }
+    @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
+    .herd-title { font-size: 0.875rem; font-weight: 600; margin: 0 0 8px; color: var(--ink); }
+    .herd-title span { color: var(--muted); font-weight: 500; }
+    .herd { display: flex; flex-wrap: wrap; gap: 4px; }
+    .dog { width: 26px; height: 20px; color: var(--ink-card); animation: pop 0.45s var(--ease-spring) both; }
+    .dog .eye { fill: #fff; }
+    .dog .heart { fill: var(--accent); }
+    @keyframes pop { from { transform: scale(0) translateY(6px); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .note { font-size: 0.8rem; font-style: italic; color: var(--muted); margin: 0; max-width: 70ch; }
+    .note + .note { margin-top: 6px; }
+
+    .cta-msg { margin: 16px 0 0; padding: 14px 16px; border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.08); color: #fff; font-size: 0.9rem; }
+    .cta-msg strong { color: var(--accent-from); font-weight: 600; word-break: break-all; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="dog" viewBox="0 0 64 48">
+      <path d="M15 24 Q6 20 8 9" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+      <rect x="13" y="18" width="34" height="16" rx="8" fill="currentColor"/>
+      <rect x="16" y="28" width="5" height="16" rx="2.5" fill="currentColor"/>
+      <rect x="24" y="29" width="5" height="15" rx="2.5" fill="currentColor"/>
+      <rect x="35" y="29" width="5" height="15" rx="2.5" fill="currentColor"/>
+      <rect x="42" y="28" width="5" height="16" rx="2.5" fill="currentColor"/>
+      <circle cx="48" cy="15" r="9" fill="currentColor"/>
+      <rect x="51" y="15" width="11" height="8" rx="4" fill="currentColor"/>
+      <ellipse cx="43" cy="12" rx="3.5" ry="7" transform="rotate(20 43 12)" fill="currentColor"/>
+      <circle class="eye" cx="51" cy="12.5" r="1.5"/>
+      <path class="heart" d="M30 22.5 c-1.6-2.2-5-1.2-5 1.4 0 2.2 3 4 5 5.6 2-1.6 5-3.4 5-5.6 0-2.6-3.4-3.6-5-1.4z"/>
+    </symbol>
+  </svg>
+
+  <main class="stack">
+    <div class="intro">
+      <span class="eyebrow">Spaymobile Ripple Effect Calculator</span>
+      <h2>One surgery today, a flood of puppies prevented tomorrow</h2>
+      <p>Slide to pick how many female dogs the Amanda Spaymobile spays and how far ahead to look. Then watch the puppies pour in. Every one is a puppy that won't be born into a crowded shelter.</p>
+    </div>
+
+    <section class="card controls" aria-label="Calculator settings">
+      <div>
+        <label class="control-label" for="dogs">
+          Female dogs spayed
+          <output id="dogs-out" for="dogs">5</output>
+        </label>
+        <input id="dogs" type="range" min="1" max="100" step="any" value="5">
+      </div>
+      <div>
+        <label class="control-label" for="years">
+          Look ahead
+          <output id="years-out" for="years">1 <small>year</small></output>
+        </label>
+        <input id="years" type="range" min="0" max="4" step="any" value="0">
+        <div class="ticks" aria-hidden="true"><span>1 yr</span><span>2 yrs</span><span>4 yrs</span><span>5 yrs</span><span>10 yrs</span></div>
+      </div>
+    </section>
+
+    <section class="card pit-card" id="pit-card" aria-label="Puppies prevented">
+      <div class="pit-head">
+        <div class="pit-count" aria-live="polite">
+          <span class="num" id="pups-num">60</span>
+          <span class="what">puppies prevented (up to)</span>
+        </div>
+        <div class="overload" id="overload">Puppy overload!<small id="overload-more"></small></div>
+      </div>
+      <canvas id="pit" role="img" aria-label="Cartoon puppies dropping into a yard and playing: walking, sniffing, licking, and scratching. One for each puppy prevented."></canvas>
+    </section>
+
+    <section class="card stage" aria-label="Surgeries">
+      <div class="van-wrap">
+        <svg class="van" viewBox="0 0 220 120" role="img" aria-label="The Amanda Spaymobile van">
+          <rect class="body" x="8" y="20" width="150" height="72" rx="12"/>
+          <path class="body" d="M150 40 h30 q10 0 16 10 l14 22 q4 6 4 12 v4 q0 4 -4 4 h-60 z"/>
+          <path class="window" d="M162 48 h18 q5 0 8 5 l10 17 h-36 z"/>
+          <rect class="stripe" x="8" y="66" width="150" height="10"/>
+          <rect class="stripe" x="150" y="78" width="64" height="6" rx="3"/>
+          <text class="label" x="83" y="44" text-anchor="middle">AMANDA</text>
+          <text class="label" x="83" y="59" text-anchor="middle">SPAYMOBILE</text>
+          <circle class="wheel" cx="48" cy="94" r="15"/>
+          <circle class="hub" cx="48" cy="94" r="6"/>
+          <circle class="wheel" cx="176" cy="94" r="15"/>
+          <circle class="hub" cx="176" cy="94" r="6"/>
+        </svg>
+      </div>
+      <div>
+        <p class="herd-title">Surgeries completed <span id="dogs-caption"></span></p>
+        <div class="herd" id="dog-herd" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <div>
+      <p class="note">These numbers are estimates. They use the Amanda Foundation's figure that one unspayed female dog can have up to 12 puppies a year, multiplied by the number of dogs and years. Puppies can start having litters of their own by 6 months old, which isn't counted here, so the real ripple can be even bigger.</p>
+      <p class="note">We don't show a dollar cost per surgery. The Spaymobile is free for pet owners, and the Amanda Foundation doesn't publish what one surgery costs, so we didn't want to guess what your donation pays for. Every dollar goes to their medical care, spay/neuter procedures, and education programs.</p>
+    </div>
+
+    <section class="card-dark" aria-labelledby="cta-title">
+      <span class="eyebrow">Make it real</span>
+      <h3 id="cta-title">Help the Spaymobile keep rolling</h3>
+      <p>Donations go straight to the Amanda Foundation and support free spay/neuter surgeries across Los Angeles.</p>
+      <button class="btn" type="button" id="cta" aria-expanded="false" aria-controls="cta-msg">Help prevent up to 60 puppies</button>
+      <p class="cta-msg" id="cta-msg" hidden>Use the <strong>Donate</strong> button on this page to give directly to the Amanda Foundation, or visit <strong>amandafoundation.org/donate</strong>.</p>
+    </section>
+  </main>
+
+  <script>
+    var PUPPIES_PER_DOG_PER_YEAR = 12; // Amanda Foundation: "up to 12 puppies in a year"
+    var YEAR_STOPS = [1, 2, 4, 5, 10];
+    var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    var dogSlider = document.getElementById("dogs");
+    var yearSlider = document.getElementById("years");
+    var dogHerd = document.getElementById("dog-herd");
+    var ticks = document.querySelectorAll(".ticks span");
+    var pupsNum = document.getElementById("pups-num");
+    var overload = document.getElementById("overload");
+    var overloadMore = document.getElementById("overload-more");
+    var pitCard = document.getElementById("pit-card");
+    var cta = document.getElementById("cta");
+    var ctaMsg = document.getElementById("cta-msg");
+
+    var state = { dogs: 0, years: 0, pups: 0 };
+    var shownPups = 0;
+    var wasOverloaded = false;
+
+    function fmt(n) { return n.toLocaleString("en-US"); }
+
+    function setFill(slider) {
+      var p = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+      slider.style.setProperty("--fill", p + "%");
+    }
+
+    /* ---------- Spayed dog icons ---------- */
+    function dogIcon(delay) {
+      var ns = "http://www.w3.org/2000/svg";
+      var svg = document.createElementNS(ns, "svg");
+      svg.setAttribute("class", "dog");
+      svg.setAttribute("viewBox", "0 0 64 48");
+      svg.style.animationDelay = delay + "s";
+      var use = document.createElementNS(ns, "use");
+      use.setAttribute("href", "#dog");
+      svg.appendChild(use);
+      return svg;
+    }
+    function setDogIcons(count) {
+      while (dogHerd.children.length > count) dogHerd.removeChild(dogHerd.lastChild);
+      var added = count - dogHerd.children.length;
+      var frag = document.createDocumentFragment();
+      for (var i = 0; i < added; i++) frag.appendChild(dogIcon(Math.min(i * 0.02, 0.4)));
+      dogHerd.appendChild(frag);
+    }
+
+    /* ---------- Puppy sprites, drawn once with the site's colors ---------- */
+    var css = getComputedStyle(document.documentElement);
+    function token(name, fallback) { return css.getPropertyValue(name).trim() || fallback; }
+    var C = {
+      ink: token("--ink", "#111"), card: token("--ink-card", "#0a0a0a"), bg: token("--bg", "#fff"),
+      surface: token("--surface", "#f1f0ee"), surface2: token("--surface-2", "#e3e2df"), subtle: token("--subtle", "#8d8d8d"),
+      accent: token("--accent", "#b15f2c"), from: token("--accent-from", "#cf8047"), strong: token("--accent-strong", "#97501f")
+    };
+    var COATS = [
+      { fur: C.from, ear: C.strong, muzzle: C.bg },
+      { fur: C.surface2, ear: C.subtle, muzzle: C.bg },
+      { fur: C.card, ear: C.ink, muzzle: C.subtle },
+      { fur: C.bg, ear: C.from, muzzle: C.surface, spot: C.from },
+      { fur: C.accent, ear: C.strong, muzzle: C.surface }
+    ];
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var SW = 96, SH = 72, FEET = 68, RES = dpr * 0.85;
+
+    // Every pose a puppy can strike. Leg angles are radians from straight down:
+    // [far front, near front, far back, near back].
+    function walkLegs(k) { var s = [0, 1, 0, -1][k] * 0.4; return [-s, s, s, -s]; }
+    var POSES = {
+      stand:    { legs: [0, 0, 0, 0], head: "up", tail: 2.3 },
+      wag0:     { legs: [0, 0, 0, 0], head: "up", tail: 1.9, tongue: true },
+      wag1:     { legs: [0, 0, 0, 0], head: "up", tail: 2.7, tongue: true },
+      blink:    { legs: [0, 0, 0, 0], head: "up", tail: 2.3, blink: true },
+      walk0:    { legs: walkLegs(0), head: "up", tail: 2.2 },
+      walk1:    { legs: walkLegs(1), head: "up", tail: 2.4 },
+      walk2:    { legs: walkLegs(2), head: "up", tail: 2.2 },
+      walk3:    { legs: walkLegs(3), head: "up", tail: 2.0 },
+      sniff0:   { legs: [0.1, -0.1, 0, 0], head: "down", tail: 2.0 },
+      sniff1:   { legs: [0.1, -0.1, 0, 0], head: "down2", tail: 2.6 },
+      pee:      { legs: [0, 0.1, 0.1, -1.45], head: "proud", tail: 2.1 },
+      sit:      { sit: true, head: "sit", tail: 0 },
+      sitBlink: { sit: true, head: "sit", tail: 0.3, blink: true },
+      lick0:    { sit: true, head: "lick", tail: 0, blink: true },
+      lick1:    { sit: true, head: "lick2", tail: 0.3, blink: true, tongue: true },
+      scratch0: { sit: true, scratch: [52, 30], head: "scratch", tail: 0, blink: true, tongue: true },
+      scratch1: { sit: true, scratch: [48, 36], head: "scratch", tail: 0.3, blink: true, tongue: true }
+    };
+    var HEADS = {
+      up: [72, 28, 0], proud: [72, 26, -0.25], down: [74, 44, 0.7], down2: [75, 46, 0.8],
+      sit: [62, 20, -0.1], lick: [56, 34, 0.9], lick2: [57, 35, 1.0], scratch: [62, 22, -0.3]
+    };
+
+    function drawDog(g, coat, pose) {
+      g.lineCap = "round"; g.lineJoin = "round";
+      function ell(x, y, rx, ry, rot, color) { g.fillStyle = color; g.beginPath(); g.ellipse(x, y, rx, ry, rot || 0, 0, Math.PI * 2); g.fill(); }
+      function leg(hx, hy, a, len, color) {
+        var ex = hx + Math.sin(a) * len, ey = hy + Math.cos(a) * len;
+        g.strokeStyle = color; g.lineWidth = 7;
+        g.beginPath(); g.moveTo(hx, hy); g.lineTo(ex, ey); g.stroke();
+        ell(ex + 1.5, ey - 1, 4.5, 3.2, 0, color);
+      }
+      function outline() { if (coat.fur === C.bg) { g.strokeStyle = C.surface2; g.lineWidth = 1.5; g.stroke(); } }
+
+      if (pose.sit) {
+        // tail resting on the ground
+        g.strokeStyle = coat.fur; g.lineWidth = 5;
+        g.beginPath(); g.moveTo(28, 62); g.quadraticCurveTo(18, 66, 10 + pose.tail * 8, 62 - pose.tail * 10); g.stroke();
+        g.lineWidth = 7; g.strokeStyle = coat.ear;
+        g.beginPath(); g.moveTo(58, 44); g.lineTo(60, 66); g.stroke(); ell(61.5, 66, 4.5, 3.2, 0, coat.ear);
+        g.fillStyle = coat.fur; g.beginPath(); g.ellipse(44, 46, 17, 15, -0.6, 0, Math.PI * 2); g.fill(); outline();
+        if (coat.spot) ell(40, 44, 7, 6, -0.4, coat.spot);
+        ell(36, 58, 13, 9, 0, coat.fur);
+        if (pose.scratch) {
+          g.strokeStyle = coat.fur; g.lineWidth = 7;
+          g.beginPath(); g.moveTo(38, 56); g.lineTo(pose.scratch[0], pose.scratch[1]); g.stroke();
+          ell(pose.scratch[0] + 1, pose.scratch[1], 4.5, 3.2, 0, coat.fur);
+        } else {
+          ell(45, 66, 8, 3.5, 0, coat.fur);
+        }
+        g.strokeStyle = coat.fur; g.lineWidth = 7;
+        g.beginPath(); g.moveTo(53, 44); g.lineTo(53, 66); g.stroke(); ell(54.5, 66, 4.5, 3.2, 0, coat.fur);
+      } else {
+        var t = pose.tail;
+        g.strokeStyle = coat.fur; g.lineWidth = 5;
+        g.beginPath(); g.moveTo(25, 40); g.quadraticCurveTo(16, 40, 22 + Math.cos(t) * 14, 38 - Math.sin(t) * 14); g.stroke();
+        leg(62, 48, pose.legs[0], 18, coat.ear);
+        leg(32, 48, pose.legs[2], 18, coat.ear);
+        g.fillStyle = coat.fur; g.beginPath(); g.ellipse(47, 44, 24, 13, 0, 0, Math.PI * 2); g.fill(); outline();
+        if (coat.spot) ell(40, 40, 9, 7, 0.2, coat.spot);
+        ell(50, 51, 13, 4, 0, coat.muzzle);
+        leg(58, 48, pose.legs[1], 18, coat.fur);
+        leg(36, 48, pose.legs[3], 18, coat.fur);
+      }
+
+      var h = HEADS[pose.head];
+      g.save(); g.translate(h[0], h[1]); g.rotate(h[2]);
+      g.fillStyle = coat.fur; g.beginPath(); g.arc(0, 0, 13, 0, Math.PI * 2); g.fill(); outline();
+      ell(11, 4, 8, 6, 0, coat.muzzle);
+      if (pose.tongue) ell(13, 11, 2.8, 4.5, 0, C.from);
+      ell(18, 2, 3.2, 2.8, 0, C.ink);
+      g.globalAlpha = 0.35; ell(5, 6, 3, 2.4, 0, C.from); g.globalAlpha = 1;
+      var eye = coat.fur === C.card ? C.bg : C.ink;
+      if (pose.blink) {
+        g.strokeStyle = eye; g.lineWidth = 1.8;
+        g.beginPath(); g.arc(4, -4, 2.4, 0.3, Math.PI - 0.3); g.stroke();
+      } else {
+        ell(4, -3, 2.5, 2.7, 0, eye);
+        ell(4.8, -3.9, 0.9, 0.9, 0, coat.fur === C.card ? C.card : C.bg);
+      }
+      ell(-4, 0, 5.5, 9.5, 0.3, coat.ear);
+      g.restore();
+    }
+
+    var POSE_NAMES = Object.keys(POSES);
+    var sprites = COATS.map(function (coat) {
+      var set = {};
+      POSE_NAMES.forEach(function (name) {
+        var cv = document.createElement("canvas");
+        cv.width = Math.ceil(SW * RES); cv.height = Math.ceil(SH * RES);
+        var g = cv.getContext("2d");
+        g.scale(RES, RES);
+        drawDog(g, coat, POSES[name]);
+        set[name] = cv;
+      });
+      return set;
+    });
+
+    /* ---------- The pit: puppies drop in, then go be dogs ---------- */
+    var canvas = document.getElementById("pit");
+    var ctx = canvas.getContext("2d");
+    var W = 0, H = 0, TOP = 110;
+    var size = 40, targetSize = 40;
+    var dogs = [], rain = [], puddles = [];
+    var running = false, visible = true, last = 0, clock = 0;
+
+    function rand(a, b) { return a + Math.random() * (b - a); }
+    function maxShown() { return W < 480 ? 350 : 500; }
+    function minX() { return size * 0.9; }
+    function maxX() { return W - size * 0.9; }
+
+    function layout() {
+      var rect = canvas.getBoundingClientRect(), wasEmpty = W < 10;
+      W = rect.width; H = rect.height;
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      TOP = W < 480 ? 120 : 110;
+      dogs.forEach(function (d) {
+        d.x = wasEmpty ? rand(minX(), maxX()) : Math.min(Math.max(d.x, minX()), maxX());
+        if (wasEmpty || d.gy > H - 8) { d.gy = groundY(); if (d.state !== "fall") d.y = d.gy; }
+      });
+    }
+
+    function sizeFor(n) {
+      var area = W * (H - TOP);
+      return Math.max(12, Math.min(W < 480 ? 34 : 44, Math.sqrt(area / (Math.max(n, 1) * 2.4))));
+    }
+
+    function groundY() { return rand(TOP + 10, H - 8); }
+
+    function newDog(fallen) {
+      var gy = groundY();
+      var d = {
+        x: rand(minX(), maxX()), gy: gy, y: gy - H - rand(0, H * 0.7), vy: rand(0, 3),
+        coat: Math.floor(Math.random() * COATS.length), dir: Math.random() < 0.5 ? -1 : 1,
+        state: "fall", t: 0, dur: 0, stride: 0, speed: 0, vgy: 0, rot: rand(-0.6, 0.6), scale: 1, leaving: false
+      };
+      if (fallen) { d.y = gy; d.vy = 0; d.rot = 0; d.state = Math.random() < 0.5 ? "sit" : "stand"; }
+      return d;
+    }
+
+    var BEHAVIORS = [
+      ["walk", 34], ["sniff", 12], ["sit", 10], ["lick", 10], ["scratch", 8], ["pee", 7], ["zoom", 7], ["wag", 12]
+    ];
+    function choose(d) {
+      var total = 0, r;
+      BEHAVIORS.forEach(function (b) { total += b[1]; });
+      r = Math.random() * total;
+      for (var i = 0; i < BEHAVIORS.length - 1; i++) { r -= BEHAVIORS[i][1]; if (r <= 0) break; }
+      d.state = BEHAVIORS[i][0]; d.t = 0;
+      d.dur = { walk: rand(1.5, 4), zoom: rand(0.8, 1.6), sniff: rand(1, 2.2), sit: rand(1.2, 3), lick: rand(1.5, 3), scratch: rand(1, 2), pee: 1.6, wag: rand(1, 2.5) }[d.state];
+      if (d.state === "walk" || d.state === "zoom") {
+        if (Math.random() < 0.4) d.dir = -d.dir;
+        d.speed = d.state === "zoom" ? rand(3.2, 4.2) : rand(0.8, 1.3);
+        d.vgy = rand(-0.25, 0.25);
+      }
+      d.peed = false;
+    }
+
+    function poseOf(d) {
+      var s = clock;
+      switch (d.state) {
+        case "walk": case "zoom": return "walk" + (Math.floor(d.stride / Math.max(size * 0.14, 2)) % 4);
+        case "sniff": return Math.floor(s * 4 + d.x) % 2 ? "sniff1" : "sniff0";
+        case "sit": return (s + d.x * 0.1) % 3 < 0.15 ? "sitBlink" : "sit";
+        case "lick": return Math.floor(s * 3.5) % 2 ? "lick1" : "lick0";
+        case "scratch": return Math.floor(s * 14) % 2 ? "scratch1" : "scratch0";
+        case "pee": return d.t > 0.2 && d.t < 1.4 ? "pee" : "stand";
+        case "wag": return Math.floor(s * 8) % 2 ? "wag1" : "wag0";
+        default: return (s + d.x * 0.1) % 4 < 0.15 ? "blink" : "stand";
+      }
+    }
+
+    function syncPit() {
+      targetSize = sizeFor(Math.min(state.pups, maxShown()));
+      var target = Math.min(state.pups, maxShown());
+      var active = dogs.filter(function (d) { return !d.leaving; });
+      if (target > active.length) {
+        dogs = active;
+        for (var i = active.length; i < target; i++) dogs.push(newDog(reduceMotion));
+      } else if (target < active.length) {
+        for (var j = target; j < active.length; j++) active[j].leaving = true;
+      }
+      var over = state.pups - maxShown();
+      var rainCount = over > 0 && !reduceMotion ? Math.min(30, 8 + Math.floor(over / 300)) : 0;
+      while (rain.length < rainCount) rain.push(newRain());
+      if (rain.length > rainCount) rain.length = rainCount;
+
+      var overloaded = over > 0;
+      overload.classList.toggle("on", overloaded);
+      overloadMore.textContent = overloaded ? "+" + fmt(over) + " more than fit!" : "";
+      if (overloaded && !wasOverloaded && !reduceMotion) {
+        pitCard.classList.remove("shake"); void pitCard.offsetWidth; pitCard.classList.add("shake");
+      }
+      wasOverloaded = overloaded;
+
+      if (reduceMotion) {
+        dogs = dogs.filter(function (d) { return !d.leaving; });
+        size = targetSize;
+        draw();
+      } else start();
+    }
+
+    function newRain() {
+      var d = newDog(false);
+      d.rain = true; d.y = d.gy - H - rand(0, H);
+      return d;
+    }
+
+    function fall(d, dt) {
+      d.vy += 0.55 * dt; d.y += d.vy * dt; d.rot *= 0.97;
+      if (d.y >= d.gy) {
+        d.y = d.gy; d.rot = 0;
+        if (Math.abs(d.vy) < 2.5) { d.vy = 0; return true; }
+        d.vy = -d.vy * 0.35;
+      }
+      return false;
+    }
+
+    function step(dt) {
+      size += (targetSize - size) * 0.08 * dt;
+      var sec = dt / 60;
+      for (var i = dogs.length - 1; i >= 0; i--) {
+        var d = dogs[i];
+        if (d.leaving) { d.scale -= 0.1 * dt; if (d.scale <= 0) dogs.splice(i, 1); continue; }
+        if (d.state === "fall") { if (fall(d, dt)) { d.state = "stand"; d.t = 0; d.dur = rand(0.2, 0.8); } continue; }
+        d.t += sec;
+        if (d.state === "walk" || d.state === "zoom") {
+          var px = d.speed * dt * (size / 40);
+          d.x += px * d.dir; d.stride += px;
+          d.gy = Math.min(Math.max(d.gy + d.vgy * dt, TOP + 10), H - 8); d.y = d.gy;
+          if (d.x < minX()) { d.x = minX(); d.dir = 1; }
+          if (d.x > maxX()) { d.x = maxX(); d.dir = -1; }
+        }
+        if (d.state === "pee" && !d.peed && d.t > 0.5) {
+          d.peed = true;
+          puddles.push({ x: d.x - d.dir * size * 0.55, y: d.gy, r: size * 0.35, life: 1 });
+          if (puddles.length > 40) puddles.shift();
+        }
+        if (d.t >= d.dur) choose(d);
+      }
+      for (var p = puddles.length - 1; p >= 0; p--) {
+        puddles[p].life -= 0.004 * dt;
+        if (puddles[p].life <= 0) puddles.splice(p, 1);
+      }
+      rain.forEach(function (r, k) {
+        if (r.state === "fall") { if (fall(r, dt)) { r.state = "poof"; r.t = 0; } }
+        else { r.t += sec; r.scale = 1 - r.t * 2.5; if (r.scale <= 0) rain[k] = newRain(); }
+      });
+    }
+
+    function paint(d) {
+      var depth = 0.8 + 0.2 * (d.gy - TOP) / Math.max(H - TOP, 1);
+      var dw = size * 1.7 * depth * Math.max(d.scale, 0), dh = dw * SH / SW;
+      if (dw <= 0) return;
+      var img = sprites[d.coat][d.state === "fall" || d.state === "poof" ? "stand" : poseOf(d)];
+      var cos = Math.cos(d.rot) * dpr, sin = Math.sin(d.rot) * dpr;
+      ctx.setTransform(cos * d.dir, sin * d.dir, -sin, cos, d.x * dpr, d.y * dpr);
+      ctx.drawImage(img, -dw / 2, -dh * FEET / SH, dw, dh);
+    }
+
+    function draw() {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = C.from;
+      puddles.forEach(function (p) {
+        ctx.globalAlpha = 0.4 * p.life;
+        ctx.beginPath(); ctx.ellipse(p.x, p.y, p.r * 1.4, p.r * 0.45, 0, 0, Math.PI * 2); ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      // shadows for dogs in the air, so you can see where they'll land
+      ctx.fillStyle = C.ink;
+      dogs.concat(rain).forEach(function (d) {
+        if (d.state !== "fall") return;
+        var lift = Math.min(Math.max((d.gy - d.y) / H, 0), 1);
+        ctx.globalAlpha = 0.12 * (1 - lift);
+        ctx.beginPath(); ctx.ellipse(d.x, d.gy, size * 0.6 * (1 - lift * 0.5), size * 0.15, 0, 0, Math.PI * 2); ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      var all = dogs.concat(rain).sort(function (a, b) { return a.gy - b.gy; });
+      all.forEach(paint);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+
+    function frame(t) {
+      if (!running) return;
+      var dt = last ? Math.min((t - last) / 16.67, 3) : 1;
+      last = t; clock = t / 1000;
+      step(dt);
+      draw();
+      requestAnimationFrame(frame);
+    }
+    function start() {
+      if (running || !visible || reduceMotion) return;
+      running = true; last = 0; requestAnimationFrame(frame);
+    }
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        visible = entries[0].isIntersecting;
+        if (visible) start(); else running = false;
+      }).observe(canvas);
+    }
+
+    /* ---------- Counter ---------- */
+    var countAnim = 0;
+    function countTo(to) {
+      var from = shownPups;
+      shownPups = to;
+      cancelAnimationFrame(countAnim);
+      if (reduceMotion || from === to) { pupsNum.textContent = fmt(to); return; }
+      var t0 = null;
+      function tick(t) {
+        if (!t0) t0 = t;
+        var p = Math.min((t - t0) / 450, 1), e = 1 - Math.pow(1 - p, 3);
+        pupsNum.textContent = fmt(Math.round(from + (to - from) * e));
+        if (p < 1) countAnim = requestAnimationFrame(tick);
+      }
+      countAnim = requestAnimationFrame(tick);
+    }
+
+    /* ---------- Wire it up ---------- */
+    function update() {
+      var dogs = Math.round(Number(dogSlider.value));
+      var years = YEAR_STOPS[Math.round(Number(yearSlider.value))];
+      setFill(dogSlider); setFill(yearSlider);
+      if (dogs === state.dogs && years === state.years) return;
+      state.dogs = dogs; state.years = years;
+      state.pups = dogs * PUPPIES_PER_DOG_PER_YEAR * years;
+
+      document.getElementById("dogs-out").textContent = dogs;
+      document.getElementById("years-out").innerHTML = years + " <small>" + (years === 1 ? "year" : "years") + "</small>";
+      ticks.forEach(function (el, i) { el.classList.toggle("on", YEAR_STOPS[i] === years); });
+      document.getElementById("dogs-caption").textContent = "(" + dogs + ")";
+      dogSlider.setAttribute("aria-valuetext", dogs + (dogs === 1 ? " dog" : " dogs"));
+      yearSlider.setAttribute("aria-valuetext", years + (years === 1 ? " year" : " years"));
+      setDogIcons(dogs);
+      countTo(state.pups);
+      cta.textContent = "Help prevent up to " + fmt(state.pups) + " puppies";
+      syncPit();
+    }
+
+    dogSlider.addEventListener("input", update);
+    yearSlider.addEventListener("input", update);
+    // Let the year slider glide, then settle on the nearest stop when released.
+    yearSlider.addEventListener("change", function () {
+      yearSlider.value = Math.round(Number(yearSlider.value));
+      update();
+    });
+    cta.addEventListener("click", function () {
+      ctaMsg.hidden = false;
+      cta.setAttribute("aria-expanded", "true");
+    });
+
+    // Arrow keys move one whole step, since the sliders glide freely under a finger.
+    [dogSlider, yearSlider].forEach(function (slider) {
+      slider.addEventListener("keydown", function (e) {
+        var keys = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageUp: 10, PageDown: -10 };
+        if (!(e.key in keys) && e.key !== "Home" && e.key !== "End") return;
+        e.preventDefault();
+        var min = Number(slider.min), max = Number(slider.max);
+        var v = e.key === "Home" ? min : e.key === "End" ? max : Math.round(Number(slider.value)) + keys[e.key];
+        slider.value = Math.max(min, Math.min(max, v));
+        update();
+      });
+    });
+
+    var lastWidth = 0, resizeTimer;
+    new ResizeObserver(function () {
+      var w = canvas.getBoundingClientRect().width;
+      if (Math.abs(w - lastWidth) < 1) return;
+      lastWidth = w;
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () { layout(); syncPit(); }, 120);
+    }).observe(canvas);
+
+    layout();
+    update();
+  </script>
+</body>
+</html>

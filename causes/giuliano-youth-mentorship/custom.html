@@ -52,273 +52,567 @@
     }
     .chip[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
 
-    /* Quiz */
-    .quiz { max-width: 640px; margin: 0 auto; }
-    .intro { margin-bottom: 20px; }
-    .progress-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: 500; color: var(--muted); margin-bottom: 8px; }
-    .progress { height: 6px; border-radius: var(--radius-pill); background: var(--border); overflow: hidden; margin-bottom: 20px; }
-    .progress-fill { height: 100%; width: 0; background: var(--accent); border-radius: var(--radius-pill); transition: width 0.5s var(--ease-spring); }
-    .question { font-size: 1.25rem; margin-bottom: 16px; }
-    .options { display: grid; gap: 10px; margin-bottom: 20px; }
-    .option {
-      display: flex; align-items: center; gap: 12px; width: 100%;
-      text-align: left; padding: 14px 16px; cursor: pointer;
-      background: var(--bg); color: var(--ink);
-      border: 1px solid var(--border); border-radius: var(--radius-control);
-      font-size: 0.95rem; font-weight: 500; line-height: 1.35;
+    .wrap { max-width: 720px; margin: 0 auto; }
+    .screen { min-height: 420px; }
+    .fade-in { animation: sceneIn 0.5s var(--ease-spring); }
+    @keyframes sceneIn { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+    .btn[disabled] { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+    .fine { font-size: 0.85rem; margin: 20px 0 0; }
+
+    /* Start screen */
+    .start { position: relative; overflow: hidden; background: var(--ink-card); color: #fff; border-radius: var(--radius-card); padding: 36px 28px; }
+    .start .eyebrow { color: var(--accent-from); }
+    .start h2 { color: #fff; font-size: clamp(1.75rem, 6vw, 2.4rem); line-height: 1.1; max-width: 15ch; margin-bottom: 14px; }
+    .start p { color: #d6d6d6; max-width: 46ch; }
+    .start .btn { background: #fff; color: var(--ink-card); }
+    .start .fine { color: #bdbdbd; }
+    .start-art { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 20px; }
+    .start-art svg { width: 72px; height: 96px; }
+    .start-art .little svg { width: 56px; height: 76px; }
+    .bob { animation: bob 2.4s var(--ease-spring) infinite alternate; }
+    .bob.delay { animation-delay: 0.6s; }
+    @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-6px); } }
+
+    /* Characters */
+    .fig-head { fill: var(--surface-2); }
+    .fig-big { fill: var(--accent-from); }
+    .fig-little { fill: var(--accent); }
+    .fig-hair { fill: var(--ink); }
+    .start .fig-hair { fill: var(--subtle); }
+    .fig-face { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
+    .fig-eye { fill: var(--ink); }
+
+    /* Adventure cards */
+    .choose h2 { margin-bottom: 4px; }
+    .adv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 16px; }
+    .adv {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; cursor: pointer;
+      background: var(--bg); color: var(--ink); border: 1px solid var(--border); border-radius: var(--radius-card-sm);
+      padding: 0 0 18px; overflow: hidden; font-size: 1rem;
+      transition: transform 0.3s var(--ease-snap), border-color 0.2s var(--ease-snap);
+    }
+    .adv:hover { transform: translateY(-4px) scale(1.02); border-color: var(--ink); }
+    .adv-art { width: 100%; height: 120px; background: var(--surface); display: grid; place-items: center; margin-bottom: 8px; }
+    .adv-art svg { width: 84px; height: 84px; }
+    .adv strong { padding: 0 18px; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; }
+    .adv span { padding: 0 18px; font-size: 0.875rem; color: var(--muted); }
+    .art-line { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .art-fill { fill: var(--accent); }
+    .art-soft { fill: var(--accent-from); }
+
+    /* Adventure path */
+    .path { list-style: none; margin: 0 0 20px; padding: 0; display: flex; align-items: center; }
+    .path li { display: flex; align-items: center; flex: 1; }
+    .path li:last-child { flex: none; }
+    .node {
+      flex: none; width: 34px; height: 34px; border-radius: var(--radius-pill); display: grid; place-items: center;
+      background: var(--bg); border: 2px solid var(--border); color: var(--muted); font-size: 0.8rem; font-weight: 600;
+      transition: background 0.4s var(--ease-spring), border-color 0.4s var(--ease-spring), transform 0.4s var(--ease-spring);
+    }
+    .node.done { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .node.here { border-color: var(--ink-card); color: var(--ink); transform: scale(1.15); }
+    .link { flex: 1; height: 4px; margin: 0 4px; border-radius: var(--radius-pill); background: var(--border); overflow: hidden; }
+    .link span { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.6s var(--ease-spring); }
+    .link.done span { width: 100%; }
+
+    /* Scene */
+    .scene-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+    .stage { display: flex; align-items: flex-end; gap: 12px; margin: 16px 0; padding: 18px 16px 0; background: var(--surface); border-radius: var(--radius-card-sm); overflow: hidden; }
+    .stage svg { flex: none; width: 64px; height: 86px; }
+    .stage .little svg { width: 52px; height: 70px; }
+    .bubbles { flex: 1; display: grid; gap: 8px; padding-bottom: 16px; min-width: 0; }
+    .bubble { position: relative; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-control); padding: 10px 14px; color: var(--ink); font-size: 0.95rem; }
+    .bubble b { display: block; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent-strong); margin-bottom: 2px; }
+    .narration { color: var(--ink); margin-bottom: 4px; }
+    .choices { display: grid; gap: 10px; margin-top: 8px; }
+    .choice {
+      width: 100%; text-align: left; cursor: pointer; padding: 16px 18px; min-height: 56px;
+      background: var(--bg); color: var(--ink); border: 1px solid var(--border); border-radius: var(--radius-control);
+      font-size: 1rem; font-weight: 500; line-height: 1.35;
       transition: transform 0.3s var(--ease-snap), border-color 0.2s var(--ease-snap), background 0.2s var(--ease-snap);
     }
-    .option:hover { transform: scale(1.02); border-color: var(--ink); }
-    .option[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
-    .option .emoji { font-size: 1.4rem; flex: none; }
-    .nav { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-    .btn[disabled] { opacity: 0.4; cursor: not-allowed; transform: none; }
-    .fade-in { animation: fadeIn 0.45s var(--ease-spring); }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .choice:hover { transform: scale(1.02); border-color: var(--ink); }
+    .choice.tried { color: var(--muted); border-style: dashed; }
+    .choice.tried::after { content: " · tried"; font-size: 0.8rem; }
+
+    /* Outcome */
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: var(--radius-pill); padding: 4px 12px; font-size: 0.8rem; font-weight: 600; }
+    .badge.great { background: var(--accent); color: var(--accent-ink); }
+    .badge.okay { background: var(--surface-2); color: var(--ink); }
+    .badge.learn { background: var(--bg); color: var(--ink); border: 1px solid var(--border); }
+    .you-said { margin: 14px 0 10px; color: var(--muted); font-size: 0.9rem; }
+    .tip { margin-top: 16px; background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 18px 20px; }
+    .tip .eyebrow { color: var(--accent-from); margin-bottom: 4px; }
+    .tip p { color: #fff; margin: 0; }
 
     /* Result */
-    .result-emoji { font-size: 3rem; line-height: 1; margin-bottom: 12px; }
-    .card-dark h2 { color: #fff; font-size: 1.75rem; }
-    .activities { list-style: none; margin: 0 0 20px; padding: 0; display: grid; gap: 10px; }
-    .activities li { display: flex; gap: 12px; align-items: flex-start; background: rgba(255, 255, 255, 0.08); border-radius: var(--radius-control); padding: 12px 14px; color: #fff; }
-    .activities .num { flex: none; width: 26px; height: 26px; border-radius: var(--radius-pill); background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 0.8rem; font-weight: 600; }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
-    .card-dark .btn { background: #fff; color: var(--ink-card); }
-    .card-dark .btn-light { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.4); }
-    .signup { margin-top: 16px; padding: 14px 16px; border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.08); }
-    .signup p { margin: 0 0 4px; }
-    .signup .address { color: #fff; font-weight: 600; font-size: 1.05rem; overflow-wrap: anywhere; user-select: all; }
-    .note { font-size: 0.85rem; margin: 16px 0 0; }
-    .card-dark .note { color: #bdbdbd; }
+    .result { position: relative; overflow: hidden; background: var(--ink-card); color: #fff; border-radius: var(--radius-card); padding: 32px 24px; text-align: center; }
+    .result .eyebrow { color: var(--accent-from); }
+    .result h2 { color: #fff; font-size: clamp(1.8rem, 7vw, 2.6rem); margin-bottom: 10px; }
+    .result p { color: #d6d6d6; max-width: 46ch; margin-left: auto; margin-right: auto; }
+    .power-icon { font-size: 3.25rem; line-height: 1; margin-bottom: 10px; display: inline-block; }
+    .pop { animation: pop 0.7s var(--ease-spring); }
+    @keyframes pop { 0% { transform: scale(0.3) rotate(-20deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
+    .try { text-align: left; background: rgba(255, 255, 255, 0.08); border-radius: var(--radius-control); padding: 14px 16px; margin: 18px 0 0; }
+    .try p { margin: 0; color: #fff; }
+    .result .actions { justify-content: center; }
+    .result .btn { background: #fff; color: var(--ink-card); }
+    .result .btn-light { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.4); }
+    .signup { text-align: left; margin-top: 16px; padding: 14px 16px; border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.08); }
+    .signup p { margin: 0 0 4px; color: #fff; }
+    .signup .address { font-weight: 600; font-size: 1.05rem; overflow-wrap: anywhere; user-select: all; }
+    .result .fine { color: #bdbdbd; }
+    .confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .confetti i { position: absolute; top: -12px; width: 8px; height: 14px; border-radius: 2px; opacity: 0; animation: fall 1.8s var(--ease-snap) forwards; }
+    @keyframes fall { 0% { opacity: 1; transform: translateY(0) rotate(0); } 100% { opacity: 0; transform: translateY(380px) rotate(540deg); } }
+
+    .credit { margin: 20px 0 0; font-size: 0.85rem; text-align: center; }
 
     @media (max-width: 400px) {
       body { padding: 16px; }
-      .card, .card-dark { padding: 20px; }
-      .nav .btn, .actions .btn { flex: 1; justify-content: center; }
+      .card { padding: 18px; }
+      .start, .result { padding: 28px 20px; }
+      .stage svg { width: 50px; height: 68px; }
+      .stage .little svg { width: 42px; height: 56px; }
+      .actions .btn { flex: 1; justify-content: center; }
+      .node { width: 30px; height: 30px; }
     }
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; animation: none !important; }
+      .confetti { display: none; }
     }
   </style>
 </head>
 <body>
-  <div class="quiz">
-    <span class="eyebrow">Quiz · 5 questions</span>
-    <h2>What kind of Big would you be?</h2>
-    <p class="intro">Big Brothers Big Sisters says you don't need any special degrees or job skills to be a mentor, just the wish to positively impact a young person. Find out what kind of mentor you'd be.</p>
-
-    <div id="stage" aria-live="polite"></div>
+  <div class="wrap">
+    <div id="game" aria-live="polite"></div>
+    <p class="credit">Mentor Mission is a student-created educational game by Giuliano L. supporting Big Brothers Big Sisters of Greater Los Angeles. It isn't official mentor training, and it isn't created by or affiliated with BBBSLA.</p>
   </div>
 
   <script>
-    // Each answer adds a point to one mentor style: c = Confidence Builder, r = Creative Coach, a = Adventure Buddy.
-    const questions = [
+    // ── Characters ───────────────────────────────────────
+    // Simple SVG people: the Big (you) and each adventure's Little.
+    const hair = {
+      big: '<path class="fig-hair" d="M18 26c0-12 8-18 18-18s18 6 18 18c-4-6-10-8-18-8s-14 2-18 8z"/>',
+      leo: '<path class="fig-hair" d="M19 24c1-10 8-15 17-15s16 5 17 15c-3-3-6-4-9-3-2-3-5-4-8-4s-7 2-9 5c-3-1-6 0-8 2z"/>',
+      ava: '<path class="fig-hair" d="M16 34c-2-16 6-26 20-26s22 10 20 26c-2-8-4-12-8-14-4 4-12 6-22 5-4 2-8 5-10 9z"/><path class="fig-hair" d="M14 30c-2 10 0 18 4 22l4-20zM58 30c2 10 0 18-4 22l-4-20z"/>',
+      sam: '<circle class="fig-hair" cx="22" cy="18" r="7"/><circle class="fig-hair" cx="50" cy="18" r="7"/><path class="fig-hair" d="M19 26c1-10 8-16 17-16s16 6 17 16c-6-4-11-5-17-5s-11 1-17 5z"/>'
+    };
+    function figure(who, mood) {
+      const body = who === 'big' ? 'fig-big' : 'fig-little';
+      const mouth = mood === 'sad'
+        ? '<path class="fig-face" d="M30 42q6-4 12 0"/>'
+        : mood === 'unsure'
+          ? '<path class="fig-face" d="M30 41h12"/>'
+          : '<path class="fig-face" d="M29 39q7 6 14 0"/>';
+      return '<svg viewBox="0 0 72 96" aria-hidden="true">' +
+        '<path class="' + body + '" d="M12 96c0-22 10-34 24-34s24 12 24 34z"/>' +
+        '<circle class="fig-head" cx="36" cy="32" r="20"/>' + hair[who] +
+        '<circle class="fig-eye" cx="29" cy="31" r="2.2"/><circle class="fig-eye" cx="43" cy="31" r="2.2"/>' + mouth +
+        '</svg>';
+    }
+
+    // ── Adventure art ────────────────────────────────────
+    const art = {
+      hoops: '<svg viewBox="0 0 84 84" aria-hidden="true"><path class="art-line" d="M50 8h26v18H50z"/><path class="art-line" d="M56 26h14l-3 14h-8z"/><circle class="art-fill" cx="26" cy="54" r="18"/><path class="art-line" d="M8 54h36M26 36v36M14 41c8 6 8 20 0 26M38 41c-8 6-8 20 0 26"/></svg>',
+      music: '<svg viewBox="0 0 84 84" aria-hidden="true"><path class="art-line" d="M30 62V18l36-8v44"/><path class="art-line" d="M30 30l36-8"/><ellipse class="art-fill" cx="22" cy="62" rx="10" ry="8"/><ellipse class="art-soft" cx="58" cy="54" rx="10" ry="8"/></svg>',
+      create: '<svg viewBox="0 0 84 84" aria-hidden="true"><path class="art-soft" d="M42 10C22 10 8 24 8 40c0 14 10 22 20 20 6-1 6 8 12 10 22 6 36-10 36-28 0-18-14-32-34-32z"/><circle class="art-fill" cx="26" cy="34" r="5"/><circle class="art-fill" cx="42" cy="24" r="5"/><circle class="art-fill" cx="58" cy="32" r="5"/><path class="art-line" d="M50 74l20-30"/></svg>'
+    };
+
+    // ── Stories ──────────────────────────────────────────
+    // quality: great = a strong move, okay = kind but could go further, learn = less helpful.
+    // power: the mentoring superpower a strong move shows.
+    const adventures = [
       {
-        q: 'It\'s a free Saturday. What sounds best?',
-        options: [
-          { e: '📚', t: 'Working toward a goal, like learning something new', s: 'c' },
-          { e: '🎨', t: 'Making something: art, music, a video, a recipe', s: 'r' },
-          { e: '🥾', t: 'Getting outside: a hike, a pickup game, the beach', s: 'a' }
+        id: 'hoops', art: 'hoops', little: 'leo', name: 'Leo', title: 'Basketball at the Park',
+        blurb: 'Shoot hoops with Leo, 11, at a neighborhood court.',
+        scenes: [
+          {
+            setting: 'You and Leo arrive at the court. He misses five shots in a row and slams the ball down.',
+            line: 'I\'m terrible at this. Can we just leave?', mood: 'sad',
+            choices: [
+              { text: '"That last one was so close. Want to try from a little closer?"', quality: 'great', power: 'encouragement',
+                outcome: 'Leo shrugs but steps in. The next shot rolls around the rim… and drops. He tries not to smile, and fails.',
+                tip: 'Shrinking a challenge into small wins helps a young person feel progress instead of failure.' },
+              { text: '"Sounds like you\'re pretty frustrated. What\'s going on?"', quality: 'great', power: 'listening',
+                outcome: 'Leo admits kids at school laugh when he misses. You just listen. After a minute, he picks the ball back up, a little looser.',
+                tip: 'Frustration is sometimes about something bigger. Listening first can help them feel ready to try again.' },
+              { text: '"Okay, no problem. Let\'s go get a snack instead."', quality: 'learn',
+                outcome: 'Leo looks relieved, but he\'s quiet on the walk. He didn\'t get the chance to feel what pushing through is like.',
+                tip: 'Respecting their feelings matters. But leaving right away can quietly say "I don\'t think you can do it either." What else could you try?' }
+            ]
+          },
+          {
+            setting: 'After a few more shots, Leo tries to spin the ball on his finger.',
+            line: 'My cousin plays for his high school. He can dunk!', mood: 'happy',
+            choices: [
+              { text: '"No way! Can you teach me that spin trick?"', quality: 'great', power: 'curiosity',
+                outcome: 'Leo shows you. You\'re terrible at it, and he laughs so hard he has to sit down. For ten minutes, he\'s the coach.',
+                tip: 'Letting a young person be the expert flips the script and builds real confidence.' },
+              { text: '"What\'s it like watching your cousin play?"', quality: 'great', power: 'listening',
+                outcome: 'Leo talks about going to every game and wanting to make the team himself one day. It\'s the most he\'s said all afternoon.',
+                tip: 'Open-ended questions invite young people to share their hopes, not just yes or no.' },
+              { text: '"Dunking is really hard. Most people never get there."', quality: 'learn',
+                outcome: 'Leo\'s smile fades. "I know," he mumbles, and stops spinning the ball.',
+                tip: 'Being realistic has its place, but meet their excitement first. Dreams can be big right now.' }
+            ]
+          },
+          {
+            setting: 'A pickup game starts on the next court. The players are a few years older. Leo watches, then looks at his shoes.',
+            line: 'They\'d never let me play.', mood: 'unsure',
+            choices: [
+              { text: '"Want to practice passing with me first, then decide if you want to ask?"', quality: 'great', power: 'patience',
+                outcome: 'You pass back and forth for a while. Then Leo says, "Maybe next time." And that\'s okay: it was his call.',
+                tip: 'Letting a young person set the pace shows you trust them. Ready looks different for everyone.' },
+              { text: '"Honestly, I get nervous trying new things too."', quality: 'great', power: 'encouragement',
+                outcome: 'Leo looks surprised. "Grown-ups get nervous?" You both laugh, and he stands a little taller.',
+                tip: 'Sharing your own feelings shows that being nervous is normal, not a sign of weakness.' },
+              { text: '"I\'ll go ask them for you."', quality: 'learn',
+                outcome: 'The players say sure, but Leo looks embarrassed and plays stiffly. It didn\'t feel like his win.',
+                tip: 'Stepping in can feel helpful, but it can take away their chance to be brave. How could you support him instead?' }
+            ]
+          }
         ]
       },
       {
-        q: 'Your friends would say your biggest strength is…',
-        options: [
-          { e: '💬', t: 'I\'m a great listener and encourager', s: 'c' },
-          { e: '💡', t: 'I always have a fun, original idea', s: 'r' },
-          { e: '⚡', t: 'I bring the energy and I\'m up for anything', s: 'a' }
+        id: 'music', art: 'music', little: 'ava', name: 'Ava', title: 'Make Some Music',
+        blurb: 'Swap songs and make beats with Ava, 13, at the park.',
+        scenes: [
+          {
+            setting: 'You and Ava sit on a park bench with your phones, about to swap favorite songs. She hesitates.',
+            line: 'You\'ll probably think my music is weird.', mood: 'unsure',
+            choices: [
+              { text: '"I\'d love to hear it. What\'s a song you can\'t stop playing?"', quality: 'great', power: 'curiosity',
+                outcome: 'Ava plays a song and explains the lyrics mean a lot to her. You ask what her favorite line is. She has an answer ready.',
+                tip: 'Genuine interest in their world tells a young person that what they love matters.' },
+              { text: '"Whatever you like is cool with me. No judging here."', quality: 'great', power: 'encouragement',
+                outcome: 'Ava relaxes and hands you one earbud. "Okay, but you have to listen to the whole thing."',
+                tip: 'A judgment-free space makes it easier for young people to open up.' },
+              { text: '"Ha, mine\'s weirder. Here, listen to this one first."', quality: 'learn',
+                outcome: 'You play three of your songs. Ava nods politely, but she never shares hers.',
+                tip: 'Sharing about yourself builds connection, but make room for them first. How could you invite her in?' }
+            ]
+          },
+          {
+            setting: 'You try a beat on an upside-down bucket. Ava keeps losing the rhythm and drops the sticks.',
+            line: 'I have zero rhythm. Forget it.', mood: 'sad',
+            choices: [
+              { text: '"Let\'s slow it way down and clap it together."', quality: 'great', power: 'patience',
+                outcome: 'Clap… clap-clap. Slowly she gets it, then speeds up, then you\'re both laughing when it falls apart and starting again.',
+                tip: 'Slowing down can turn a "can\'t" into a "not yet."' },
+              { text: '"Which part feels tricky?"', quality: 'great', power: 'listening',
+                outcome: 'Ava points out the switch in the middle. You practice just that part until it clicks.',
+                tip: 'Asking what\'s hard helps you support what they actually need.' },
+              { text: '"Here, just watch me do it."', quality: 'learn',
+                outcome: 'You play it perfectly. Ava watches with her arms crossed, looking more discouraged than before.',
+                tip: 'Showing can help, but doing it for them can make the goal feel further away. What could you do together?' }
+            ]
+          },
+          {
+            setting: 'On the walk back, Ava goes quiet, then says something softly.',
+            line: 'I write song lyrics sometimes. I\'ve never shown anyone.', mood: 'unsure',
+            choices: [
+              { text: '"That\'s really cool. You can share some or keep them private. Either is okay."', quality: 'great', power: 'listening',
+                outcome: 'Ava thinks, then reads you one line. You tell her exactly what you liked about it. She grins.',
+                tip: 'Giving a choice builds trust on their terms.' },
+              { text: '"What do you like to write about?"', quality: 'great', power: 'curiosity',
+                outcome: 'She talks about her family and her neighborhood. Then: "Maybe I\'ll show you one next time."',
+                tip: 'Curiosity about the "why" shows you care about them, not just what they make.' },
+              { text: '"You should post them online!"', quality: 'learn',
+                outcome: 'Ava tenses up. "No way." The conversation stalls.',
+                tip: 'Big leaps can feel scary. Celebrate small steps first. What would feel safer for her?' }
+            ]
+          }
         ]
       },
       {
-        q: 'A young person tells you they\'re nervous about something new. You…',
-        options: [
-          { e: '🙌', t: 'Remind them of what they\'ve already done well', s: 'c' },
-          { e: '🧩', t: 'Help them see it from a new, creative angle', s: 'r' },
-          { e: '🤝', t: 'Say "Let\'s try it together!" and jump in with them', s: 'a' }
-        ]
-      },
-      {
-        q: 'Which of these would you most like to share with a young person?',
-        options: [
-          { e: '🎓', t: 'What it\'s like to go to college', s: 'c' },
-          { e: '🎸', t: 'A hobby I love, like drawing, music, or cooking', s: 'r' },
-          { e: '🌊', t: 'A place in LA they\'ve never been', s: 'a' }
-        ]
-      },
-      {
-        q: 'At the end of the day, what would make you proudest?',
-        options: [
-          { e: '⭐', t: 'They believe in themselves a little more', s: 'c' },
-          { e: '✨', t: 'They found a new way to express who they are', s: 'r' },
-          { e: '😄', t: 'They had a blast and can\'t wait for next time', s: 'a' }
+        id: 'create', art: 'create', little: 'sam', name: 'Sam', title: 'Create Something',
+        blurb: 'Draw and dream up stories with Sam, 9, on a sunny afternoon.',
+        scenes: [
+          {
+            setting: 'You and Sam are drawing at a picnic table. Sam\'s marker smudges across their dragon, and they crumple the paper.',
+            line: 'It\'s ruined. I\'m bad at drawing.', mood: 'sad',
+            choices: [
+              { text: '"Can I see? I really liked the wings you were drawing."', quality: 'great', power: 'encouragement',
+                outcome: 'Sam uncrumples it slowly. You wonder out loud if the smudge could be smoke. Sam\'s eyes light up: "Fire smoke!"',
+                tip: 'Specific praise ("I liked the wings") feels more real than "good job."' },
+              { text: '"Every artist messes up. Want to start new ones together?"', quality: 'great', power: 'patience',
+                outcome: 'You both start over. Your dragon looks like a potato. Sam laughs and offers to help you.',
+                tip: 'Showing that mistakes are part of making things helps them keep going.' },
+              { text: '"It\'s okay, it\'s just a drawing."', quality: 'learn',
+                outcome: 'Sam frowns. "It\'s not just a drawing to me."',
+                tip: 'Small things can matter a lot to a young person. Take their feelings seriously. What could you say instead?' }
+            ]
+          },
+          {
+            setting: 'Sam starts telling you all about the dragon\'s kingdom, with mountains, a castle, and a secret lake.',
+            line: 'And the dragon protects everybody, but nobody knows!', mood: 'happy',
+            choices: [
+              { text: '"What\'s the dragon\'s name? Does it have a superpower?"', quality: 'great', power: 'curiosity',
+                outcome: 'Sam lights up and invents a whole world: names, powers, and a villain. You could listen for hours.',
+                tip: 'Questions about their ideas show their imagination is worth exploring.' },
+              { text: '"So it\'s a secret hero? That\'s so cool. Then what happens?"', quality: 'great', power: 'listening',
+                outcome: 'Sam nods eagerly and keeps going, adding new details every time you reflect one back.',
+                tip: 'Repeating back what you heard shows you\'re truly listening.' },
+              { text: 'Nod along while checking a text on your phone.', quality: 'learn',
+                outcome: 'Sam\'s story trails off. "Never mind," they say, and go back to coloring.',
+                tip: 'Your full attention is a gift. Putting the phone away says "you matter to me."' }
+            ]
+          },
+          {
+            setting: 'Sam wants to show the new drawing to their mom at pickup but looks worried.',
+            line: 'What if she thinks it\'s not good?', mood: 'unsure',
+            choices: [
+              { text: '"What do you like most about it?"', quality: 'great', power: 'encouragement',
+                outcome: 'Sam points to the wings and the secret lake. By the time their mom arrives, they can\'t wait to show her.',
+                tip: 'Helping them see their own strengths builds confidence that lasts beyond one compliment.' },
+              { text: '"Want to practice what you\'ll say when you show her?"', quality: 'great', power: 'patience',
+                outcome: 'You rehearse twice. The second time, Sam does a dramatic dragon roar. They feel ready.',
+                tip: 'A little practice makes a scary moment feel manageable.' },
+              { text: '"It\'s perfect! Everyone will love it!"', quality: 'okay', power: 'encouragement',
+                outcome: 'Sam smiles, then asks, "Really?" The praise feels nice, but they\'re not sure it\'s true.',
+                tip: 'Big praise is kind. Specific, honest praise sticks longer.' }
+            ]
+          }
         ]
       }
     ];
 
-    // Activity ideas follow BBBSLA's advice: keep outings simple and low-cost.
-    const results = {
-      c: {
-        e: '🌟', name: 'The Confidence Builder',
-        text: 'You see the potential in people, sometimes before they see it themselves. Your encouragement helps a young person believe they can go after big goals.',
-        activities: [
-          'Walk around a college campus together, like LMU. BBBSLA says many of its Littles have never set foot on one.',
-          'Pick a small goal together, like finishing a book or learning a skill, and celebrate when they reach it.',
-          'Play a board game and swap stories about times you each tried something hard.'
-        ]
-      },
-      r: {
-        e: '🎨', name: 'The Creative Coach',
-        text: 'You turn ordinary afternoons into something memorable. You help a young person discover what they love and find their own voice.',
-        activities: [
-          'Bring sketchbooks to a park and draw what you see.',
-          'Cook a simple recipe together, like homemade pizza.',
-          'Go on a photo walk with your phones and make a mini photo story of your day.'
-        ]
-      },
-      a: {
-        e: '🧭', name: 'The Adventure Buddy',
-        text: 'You\'re up for anything, and your energy is contagious. You open a young person\'s eyes to new places and experiences all over LA.',
-        activities: [
-          'Hit a hiking trail for fresh air and good conversation.',
-          'Shoot hoops or kick a ball around at a local park.',
-          'Spend a day at the beach. BBBSLA says many of the kids it serves have never swum in the ocean.'
-        ]
-      }
+    const powers = {
+      encouragement: { icon: '🌟', name: 'Encouragement', text: 'You notice effort and small wins, and you help young people believe in themselves, especially when they\'re ready to give up.', tryIt: 'On a real outing, point out one specific thing your Little did well, like "You kept trying even when it was hard."' },
+      listening: { icon: '👂', name: 'Listening', text: 'You make space for young people to share what\'s really on their mind. They feel heard, and that\'s where trust begins.', tryIt: 'On a real outing, try repeating back what your Little tells you before you give advice.' },
+      curiosity: { icon: '🔍', name: 'Curiosity', text: 'You ask questions that light people up. Young people feel like their ideas and interests are worth exploring.', tryIt: 'On a real outing, ask your Little to teach you something they love.' },
+      patience: { icon: '🌱', name: 'Patience', text: 'You let young people go at their own pace, so trying new things feels safe instead of scary.', tryIt: 'On a real outing, if something feels hard, slow down and break it into smaller steps together.' }
     };
 
-    const VOLUNTEER_ADDRESS = 'bbbsla.org/volunteer';
-    const stage = document.getElementById('stage');
-    let current = 0;
-    let answers = new Array(questions.length).fill(null);
+    const badges = { great: '✓ A strong move', okay: '◐ Kind, and there\'s more you could do', learn: '↺ Something to learn from' };
+
+    // ── State ────────────────────────────────────────────
+    const game = document.getElementById('game');
+    let adv = null;
+    let sceneIndex = 0;
+    let tried = [];
+    let earned = [];
 
     function el(tag, className, text) {
       const node = document.createElement(tag);
       if (className) node.className = className;
-      if (text) node.textContent = text;
+      if (text != null) node.textContent = text;
       return node;
     }
-
-    function showQuestion(focusFirst) {
-      const item = questions[current];
-      stage.innerHTML = '';
-      const card = el('div', 'card fade-in');
-
-      const row = el('div', 'progress-row');
-      row.append(el('span', '', 'Question ' + (current + 1) + ' of ' + questions.length));
-      row.append(el('span', '', Math.round((current / questions.length) * 100) + '% done'));
-      const bar = el('div', 'progress');
-      bar.setAttribute('aria-hidden', 'true');
-      const fill = el('div', 'progress-fill');
-      bar.append(fill);
-
-      const h = el('h3', 'question', item.q);
-      h.id = 'q-title';
-      const opts = el('div', 'options');
-      opts.setAttribute('role', 'group');
-      opts.setAttribute('aria-labelledby', 'q-title');
-
-      item.options.forEach((opt, i) => {
-        const b = el('button', 'option');
-        b.type = 'button';
-        b.setAttribute('aria-pressed', String(answers[current] === i));
-        b.append(el('span', 'emoji', opt.e));
-        b.append(el('span', '', opt.t));
-        b.addEventListener('click', () => {
-          answers[current] = i;
-          opts.querySelectorAll('.option').forEach((o, j) => o.setAttribute('aria-pressed', String(j === i)));
-          next.disabled = false;
-        });
-        opts.append(b);
-      });
-
-      const nav = el('div', 'nav');
-      const back = el('button', 'btn btn-light', '← Back');
-      back.type = 'button';
-      back.disabled = current === 0;
-      back.addEventListener('click', () => { current--; showQuestion(true); });
-      const next = el('button', 'btn', current === questions.length - 1 ? 'See my result →' : 'Next →');
-      next.type = 'button';
-      next.disabled = answers[current] === null;
-      next.addEventListener('click', () => {
-        if (answers[current] === null) return;
-        if (current < questions.length - 1) { current++; showQuestion(true); }
-        else showResult();
-      });
-      nav.append(back, next);
-
-      card.append(row, bar, h, opts, nav);
-      stage.append(card);
-      requestAnimationFrame(() => { fill.style.width = (((current + (answers[current] !== null ? 1 : 0)) / questions.length) * 100) + '%'; });
-      opts.addEventListener('click', () => { fill.style.width = (((current + 1) / questions.length) * 100) + '%'; });
-      if (focusFirst) opts.querySelector('.option').focus({ preventScroll: true });
+    function button(text, className, onClick) {
+      const b = el('button', className, text);
+      b.type = 'button';
+      b.addEventListener('click', onClick);
+      return b;
+    }
+    function show(screen, focusTarget) {
+      game.innerHTML = '';
+      screen.classList.add('screen', 'fade-in');
+      game.append(screen);
+      if (focusTarget) focusTarget.focus({ preventScroll: true });
     }
 
-    function pickStyle() {
-      const score = { c: 0, r: 0, a: 0 };
-      answers.forEach((a, i) => { score[questions[i].options[a].s]++; });
-      const best = Math.max(score.c, score.r, score.a);
-      // On a tie, the answer to the last question decides.
-      const last = questions[questions.length - 1].options[answers[questions.length - 1]].s;
-      if (score[last] === best) return last;
-      return ['c', 'r', 'a'].find((k) => score[k] === best);
-    }
-
-    function showResult() {
-      const r = results[pickStyle()];
-      stage.innerHTML = '';
-      const card = el('div', 'card-dark fade-in');
-      card.append(el('span', 'eyebrow', 'Your mentor style'));
-      const emoji = el('div', 'result-emoji', r.e);
-      emoji.setAttribute('aria-hidden', 'true');
-      card.append(emoji);
-      const h = el('h2', '', r.name);
+    // ── Screens ──────────────────────────────────────────
+    function startScreen(focus) {
+      const s = el('section', 'start');
+      const figs = el('div', 'start-art');
+      const big = el('div', 'bob');
+      big.innerHTML = figure('big', 'happy');
+      const little = el('div', 'little bob delay');
+      little.innerHTML = figure('leo', 'happy');
+      figs.append(big, little);
+      const h = el('h2', '', 'You don\'t need superpowers to make a difference.');
       h.tabIndex = -1;
-      card.append(h, el('p', '', r.text));
+      s.append(
+        figs,
+        el('span', 'eyebrow', 'Mentor Mission · a short story game'),
+        h,
+        el('p', '', 'Step into the shoes of a Big: a volunteer mentor who spends one-on-one time with a young person. Pick an adventure, make choices in three short scenes, and discover your mentoring superpower.'),
+        el('p', '', 'There are no wrong turns here, just chances to learn how listening, patience, and encouragement build a connection.')
+      );
+      const actions = el('div', 'actions');
+      const go = button('Start Your Mission →', 'btn', chooseScreen);
+      actions.append(go);
+      s.append(actions, el('p', 'fine', 'A student-made game for learning and fun, not official mentor training.'));
+      show(s, focus ? h : null);
+    }
 
-      card.append(el('span', 'eyebrow', '3 outings you\'d be great at'));
-      const list = el('ul', 'activities');
-      r.activities.forEach((a, i) => {
-        const li = el('li');
-        li.append(el('span', 'num', String(i + 1)), el('span', '', a));
-        list.append(li);
+    function chooseScreen() {
+      const s = el('section', 'choose card');
+      const h = el('h2', '', 'Choose your adventure');
+      h.tabIndex = -1;
+      s.append(el('span', 'eyebrow', 'Mission briefing'), h, el('p', '', 'Where will you and your Little spend the afternoon?'));
+      const grid = el('div', 'adv-grid');
+      adventures.forEach((a) => {
+        const b = button('', 'adv', () => { adv = a; sceneIndex = 0; earned = []; tried = []; sceneScreen(); });
+        const pic = el('div', 'adv-art');
+        pic.innerHTML = art[a.art];
+        b.append(pic, el('strong', '', a.title), el('span', '', a.blurb));
+        grid.append(b);
       });
-      card.append(list);
+      s.append(grid);
+      show(s, h);
+    }
+
+    function pathEl(doneCount, here) {
+      const ol = el('ol', 'path');
+      ol.setAttribute('aria-label', 'Adventure path: scene ' + Math.min(doneCount + 1, 3) + ' of 3');
+      const labels = ['1', '2', '3', '★'];
+      labels.forEach((label, i) => {
+        const li = el('li');
+        const node = el('span', 'node', label);
+        if (i < doneCount) node.classList.add('done');
+        if (i === here) node.classList.add('here');
+        node.setAttribute('aria-hidden', 'true');
+        li.append(node);
+        if (i < labels.length - 1) {
+          const link = el('span', 'link');
+          link.append(el('span'));
+          if (i < doneCount) link.classList.add('done');
+          li.append(link);
+        }
+        ol.append(li);
+      });
+      return ol;
+    }
+
+    function stageEl(scene, bigLine) {
+      const st = el('div', 'stage');
+      const big = el('div', 'big');
+      big.innerHTML = figure('big', 'happy');
+      const little = el('div', 'little');
+      little.innerHTML = figure(adv.little, scene.mood);
+      const bubbles = el('div', 'bubbles');
+      const b1 = el('p', 'bubble');
+      b1.append(el('b', '', adv.name), scene.line);
+      bubbles.append(b1);
+      if (bigLine) {
+        const b2 = el('p', 'bubble');
+        b2.append(el('b', '', 'You'), bigLine);
+        bubbles.append(b2);
+      }
+      st.append(little, bubbles, big);
+      return st;
+    }
+
+    function sceneScreen() {
+      const scene = adv.scenes[sceneIndex];
+      const s = el('section', 'card');
+      s.append(pathEl(sceneIndex, sceneIndex));
+      const head = el('div', 'scene-head');
+      const h = el('h2', '', adv.title);
+      h.tabIndex = -1;
+      head.append(h, el('span', 'eyebrow', 'Scene ' + (sceneIndex + 1) + ' of 3'));
+      s.append(head, el('p', 'narration', scene.setting), stageEl(scene));
+      s.append(el('p', '', 'What do you do?'));
+      const list = el('div', 'choices');
+      list.setAttribute('role', 'group');
+      list.setAttribute('aria-label', 'Your choices');
+      scene.choices.forEach((c, i) => {
+        const b = button(c.text, 'choice', () => outcomeScreen(i));
+        if (tried.includes(i)) b.classList.add('tried');
+        list.append(b);
+      });
+      s.append(list);
+      show(s, h);
+    }
+
+    function outcomeScreen(i) {
+      const scene = adv.scenes[sceneIndex];
+      const c = scene.choices[i];
+      if (!tried.includes(i)) tried.push(i);
+      const s = el('section', 'card');
+      s.append(pathEl(c.quality === 'learn' ? sceneIndex : sceneIndex + 1, sceneIndex));
+      const badge = el('span', 'badge ' + c.quality, badges[c.quality]);
+      badge.tabIndex = -1;
+      s.append(badge);
+      const said = c.text.startsWith('"') ? c.text.slice(1, -1) : null;
+      s.append(stageEl({ line: scene.line, mood: c.quality === 'learn' ? 'sad' : 'happy' }, said));
+      if (!said) s.append(el('p', 'you-said', 'You: ' + c.text));
+      s.append(el('p', 'narration', c.outcome));
+      const tip = el('div', 'tip');
+      tip.append(el('span', 'eyebrow', 'Mentoring tip'), el('p', '', c.tip));
+      s.append(tip);
 
       const actions = el('div', 'actions');
-      const join = el('button', 'btn', 'Become a Big →');
-      join.type = 'button';
-      join.setAttribute('aria-expanded', 'false');
-      const again = el('button', 'btn btn-light', 'Retake the quiz');
-      again.type = 'button';
-      again.addEventListener('click', () => {
-        answers = new Array(questions.length).fill(null);
-        current = 0;
-        showQuestion(true);
-      });
-      actions.append(join, again);
-      card.append(actions);
+      const last = sceneIndex === adv.scenes.length - 1;
+      const advance = () => {
+        if (c.quality !== 'learn' && c.power) earned.push(c.power);
+        tried = [];
+        if (last) resultScreen();
+        else { sceneIndex++; sceneScreen(); }
+      };
+      const nextLabel = last ? 'See your superpower ★' : 'Next scene →';
+      if (c.quality === 'great') {
+        actions.append(button(nextLabel, 'btn', advance));
+      } else {
+        actions.append(button('↺ Try a different choice', 'btn', sceneScreen));
+        actions.append(button(c.quality === 'okay' ? nextLabel : 'Continue anyway', 'btn btn-light', advance));
+      }
+      s.append(actions);
+      show(s, badge);
+    }
 
+    function pickPower() {
+      if (!earned.length) return 'patience';
+      const count = {};
+      earned.forEach((p) => { count[p] = (count[p] || 0) + 1; });
+      const best = Math.max(...Object.values(count));
+      // On a tie, the most recent strong move decides.
+      for (let i = earned.length - 1; i >= 0; i--) if (count[earned[i]] === best) return earned[i];
+    }
+
+    function resultScreen() {
+      const p = powers[pickPower()];
+      const s = el('section', 'result');
+      s.append(pathEl(4, -1));
+      const icon = el('div', 'power-icon pop', p.icon);
+      icon.setAttribute('aria-hidden', 'true');
+      const h = el('h2', '', p.name);
+      h.tabIndex = -1;
+      s.append(el('span', 'eyebrow', 'Mission complete · Your mentoring superpower'), icon, h, el('p', '', p.text));
+      s.append(el('p', '', 'You helped ' + adv.name + ' through a tough moment, a shared interest, and a nervous first step. That\'s what mentoring looks like: simple moments, repeated over time.'));
+      const tryBox = el('div', 'try');
+      tryBox.append(el('p', '', '💡 ' + p.tryIt));
+      s.append(tryBox);
+
+      const actions = el('div', 'actions');
+      const signup = el('div', 'signup');
+      signup.id = 'signup';
+      signup.hidden = true;
       // This section runs in a locked-down frame that can't open other websites,
       // so the button shows the volunteer page address instead.
-      const signup = el('div', 'signup');
-      signup.hidden = true;
-      signup.id = 'signup';
-      join.setAttribute('aria-controls', 'signup');
-      signup.append(el('p', '', 'Apply on the Big Brothers Big Sisters of Greater LA volunteer page:'));
-      signup.append(el('p', 'address', VOLUNTEER_ADDRESS));
-      signup.append(el('p', '', 'Or use the volunteer link higher up on this page.'));
-      join.addEventListener('click', () => {
+      signup.append(
+        el('p', '', 'Big Brothers Big Sisters says you don\'t need any special degrees or job skills to be a mentor. Learn more and apply on their volunteer page:'),
+        el('p', 'address', 'https://bbbsla.org/volunteer/'),
+        el('p', '', 'Or use the volunteer link higher up on this page.')
+      );
+      const join = button('Become a real-life Big →', 'btn', () => {
         signup.hidden = !signup.hidden;
         join.setAttribute('aria-expanded', String(!signup.hidden));
       });
-      card.append(signup);
+      join.setAttribute('aria-expanded', 'false');
+      join.setAttribute('aria-controls', 'signup');
+      actions.append(join, button('Play Another Adventure', 'btn btn-light', chooseScreen));
+      s.append(actions, signup, el('p', 'fine', 'A student-made game for learning and fun, not official mentor training.'));
 
-      card.append(el('p', 'note', 'Just for fun! Every kind of Big makes a difference.'));
-      stage.append(card);
-      h.focus({ preventScroll: true });
+      const confetti = el('div', 'confetti');
+      confetti.setAttribute('aria-hidden', 'true');
+      const colors = ['var(--accent)', 'var(--accent-from)', 'var(--bg)', 'var(--surface-2)'];
+      for (let i = 0; i < 36; i++) {
+        const bit = el('i');
+        bit.style.left = (Math.random() * 100) + '%';
+        bit.style.background = colors[i % colors.length];
+        bit.style.animationDelay = (Math.random() * 0.6) + 's';
+        confetti.append(bit);
+      }
+      s.prepend(confetti);
+      show(s, h);
     }
 
-    showQuestion(false);
+    startScreen(false);
   </script>
 </body>
 </html>

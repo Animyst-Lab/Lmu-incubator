@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    /*
+      Saver of 2026: a real-time investing game for Save It Forward's page.
+      The section sits on a green background, styled like a banknote, so it
+      defines its own greens and paper colors here. Corners, body type, and
+      motion come from the site's tokens.
+    */
+    :root {
+      --g-950: #0A2419;
+      --g-900: #12382A;
+      --g-800: #1A4A38;
+      --g-700: #256349;
+      --g-line: rgba(255, 255, 255, 0.2);
+      --mint: #A7E3C4;
+      --mint-soft: #DDF3E7;
+      --on-green: #FFFFFF;
+      --on-green-muted: #CFE6D9;
+      --paper: #F1F5E1;
+      --paper-ink: #14261D;
+      --paper-muted: #44564B;
+      --up: #1B6B45;
+      --display: Georgia, "Times New Roman", serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 16px; background: var(--g-900); color: var(--on-green); font-family: var(--font-sans); line-height: 1.5; }
+    .wrap { max-width: 1120px; margin: 0 auto; }
+    h2, h3 { margin: 0; line-height: 1.2; }
+    h2:focus, h3:focus { outline: none; }
+    p { margin: 0; }
+    button { font: inherit; touch-action: manipulation; }
+    :focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+    .stage :focus-visible { outline-color: var(--g-700); }
+    .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .display { font-family: var(--display); font-variant-caps: small-caps; letter-spacing: 0.06em; font-weight: 700; }
+    .eyebrow { display: block; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+    .fine { font-size: 0.8125rem; }
+
+    /* The board: a dark green sidebar and a paper "banknote" stage */
+    .game {
+      display: grid; grid-template-columns: 280px minmax(0, 1fr); grid-template-rows: auto 1fr;
+      grid-template-areas: "side stage" "drawers stage";
+      border: 1px solid var(--g-line); border-radius: var(--radius-card-sm); overflow: hidden;
+      background:
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 16px),
+        repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 16px),
+        var(--g-950);
+    }
+    .side { grid-area: side; display: grid; gap: 14px; padding: 20px 20px 16px; align-content: start; }
+    .drawers { grid-area: drawers; display: grid; gap: 8px; padding: 0 20px 20px; align-content: start; }
+    .stage {
+      grid-area: stage; margin: 12px; padding: 22px; min-height: 540px; display: grid; gap: 14px; align-content: start;
+      border-radius: var(--radius-control); color: var(--paper-ink);
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='12'%3E%3Cpath d='M0 6q10-6 20 0t20 0' fill='none' stroke='%2312382A' stroke-opacity='.1'/%3E%3C/svg%3E"),
+        linear-gradient(120deg, #E6F0D2, #F6F3DC 50%, #E2EFD8);
+      box-shadow: inset 0 0 0 2px var(--g-950), inset 0 0 0 6px var(--paper), inset 0 0 0 7px var(--g-950);
+    }
+
+    /* Sidebar */
+    .yr { font-size: 1.125rem; color: var(--on-green); }
+    .yr b { font-size: 1.75rem; font-variant-caps: normal; }
+    .bar { height: 12px; padding: 2px; border: 2px solid var(--on-green); border-radius: 4px; }
+    .bar span { display: block; height: 100%; width: 0; border-radius: 1px; background: var(--mint); }
+    .status { font-size: 0.8125rem; color: var(--on-green-muted); min-height: 1.3em; }
+    .pig { display: grid; place-items: center; }
+    .pig svg { width: 170px; height: auto; }
+    .money { display: grid; gap: 10px; margin: 0; }
+    .money dt { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--on-green); }
+    .money dd { margin: 0; font-family: var(--mono); font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--on-green); }
+    .money dd.pulse { animation: pulse 0.7s var(--ease-snap); }
+    @keyframes pulse { 0% { color: var(--mint); transform: scale(1.06); } 100% { color: var(--on-green); transform: none; } }
+    .toast { min-height: 1.3em; font-size: 0.8125rem; font-weight: 600; color: var(--mint); }
+    .ctrl { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .chips { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .chip {
+      min-width: 44px; min-height: 40px; padding: 6px 14px; border: 1px solid var(--g-line); border-radius: var(--radius-pill);
+      background: transparent; color: var(--on-green); font-size: 0.8125rem; font-weight: 500; cursor: pointer;
+    }
+    .chip[aria-pressed="true"] { background: var(--mint); border-color: var(--mint); color: var(--g-950); font-weight: 600; }
+    .stage .chip { border-color: rgba(20, 38, 29, 0.45); color: var(--paper-ink); }
+    .stage .chip[aria-pressed="true"] { background: var(--g-900); border-color: var(--g-900); color: #fff; }
+
+    /* Buttons: pills with a hard shadow, like a pressed key */
+    .key {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 20px;
+      border: 2px solid var(--paper-ink); border-radius: var(--radius-pill); background: var(--paper); color: var(--paper-ink);
+      font-size: 0.875rem; font-weight: 600; cursor: pointer; box-shadow: 3px 3px 0 var(--paper-ink);
+      transition: transform 0.12s var(--ease-snap), box-shadow 0.12s var(--ease-snap);
+    }
+    .key:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--paper-ink); }
+    .key.go { background: var(--g-900); color: #fff; }
+    .key.light { border-color: var(--mint); background: transparent; color: var(--on-green); box-shadow: 3px 3px 0 var(--mint); }
+    .key.light:active { box-shadow: 1px 1px 0 var(--mint); }
+    .key.mint { border-color: var(--mint); background: var(--mint); color: var(--g-950); box-shadow: 3px 3px 0 var(--g-950); }
+    [aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
+    .key[aria-disabled="true"]:active { transform: none; }
+    .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+    /* Drawers: leaderboard, achievements, portfolio */
+    .drawer { border-top: 1px dotted var(--g-line); }
+    .drawer-btn {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 48px; padding: 8px 0;
+      border: 0; background: transparent; color: var(--on-green); font-size: 1rem; cursor: pointer; text-align: left;
+    }
+    .drawer-btn .lab::before { content: "▸ "; }
+    .drawer-btn[aria-expanded="true"] .lab::before { content: "▾ "; }
+    .count { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 7px; border-radius: var(--radius-pill); background: var(--mint); color: var(--g-950); font-family: var(--font-sans); font-size: 0.8125rem; font-weight: 700; }
+    .board, .ach, .legend { margin: 0 0 12px; padding: 0; list-style: none; font-size: 0.875rem; }
+    .board li, .legend li { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; color: var(--on-green-muted); font-variant-numeric: tabular-nums; }
+    .board li.me { color: var(--on-green); font-weight: 700; }
+    .board .v, .legend .v { font-family: var(--mono); }
+    .ach li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; padding: 6px 0; color: var(--on-green-muted); }
+    .ach li.got { color: var(--on-green); }
+    .ach .mark { display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid var(--g-line); border-radius: var(--radius-pill); font-size: 0.75rem; font-weight: 700; }
+    .ach li.got .mark { background: var(--mint); border-color: var(--mint); color: var(--g-950); }
+    .ach strong { display: block; font-weight: 600; }
+    .ach span.d { font-size: 0.8125rem; }
+    .donut { display: block; width: 120px; height: 120px; margin: 4px auto 10px; }
+    .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 8px; border-radius: 2px; }
+
+    /* Stage */
+    .news { display: flex; gap: 10px; align-items: baseline; padding-bottom: 10px; border-bottom: 1px dotted var(--paper-ink); font-size: 0.9375rem; min-height: 3.4em; }
+    .tag { flex: none; padding: 2px 8px; border-radius: 4px; background: var(--g-900); color: #fff; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+    .amount { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+    .amount .k { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .pocket { margin-left: auto; font-size: 0.875rem; }
+    .pocket b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+    .notes { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+    .note {
+      display: grid; gap: 8px; align-content: start; padding: 16px;
+      grid-template-areas: "head" "spark" "bal" "sub" "acts";
+      border: 1.5px solid var(--paper-ink); border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.6);
+      box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px rgba(20, 38, 29, 0.3);
+    }
+    .note-head { grid-area: head; display: flex; align-items: center; gap: 8px; }
+    .note h3 { flex: 1; font-size: 1.0625rem; }
+    .ico { flex: none; width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .ico.big { width: 56px; height: 56px; stroke-width: 1.2; }
+    .help { flex: none; display: inline-grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--paper-ink); font-family: var(--display); font-size: 1.125rem; font-weight: 700; cursor: pointer; }
+    .help span { display: grid; place-items: center; width: 26px; height: 26px; border: 1.5px solid var(--paper-ink); border-radius: var(--radius-pill); }
+    .spark { grid-area: spark; display: block; width: 100%; height: 40px; }
+    .bal { grid-area: bal; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding-bottom: 4px; border-bottom: 1px dotted var(--paper-ink); }
+    .bal .k { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .bal .v { font-family: var(--mono); font-size: 1.125rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .sub { grid-area: sub; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 10px; font-size: 0.8125rem; color: var(--paper-muted); font-variant-numeric: tabular-nums; }
+    .up { color: var(--up); font-weight: 600; }
+    .down { color: var(--accent-strong); font-weight: 600; }
+    .note-acts { grid-area: acts; display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; }
+    .note.locked { grid-template-areas: "head"; align-self: start; border-style: dashed; background: transparent; box-shadow: none; color: var(--paper-muted); }
+    .tabs { display: none; flex-wrap: wrap; gap: 6px; }
+    .nextup { display: none; color: var(--paper-muted); }
+    .note.locked h3 { font-size: 0.9375rem; }
+    .note.locked .when { font-size: 0.8125rem; }
+
+    /* Lesson and about cards, shown on the stage while the clock is paused */
+    .panel { display: grid; gap: 14px; justify-items: center; align-content: center; max-width: 520px; margin: 0 auto; padding: 24px 8px; text-align: center; min-height: 420px; }
+    .panel h3 { font-size: 1.5rem; }
+    .panel p { max-width: 44ch; }
+    .panel .risk { font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--paper-muted); }
+
+    /* Intro and results */
+    .game.solo { display: block; }
+    .intro { display: grid; gap: 16px; justify-items: center; max-width: 560px; margin: 0 auto; padding: 36px 20px 32px; text-align: center; }
+    .intro h2 { font-size: 2.25rem; }
+    .intro .lead { font-size: 1.0625rem; color: var(--on-green); }
+    .intro .eyebrow { color: var(--mint); }
+    .how { display: grid; gap: 6px; margin: 0; padding: 0 0 0 20px; text-align: left; color: var(--on-green-muted); list-style: disc; }
+    .intro .fine { color: var(--on-green-muted); }
+    .stage.sheet { min-height: 0; }
+    .sheet .center { display: grid; gap: 6px; justify-items: center; text-align: center; }
+    .sheet h2 { font-size: 2rem; }
+    .sheet .total { font-family: var(--mono); font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .sheet h3 { font-size: 1.125rem; }
+    .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .tile { padding: 12px; border: 1.5px solid var(--paper-ink); border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.6); }
+    .tile.me { background: var(--g-900); color: #fff; }
+    .tile .k { display: block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .tile .v { display: block; font-family: var(--mono); font-size: 1.125rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .tile .d { display: block; font-size: 0.8125rem; }
+    .chart { display: block; width: 100%; max-width: 520px; height: auto; margin: 0 auto; overflow: visible; }
+    .chart text { font-family: var(--font-sans); font-size: 13px; fill: var(--paper-muted); }
+    .sheet .legend { display: grid; gap: 4px; margin: 0; color: var(--paper-ink); }
+    .sheet .legend li { color: var(--paper-ink); align-items: center; justify-content: flex-start; }
+    .sheet .legend .v { margin-left: auto; }
+    .sheet .ach { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 4px 16px; margin: 0; }
+    .sheet .ach li { color: var(--paper-muted); }
+    .sheet .ach li.got { color: var(--paper-ink); }
+    .sheet .ach .mark { border-color: rgba(20, 38, 29, 0.4); }
+    .sheet .ach li.got .mark { background: var(--g-900); border-color: var(--g-900); color: #fff; }
+
+    @media (max-width: 760px) {
+      body { padding: 10px; }
+      .game { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; grid-template-areas: "side" "stage" "drawers"; }
+      .side { gap: 10px; padding: 16px 16px 8px; }
+      .pig { display: none; }
+      .intro .pig { display: grid; }
+      .money { grid-template-columns: 1fr 1fr; }
+      .money dd { font-size: 1.125rem; }
+      .drawers { padding: 4px 16px 16px; }
+      .stage { margin: 8px; padding: 16px 14px; min-height: 0; }
+      .notes { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+      /* One investment at a time, picked with tabs, so the game fits a phone screen. */
+      .tabs { display: flex; }
+      .nextup { display: block; }
+      .note { display: none; }
+      .note.sel { display: grid; }
+      .chip { padding: 6px 11px; }
+      .ctrl { gap: 8px; }
+      .ctrl .key { padding: 8px 14px; }
+      .toast:empty { display: none; }
+      .amount .k { width: 100%; }
+      .pocket { margin-left: 0; width: 100%; }
+      .panel { min-height: 0; padding: 12px 0; }
+      .tiles { grid-template-columns: minmax(0, 1fr); }
+      .intro h2, .sheet h2 { font-size: 1.75rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="game"></div>
+    <p id="live" class="sr-only" aria-live="polite"></p>
+    <noscript><p>This game needs JavaScript turned on.</p></noscript>
+  </div>
+
+  <script>
+    /* ENGINE:START
+       The game's rules, with no page code in it. Time is measured in months.
+       Every number here is pretend: made up for the game, not real market data. */
+    var Engine = (function () {
+      var MONTHS = 240;    // 20 years
+      var START = 1000;    // pocket cash at the start
+      var INCOME = 500;    // lands in your pocket every six months
+      var SAVINGS_RATE = Math.pow(1.02, 1 / 12) - 1;
+      var ASSETS = [
+        { id: "savings", name: "Savings Account", unlock: 0, risk: "Very low risk", lesson: [
+          "Instead of keeping money in your pocket, you can put it in a savings account at a bank.",
+          "The bank pays you a little extra, called interest. It grows slowly, but in this game it never goes down." ] },
+        { id: "bonds", name: "Bonds", unlock: 12, risk: "Low risk", lesson: [
+          "A bond is a loan you make to a government or a company.",
+          "They promise to pay you back with interest. Bonds are usually steadier than stocks, with smaller gains, but they can still lose value." ] },
+        { id: "index", name: "Index Fund", unlock: 36, risk: "Medium risk", lesson: [
+          "An index fund buys tiny pieces of many companies at once.",
+          "One bad company can't sink it, but the fund still drops when the whole market drops." ] },
+        { id: "stock", name: "Single Stock", unlock: 72, risk: "High risk", lesson: [
+          "A stock is a piece of one company.",
+          "If that company does well you can gain a lot. If it stumbles you can lose a lot, fast." ] },
+        { id: "gold", name: "Gold", unlock: 108, risk: "Medium risk", lesson: [
+          "Gold is a metal people buy to hold value.",
+          "Its price swings up and down. It sometimes rises when the stock market falls." ] }
+      ];
+      var ACHIEVEMENTS = [
+        { id: "early", name: "Early bird", desc: "Put money to work in your first year." },
+        { id: "mix", name: "Diversified", desc: "Hold three kinds of investment at once." },
+        { id: "all", name: "Full set", desc: "Hold all five kinds of investment at once." },
+        { id: "big", name: "Thirty thousand", desc: "Reach a net worth of $30,000." },
+        { id: "held", name: "Held through the crash", desc: "Own the index fund or the stock when the crash starts, and sell none of it for a year." },
+        { id: "work", name: "Money at work", desc: "Keep your pocket cash at $500 or less for a whole year." },
+        { id: "bank", name: "Beat the bank", desc: "Finish ahead of Sam, who only uses a savings account." },
+        { id: "top", name: "Top of the board", desc: "Finish in first place." }
+      ];
+
+      // Small seeded random number generator, so a game can be replayed in tests.
+      function rng(seed) {
+        var a = seed >>> 0;
+        return function () {
+          a = (a + 0x6D2B79F5) | 0;
+          var t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      function gauss(r) {
+        var u = 0;
+        while (u === 0) u = r();
+        return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r());
+      }
+      function cents(x) { return Math.round(x * 100) / 100; }
+
+      function makeNews(type, month) {
+        var hasStock = month >= 72, hasGold = month >= 108;
+        switch (type) {
+          case "rates": return { type: type, title: "Interest rates are up",
+            text: "Banks are paying savers more, so the savings account earns twice its usual interest for the next year. Older bonds lose a little value, because new bonds now pay more." };
+          case "prices": return { type: type, title: "Prices are rising",
+            text: "Things cost more than they did last year. Cash sitting in your pocket earns nothing, so it buys a little less." +
+              (hasGold ? " Gold is up as people look for something that holds its value." : "") };
+          case "boom": return { type: type, title: "Boom time",
+            text: "Companies are having a great few months, and the stock market is climbing." };
+          case "goodnews": return { type: type, title: "The single stock soars",
+            text: "The one company you can buy stock in launched a hit product, and its stock is soaring. The index fund holds many companies, so it barely moves." };
+          case "badnews": return { type: type, title: "The single stock sinks",
+            text: "The one company you can buy stock in is having a terrible month, and its stock is sinking. The index fund holds many companies, so it barely notices." };
+          case "goldrush": return { type: type, title: "Gold rush",
+            text: "Worried investors are rushing to buy gold, and its price is jumping." };
+          case "goldslump": return { type: type, title: "Gold loses its shine",
+            text: "Fewer people want gold right now, and its price is sliding." };
+          case "crash": return { type: type, title: "The market is crashing",
+            text: "Bad news is spreading and investors are panicking. " + (hasStock ? "The index fund and the single stock are" : "The index fund is") +
+              " falling fast." + (hasGold ? " Gold is rising as people look for safety." : "") + " Will you hold on or sell?" };
+          default: return { type: "rebound", title: "The market is recovering",
+            text: "The stock market is climbing back. Investors who held on are watching their money return. In real life, a recovery can take years, and it is not guaranteed." };
+        }
+      }
+
+      // Decides, up front, how every investment's price moves each month.
+      // The player and both computer savers live through the same market.
+      function buildMarket(seed) {
+        var r = rng(seed), R = { savings: [], bonds: [], index: [], stock: [], gold: [] }, news = {}, k;
+        for (k = 0; k < MONTHS; k++) {
+          var m = gauss(r);
+          R.savings.push(SAVINGS_RATE);
+          R.bonds.push(0.0033 + 0.004 * gauss(r));
+          R.index.push(0.0068 + 0.032 * m);
+          R.stock.push(0.009 + 0.045 * m + 0.075 * gauss(r));
+          R.gold.push(0.004 - 0.012 * m + 0.035 * gauss(r));
+        }
+
+        // One crash somewhere in years 5 to 12: four bad months, then a slow recovery.
+        var c = 60 + Math.floor(r() * 91);
+        for (k = 0; k < 4; k++) { R.index[c + k] = -0.085; R.stock[c + k] = -0.11; R.gold[c + k] = 0.03; R.bonds[c + k] = 0.006; }
+        for (k = 4; k < 16; k++) {
+          // The first months of the recovery always rise, so the news matches the prices.
+          var lift = k < 7;
+          R.index[c + k] = (lift ? Math.max(R.index[c + k], 0) : R.index[c + k]) + 0.02;
+          R.stock[c + k] = (lift ? Math.max(R.stock[c + k], 0) : R.stock[c + k]) + 0.022;
+        }
+        news[c] = makeNews("crash", c);
+        news[c + 4] = makeNews("rebound", c + 4);
+
+        // Other news, every year and a half or so, kept clear of the crash.
+        var t = 8 + Math.floor(r() * 6), last = "";
+        while (t < MONTHS - 6) {
+          if (ASSETS.some(function (a) { return a.unlock === t; })) t++;
+          if (t < c - 3 || t > c + 17) {
+            var pool = ["prices"];
+            if (t >= 12) pool.push("rates");
+            if (t >= 36) pool.push("boom");
+            if (t >= 72) pool.push("goodnews", "badnews");
+            if (t >= 108) pool.push("goldrush", "goldslump");
+            var type = pool[Math.floor(r() * pool.length)];
+            if (type === last) type = pool[(pool.indexOf(type) + 1) % pool.length];
+            last = type;
+            if (type === "rates") { for (k = 0; k < 12; k++) R.savings[t + k] = SAVINGS_RATE * 2; R.bonds[t] = -0.03; }
+            if (type === "prices" && t >= 108) R.gold[t] = Math.max(R.gold[t], 0) + 0.03;
+            if (type === "boom") { for (k = 0; k < 3; k++) { R.index[t + k] = Math.max(R.index[t + k], 0) + 0.035; R.stock[t + k] = Math.max(R.stock[t + k], 0) + 0.05; } }
+            if (type === "goodnews") { R.stock[t] = 0.3; R.index[t] = Math.max(-0.01, Math.min(0.02, R.index[t])); }
+            if (type === "badnews") { R.stock[t] = -0.3; R.index[t] = Math.max(-0.01, Math.min(0.02, R.index[t])); }
+            if (type === "goldrush") { R.gold[t] = 0.09; R.gold[t + 1] = 0.09; }
+            if (type === "goldslump") { R.gold[t] = -0.07; R.gold[t + 1] = -0.07; }
+            news[t] = makeNews(type, t);
+          }
+          t += 16 + Math.floor(r() * 9);
+        }
+
+        var prices = {};
+        ASSETS.forEach(function (a) {
+          var p = [1];
+          for (k = 0; k < MONTHS; k++) p.push(p[k] * (1 + Math.max(-0.4, R[a.id][k])));
+          prices[a.id] = p;
+        });
+        return { prices: prices, news: news, crash: c };
+      }
+
+      function createGame(seed) {
+        var market = buildMarket(seed), units = {}, cost = {};
+        ASSETS.forEach(function (a) { units[a.id] = 0; cost[a.id] = 0; });
+        return {
+          seed: seed, t: 0, cash: START, put: START, units: units, cost: cost,
+          prices: market.prices, news: market.news, crash: market.crash,
+          sam: START, indy: { sav: START, idx: 0 },
+          hist: { me: [START], sam: [START], indy: [START] },
+          earned: {}, flags: { early: false, atCrash: false, sold: false, held: false, low: 0 }
+        };
+      }
+
+      function finished(s) { return s.t >= MONTHS; }
+      function isUnlocked(s, id) { return ASSETS.some(function (a) { return a.id === id && a.unlock <= s.t; }); }
+      // Price right now, moving smoothly between one month's price and the next.
+      function price(s, id) {
+        var p = s.prices[id], k = Math.min(MONTHS - 1, Math.floor(s.t)), f = Math.min(1, s.t - k);
+        return p[k] * Math.pow(p[k + 1] / p[k], f);
+      }
+      function value(s, id) { return s.units[id] * price(s, id); }
+      function netWorth(s) { return ASSETS.reduce(function (sum, a) { return sum + value(s, a.id); }, s.cash); }
+      // Sam keeps everything in savings. Indy switches to the index fund as soon
+      // as it unlocks, and never sells.
+      function worth(s, who) {
+        if (who === "sam") return s.sam * price(s, "savings");
+        if (who === "indy") return s.indy.sav * price(s, "savings") + s.indy.idx * price(s, "index");
+        return netWorth(s);
+      }
+
+      function earn(s, out) {
+        var kinds = ASSETS.filter(function (a) { return value(s, a.id) > 0.005; }).length, me = netWorth(s), done = finished(s);
+        var ok = {
+          early: s.flags.early, mix: kinds >= 3, all: kinds >= 5, big: me >= 30000, held: s.flags.held, work: s.flags.low >= 12,
+          bank: done && me > worth(s, "sam"), top: done && me > worth(s, "sam") && me > worth(s, "indy")
+        };
+        ACHIEVEMENTS.forEach(function (a) {
+          if (ok[a.id] && !s.earned[a.id]) { s.earned[a.id] = true; out.push({ kind: "achievement", achievement: a }); }
+        });
+      }
+
+      function deposit(s, id, amount) {
+        var out = { moved: 0, happened: [] };
+        if (finished(s) || !isUnlocked(s, id) || !(amount > 0)) return out;
+        var amt = cents(Math.min(amount, s.cash));
+        if (!(amt > 0)) return out;
+        s.units[id] += amt / price(s, id);
+        s.cost[id] += amt;
+        s.cash = cents(s.cash - amt);
+        if (s.t < 12) s.flags.early = true;
+        out.moved = amt;
+        earn(s, out.happened);
+        return out;
+      }
+
+      function withdraw(s, id, amount) {
+        var out = { moved: 0, happened: [] };
+        if (finished(s) || !isUnlocked(s, id) || !(amount > 0)) return out;
+        var val = value(s, id);
+        if (!(val > 0)) return out;
+        var amt;
+        if (amount >= val - 0.005) { amt = cents(val); s.units[id] = 0; s.cost[id] = 0; }
+        else { amt = cents(amount); var keep = 1 - amt / val; s.units[id] *= keep; s.cost[id] *= keep; }
+        s.cash = cents(s.cash + amt);
+        if ((id === "index" || id === "stock") && s.t >= s.crash && s.t < s.crash + 12) s.flags.sold = true;
+        out.moved = amt;
+        earn(s, out.happened);
+        return out;
+      }
+
+      function onMonth(s, m, out) {
+        if (m < MONTHS && m % 6 === 0) {
+          s.cash = cents(s.cash + INCOME); s.put += INCOME;
+          s.sam += INCOME / s.prices.savings[m];
+          if (m >= 36) s.indy.idx += INCOME / s.prices.index[m]; else s.indy.sav += INCOME / s.prices.savings[m];
+          out.push({ kind: "income", amount: INCOME });
+        }
+        if (m === 36) { s.indy.idx += s.indy.sav * s.prices.savings[m] / s.prices.index[m]; s.indy.sav = 0; }
+        if (m < MONTHS) {
+          ASSETS.forEach(function (a) { if (a.unlock === m) out.push({ kind: "unlock", asset: a }); });
+          if (s.news[m]) out.push({ kind: "news", news: s.news[m] });
+        }
+        if (m === s.crash) s.flags.atCrash = s.units.index > 0 || s.units.stock > 0;
+        if (m === s.crash + 12 && s.flags.atCrash && !s.flags.sold) s.flags.held = true;
+        s.flags.low = s.cash <= INCOME ? s.flags.low + 1 : 0;
+        s.hist.me.push(netWorth(s)); s.hist.sam.push(worth(s, "sam")); s.hist.indy.push(worth(s, "indy"));
+        earn(s, out);
+        if (m === MONTHS) out.push({ kind: "end" });
+      }
+
+      // Lets time pass. Returns what happened along the way: income, unlocks,
+      // news, achievements, and the end of the game.
+      function advance(s, months) {
+        var out = [];
+        if (finished(s) || !(months > 0)) return out;
+        var target = Math.min(MONTHS, s.t + months), m = Math.floor(s.t) + 1;
+        for (; m <= target; m++) { s.t = m; onMonth(s, m, out); }
+        if (s.t < target) s.t = target;
+        return out;
+      }
+
+      return { MONTHS: MONTHS, START: START, INCOME: INCOME, ASSETS: ASSETS, ACHIEVEMENTS: ACHIEVEMENTS,
+        createGame: createGame, finished: finished, isUnlocked: isUnlocked, price: price, value: value,
+        netWorth: netWorth, worth: worth, deposit: deposit, withdraw: withdraw, advance: advance };
+    })();
+    /* ENGINE:END */
+
+    /* The page: draws the game, runs the clock, and handles taps. */
+    (function () {
+      var root = document.getElementById("game");
+      var live = document.getElementById("live");
+      var SVG = "http://www.w3.org/2000/svg";
+      var SECONDS_PER_MONTH = 1;   // at normal speed, a year takes 12 seconds
+      var SPEEDS = [[0.5, "Slow"], [1, "Normal"], [2, "Fast"]];
+      var AMOUNTS = [[100, "$100"], [500, "$500"], [1000, "$1,000"], [Infinity, "All"]];
+      var COLORS = { cash: "#FFFFFF", savings: "#A7E3C4", bonds: "#5FB58B", index: "#8ECAE6", stock: "#CF8047", gold: "#E9C46A" };
+      var ICONS = {
+        savings: "M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18",
+        bonds: "M4 5h16v11H4zM7 9h6M7 12h4M16 10.5a2 2 0 100 4 2 2 0 000-4zM15 14.3l-.6 4 1.6-1 1.6 1-.6-4",
+        index: "M4 20h16M7 20v-5M11 20v-9M15 20v-7M19 20V8",
+        stock: "M4 18l5-6 4 3 7-9M16 6h4v4",
+        gold: "M2.5 19l1.8-4.5h5.4L11.5 19zM12.5 19l1.8-4.5h5.4L21.5 19zM7.5 13.5l1.8-4.5h5.4l1.8 4.5z"
+      };
+      var DISCLAIMER = "This is a pretend game for learning. The numbers are made up, not real market data, and nothing here is financial advice.";
+      var WELCOME = "Deposit some pocket cash into your savings account to get started. The clock is running.";
+
+      var state = null, screen = "intro", paused = false, hidden = false, offscreen = false;
+      var speed = 1, amount = 500, overlay = null, queue = [], news = WELCOME, toast = "";
+      var drawers = { board: true, ach: false, port: false }, tab = "savings";
+      var SHORT = { savings: "Savings", bonds: "Bonds", index: "Index fund", stock: "Stock", gold: "Gold" };
+      var refs = {}, raf = 0, lastTs = 0, lastPaint = 0, paintedMonth = -1, pulseTimer = 0, confirmQuit = false;
+
+      function money(n) {
+        return (n < -0.004 ? "−$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+      function dollars(n) { return "$" + Math.round(n).toLocaleString("en-US"); }
+      function compact(n) { return n >= 1e6 ? "$" + +(n / 1e6).toFixed(1) + "M" : n >= 1000 ? "$" + +(n / 1000).toFixed(1) + "k" : "$" + Math.round(n); }
+      function percent(x) {
+        var p = Math.round(x * 1000) / 10;
+        return (p > 0 ? "+" : p < 0 ? "−" : "") + Math.abs(p).toFixed(1) + "%";
+      }
+      var sayTimer = 0;
+      function say(text) { live.textContent = ""; clearTimeout(sayTimer); sayTimer = setTimeout(function () { live.textContent = text; }, 60); }
+      function assetById(id) { return Engine.ASSETS.filter(function (a) { return a.id === id; })[0]; }
+
+      function h(tag, attrs, kids) {
+        var el = document.createElement(tag), k;
+        for (k in attrs || {}) {
+          if (k === "text") el.textContent = attrs[k];
+          else if (attrs[k] !== null && attrs[k] !== undefined && attrs[k] !== false) el.setAttribute(k, attrs[k]);
+        }
+        (kids || []).forEach(function (c) { if (c) el.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+        return el;
+      }
+      function svg(tag, attrs, kids) {
+        var el = document.createElementNS(SVG, tag), k;
+        for (k in attrs || {}) el.setAttribute(k, attrs[k]);
+        (kids || []).forEach(function (c) { el.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+        return el;
+      }
+      function button(label, act, cls, off, aria) {
+        return h("button", { type: "button", "class": cls, "data-act": act, "aria-disabled": off ? "true" : null, "aria-label": aria || null, text: label });
+      }
+      function chip(label, act, on) {
+        return h("button", { type: "button", "class": "chip", "data-act": act, "aria-pressed": on ? "true" : "false", text: label });
+      }
+      function icon(id, big) {
+        return svg("svg", { "class": "ico" + (big ? " big" : ""), viewBox: "0 0 24 24", "aria-hidden": "true" }, [svg("path", { d: ICONS[id] })]);
+      }
+      // The mascot: a piggy bank in a graduation cap.
+      function pig() {
+        var cream = "#F3F0D8", ink = "#0A2419";
+        return h("div", { "class": "pig", "aria-hidden": "true" }, [svg("svg", { viewBox: "0 0 200 150" }, [
+          svg("path", { d: "M40 82q-14-2-12-14 2-9 10-4", fill: "none", stroke: cream, "stroke-width": 4, "stroke-linecap": "round" }),
+          svg("rect", { x: 62, y: 112, width: 16, height: 24, rx: 5, fill: cream, stroke: ink, "stroke-width": 3 }),
+          svg("rect", { x: 122, y: 112, width: 16, height: 24, rx: 5, fill: cream, stroke: ink, "stroke-width": 3 }),
+          svg("ellipse", { cx: 100, cy: 84, rx: 62, ry: 42, fill: cream, stroke: ink, "stroke-width": 3 }),
+          svg("path", { d: "M124 50l10-18 12 16z", fill: cream, stroke: ink, "stroke-width": 3, "stroke-linejoin": "round" }),
+          svg("ellipse", { cx: 162, cy: 86, rx: 13, ry: 11, fill: cream, stroke: ink, "stroke-width": 3 }),
+          svg("circle", { cx: 158, cy: 86, r: 1.8, fill: ink }),
+          svg("circle", { cx: 166, cy: 86, r: 1.8, fill: ink }),
+          svg("circle", { cx: 142, cy: 70, r: 3, fill: ink }),
+          svg("rect", { x: 84, y: 46, width: 30, height: 5, rx: 2.5, fill: ink }),
+          svg("circle", { cx: 96, cy: 90, r: 19, fill: "#A7E3C4", stroke: ink, "stroke-width": 3 }),
+          svg("text", { x: 96, y: 98, "text-anchor": "middle", "font-family": "Georgia, serif", "font-size": 24, "font-weight": 700, fill: ink }, ["$"]),
+          svg("path", { d: "M104 22l32-10 32 10-32 10z", fill: ink, stroke: cream, "stroke-width": 2, "stroke-linejoin": "round" }),
+          svg("path", { d: "M120 28v8q16 8 32 0v-8", fill: ink, stroke: cream, "stroke-width": 2, "stroke-linejoin": "round" }),
+          svg("path", { d: "M164 23v13", fill: "none", stroke: "#A7E3C4", "stroke-width": 2.5, "stroke-linecap": "round" }),
+          svg("circle", { cx: 164, cy: 39, r: 3.5, fill: "#A7E3C4" })
+        ])]);
+      }
+
+      function running() { return screen === "play" && !paused && !hidden && !offscreen && !overlay && !Engine.finished(state); }
+      function statusText() {
+        if (overlay) return "Paused while you read";
+        if (paused) return "Paused";
+        if (hidden || offscreen) return "Paused until you come back";
+        return "The clock is running";
+      }
+
+      /* ---------- Screens ---------- */
+
+      function aboutCard() {
+        return h("div", { "class": "panel" }, [
+          h("span", { "class": "eyebrow", text: "Saver of 2026" }),
+          h("h3", { id: "focus", tabindex: "-1", "class": "display", text: "About this game" }),
+          h("p", { text: "A beginner's crash course in five kinds of investing: savings accounts, bonds, index funds, single stocks, and gold." }),
+          h("p", { text: "It was made for this page about Save It Forward, an LMU student-led initiative that teaches young people financial literacy: budgeting, saving, investing, credit management, and financial goal setting, in sessions led by LMU student mentors." }),
+          h("p", { "class": "fine", text: DISCLAIMER }),
+          button(screen === "play" ? "Back to the game" : "Close", "resume", "key go")
+        ]);
+      }
+
+      function viewIntro() {
+        if (overlay) return h("div", { "class": "game solo" }, [h("section", { "class": "stage sheet" }, [aboutCard()])]);
+        return h("div", { "class": "game solo" }, [h("div", { "class": "intro" }, [
+          pig(),
+          h("span", { "class": "eyebrow", text: "An investing game" }),
+          h("h2", { id: "focus", tabindex: "-1", "class": "display", text: "Saver of 2026" }),
+          h("p", { "class": "lead", text: "You've got 20 years to grow your money. Can you finish ahead of Sam, who only saves, and Indy, who buys the index fund as soon as it unlocks?" }),
+          h("ul", { "class": "how", role: "list" }, [
+            h("li", { text: "The clock never stops. Every six months, $500 lands in your pocket." }),
+            h("li", { text: "Deposit your cash into investments and watch them move. New kinds unlock as the years go by." }),
+            h("li", { text: "Keep an eye on the news. Deposit or withdraw whenever you like." }),
+            h("li", { text: "Your net worth is your pocket cash plus everything you have invested." })
+          ]),
+          h("div", { "class": "row" }, [button("Play", "play", "key mint"), button("About this game", "about", "key light")]),
+          h("p", { "class": "fine", text: DISCLAIMER })
+        ])]);
+      }
+
+      function lessonCard() {
+        var a = assetById(overlay.id);
+        return h("div", { "class": "panel" }, [
+          h("span", { "class": "eyebrow", text: overlay.fresh ? "New investment unlocked" : "How it works" }),
+          icon(a.id, true),
+          h("h3", { id: "focus", tabindex: "-1", "class": "display", text: a.name })
+        ].concat(a.lesson.map(function (line) { return h("p", { text: line }); }), [
+          h("p", { "class": "risk", text: a.risk }),
+          button(overlay.fresh ? "Got it" : "Back to the game", "resume", "key go")
+        ]));
+      }
+
+      function note(a) {
+        if (!Engine.isUnlocked(state, a.id)) {
+          return h("li", { "class": "note locked" }, [h("div", { "class": "note-head" }, [
+            icon(a.id), h("h3", { "class": "display", text: a.name }), h("span", { "class": "when", text: "Unlocks in year " + a.unlock / 12 })
+          ])]);
+        }
+        return h("li", { "class": "note" + (a.id === tab ? " sel" : "") }, [
+          h("div", { "class": "note-head" }, [
+            icon(a.id), h("h3", { "class": "display", text: a.name }),
+            h("button", { type: "button", "class": "help", "data-act": "lesson:" + a.id, "aria-label": "How " + a.name.toLowerCase() + (a.id === "bonds" ? " work" : " works") }, [h("span", { text: "?" })])
+          ]),
+          svg("svg", { "class": "spark", viewBox: "0 0 100 40", preserveAspectRatio: "none", "aria-hidden": "true" }, [
+            svg("polyline", { "data-live": "spark:" + a.id, points: "", fill: "none", stroke: "var(--g-700)", "stroke-width": 2, "vector-effect": "non-scaling-stroke", "stroke-linejoin": "round" })
+          ]),
+          h("div", { "class": "bal" }, [h("span", { "class": "k", text: "Balance" }), h("span", { "class": "v", "data-live": "bal:" + a.id })]),
+          h("div", { "class": "sub" }, [h("span", { "data-live": "profit:" + a.id }), h("span", { "data-live": "chg:" + a.id })]),
+          h("div", { "class": "note-acts" }, [
+            button("Withdraw", "withdraw:" + a.id, "key", false, "Withdraw from " + a.name),
+            button("Deposit", "deposit:" + a.id, "key go", false, "Deposit into " + a.name)
+          ])
+        ]);
+      }
+
+      function nextUp() {
+        var a = Engine.ASSETS.filter(function (x) { return !Engine.isUnlocked(state, x.id); })[0];
+        return a ? h("p", { "class": "nextup fine", text: "Next up: " + a.name + " unlocks in year " + a.unlock / 12 + "." }) : null;
+      }
+
+      function drawer(key, label, countKey, body) {
+        return h("div", { "class": "drawer" }, [
+          h("button", { type: "button", "class": "drawer-btn", "data-act": "drawer:" + key, "aria-expanded": drawers[key] ? "true" : "false" }, [
+            h("span", { "class": "lab display", text: label }),
+            countKey ? h("span", { "class": "count", "data-live": countKey }) : null
+          ]),
+          drawers[key] ? body() : null
+        ]);
+      }
+
+      function viewPlay() {
+        var side = h("aside", { "class": "side", "aria-label": "Your money" }, [
+          h("div", {}, [
+            h("h2", { id: "title", tabindex: "-1", "class": "yr display" }, ["Year ", h("b", { "data-live": "year", text: "0" }), " of 20"]),
+            h("div", { "class": "bar", role: "progressbar", "aria-label": "Years played", "aria-valuemin": "0", "aria-valuemax": "20", "aria-valuenow": "0", "data-live": "prog" }, [h("span", { "data-live": "bar" })]),
+            h("p", { "class": "status", "data-live": "status", text: statusText() })
+          ]),
+          pig(),
+          h("dl", { "class": "money" }, [
+            h("div", {}, [h("dt", { text: "Pocket cash" }), h("dd", { "data-live": "cash" })]),
+            h("div", {}, [h("dt", { text: "Net worth" }), h("dd", { "data-live": "net" })])
+          ]),
+          h("p", { "class": "toast", "data-live": "toast", text: toast }),
+          h("div", { "class": "ctrl" }, [
+            button(paused ? "Resume" : "Pause", "pause", "key light"),
+            h("div", { "class": "chips", role: "group", "aria-label": "Game speed" }, SPEEDS.map(function (s) { return chip(s[1], "speed:" + s[0], speed === s[0]); }))
+          ])
+        ]);
+
+        var stageKids = overlay ? [overlay.type === "about" ? aboutCard() : lessonCard()] : [
+          h("p", { "class": "news" }, [h("span", { "class": "tag", text: "News" }), h("span", { "data-live": "news", text: news })]),
+          h("div", { "class": "amount", role: "group", "aria-label": "How much to move with each tap" },
+            [h("span", { "class": "k", text: "Move per tap" })].concat(AMOUNTS.map(function (a) {
+              return chip(a[1], "amt:" + (a[0] === Infinity ? "all" : a[0]), amount === a[0]);
+            }), [h("span", { "class": "pocket" }, ["Pocket cash ", h("b", { "data-live": "cash2" })])])),
+          h("div", { "class": "tabs", role: "group", "aria-label": "Choose an investment" }, Engine.ASSETS.filter(function (a) { return Engine.isUnlocked(state, a.id); }).map(function (a) {
+            return chip(SHORT[a.id], "tab:" + a.id, tab === a.id);
+          })),
+          h("ul", { "class": "notes", role: "list" }, Engine.ASSETS.map(note)),
+          nextUp()
+        ];
+
+        var bottom = h("div", { "class": "drawers" }, [
+          drawer("board", "Leaderboard", "rank", function () {
+            return h("ol", { "class": "board", role: "list", "data-live": "board" }, [["me", "You"], ["sam", "Sam · savings only"], ["indy", "Indy · index fund only"]].map(function (r) {
+              return h("li", { "class": r[0] === "me" ? "me" : null, "data-live": "row:" + r[0] }, [h("span", { text: r[1] }), h("span", { "class": "v", "data-live": "w:" + r[0] })]);
+            }));
+          }),
+          drawer("ach", "Achievements", "achcount", function () {
+            return h("ul", { "class": "ach", role: "list" }, Engine.ACHIEVEMENTS.map(function (a) {
+              var got = !!state.earned[a.id];
+              return h("li", { "class": got ? "got" : null, "data-live": "ach:" + a.id }, [
+                h("span", { "class": "mark", "aria-hidden": "true", text: got ? "✓" : "" }),
+                h("span", {}, [h("strong", { text: a.name }), h("span", { "class": "d", text: a.desc }), h("span", { "class": "sr-only", text: got ? " Earned." : " Not earned yet." })])
+              ]);
+            }));
+          }),
+          drawer("port", "Portfolio", null, function () { return h("div", { "data-live": "port" }); }),
+          h("div", { "class": "row" }, [button("About this game", "about", "key light"), button(confirmQuit ? "Tap again to erase this game" : "Start over", "quit", "key light")])
+        ]);
+
+        return h("div", { "class": "game" }, [side, h("section", { "class": "stage", "aria-label": "Your investments" }, stageKids), bottom]);
+      }
+
+      function chart() {
+        var W = 320, H = 190, L = 46, R = 12, T = 12, B = 28, n = Engine.MONTHS, hist = state.hist;
+        var max = Math.max.apply(null, hist.me.concat(hist.sam, hist.indy));
+        var step = Math.pow(10, Math.floor(Math.log(max) / Math.LN10)), top = Math.ceil(max / step) * step;
+        function x(i) { return L + (W - L - R) * i / n; }
+        function y(v) { return T + (H - T - B) * (1 - v / top); }
+        function line(series) { return series.map(function (v, i) { return x(i).toFixed(1) + "," + y(v).toFixed(1); }).join(" "); }
+        var kids = [];
+        [0, top / 2, top].forEach(function (v) {
+          kids.push(svg("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: "rgba(20,38,29,.25)", "stroke-width": 1 }));
+          kids.push(svg("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end" }, [compact(v)]));
+        });
+        [[0, "Start", "start"], [n / 2, "Year 10", "middle"], [n, "Year 20", "end"]].forEach(function (p) {
+          kids.push(svg("text", { x: x(p[0]), y: H - 6, "text-anchor": p[2] }, [p[1]]));
+        });
+        kids.push(svg("polyline", { points: line(hist.sam), fill: "none", stroke: "var(--paper-muted)", "stroke-width": 2, "stroke-dasharray": "2 4", "stroke-linecap": "round" }));
+        kids.push(svg("polyline", { points: line(hist.indy), fill: "none", stroke: "var(--accent)", "stroke-width": 2, "stroke-dasharray": "7 4" }));
+        kids.push(svg("polyline", { points: line(hist.me), fill: "none", stroke: "var(--g-700)", "stroke-width": 3, "stroke-linejoin": "round" }));
+        return svg("svg", { "class": "chart", viewBox: "0 0 " + W + " " + H, role: "img",
+          "aria-label": "Line chart of net worth over 20 years. You finished with " + dollars(Engine.netWorth(state)) + ", Sam with " + dollars(Engine.worth(state, "sam")) + ", and Indy with " + dollars(Engine.worth(state, "indy")) + "." }, kids);
+      }
+      function swatch(stroke, dash, width) {
+        var attrs = { x1: 2, x2: 30, y1: 6, y2: 6, stroke: stroke, "stroke-width": width, "stroke-linecap": "round" };
+        if (dash) attrs["stroke-dasharray"] = dash;
+        return svg("svg", { width: 32, height: 12, viewBox: "0 0 32 12", "aria-hidden": "true" }, [svg("line", attrs)]);
+      }
+
+      function viewEnd() {
+        var me = Engine.netWorth(state), sam = Engine.worth(state, "sam"), indy = Engine.worth(state, "indy");
+        var place = ["1st", "2nd", "3rd"][(sam > me ? 1 : 0) + (indy > me ? 1 : 0)];
+        var take;
+        if (me > indy && me > sam) take = "You finished on top, ahead of both Sam and Indy. Putting your money to work paid off this time, but a new game could go differently.";
+        else if (me > sam) take = "You beat Sam the saver, but Indy's simple index fund plan did at least as well. In this game, owning many companies and waiting was hard to beat.";
+        else take = "Sam's plain savings account did at least as well as you this time. Risky bets and idle cash can cost you. Next time, try spreading your money across more than one investment.";
+        var got = Engine.ACHIEVEMENTS.filter(function (a) { return state.earned[a.id]; }).length;
+        return h("div", { "class": "game solo" }, [h("section", { "class": "stage sheet" }, [
+          h("div", { "class": "center" }, [
+            h("span", { "class": "eyebrow", text: "Game certificate" }),
+            h("h2", { id: "focus", tabindex: "-1", "class": "display", text: "Saver of 2026" }),
+            h("p", { "class": "total", text: money(me) }),
+            h("p", { text: "You finished " + place + " of 3 after 20 years." })
+          ]),
+          h("p", { text: take }),
+          h("div", { "class": "tiles" }, [
+            h("div", { "class": "tile me" }, [h("span", { "class": "k", text: "You" }), h("span", { "class": "v", text: money(me) }), h("span", { "class": "d", text: "Your own plan" })]),
+            h("div", { "class": "tile" }, [h("span", { "class": "k", text: "Sam" }), h("span", { "class": "v", text: money(sam) }), h("span", { "class": "d", text: "Savings account only" })]),
+            h("div", { "class": "tile" }, [h("span", { "class": "k", text: "Indy" }), h("span", { "class": "v", text: money(indy) }), h("span", { "class": "d", text: "Index fund only" })])
+          ]),
+          h("p", { "class": "fine", text: "All three of you put in the same " + dollars(state.put) + " over 20 years. The differences come from where the money was kept." }),
+          h("h3", { "class": "display", text: "How the money grew" }),
+          chart(),
+          h("ul", { "class": "legend", role: "list" }, [
+            h("li", {}, [swatch("var(--g-700)", "", 3), h("span", { text: "You" }), h("span", { "class": "v", text: dollars(me) })]),
+            h("li", {}, [swatch("var(--accent)", "7 4", 2), h("span", { text: "Indy, index fund only" }), h("span", { "class": "v", text: dollars(indy) })]),
+            h("li", {}, [swatch("var(--paper-muted)", "2 4", 2), h("span", { text: "Sam, savings only" }), h("span", { "class": "v", text: dollars(sam) })])
+          ]),
+          h("h3", { "class": "display", text: "Achievements: " + got + " of " + Engine.ACHIEVEMENTS.length }),
+          h("ul", { "class": "ach", role: "list" }, Engine.ACHIEVEMENTS.map(function (a) {
+            var has = !!state.earned[a.id];
+            return h("li", { "class": has ? "got" : null }, [
+              h("span", { "class": "mark", "aria-hidden": "true", text: has ? "✓" : "" }),
+              h("span", {}, [h("strong", { text: a.name + (has ? "" : " (not yet)") }), h("span", { "class": "d", text: a.desc })])
+            ]);
+          })),
+          h("div", { "class": "row" }, [button("Play again", "play", "key go")]),
+          h("p", { text: "Want to learn this for real? Save It Forward teaches budgeting, saving, investing, credit management, and financial goal setting, in sessions led by LMU student mentors." }),
+          h("p", { "class": "fine", text: DISCLAIMER })
+        ])]);
+      }
+
+      /* ---------- Drawing ---------- */
+
+      function set(el, text) { if (el && el.textContent !== text) el.textContent = text; }
+      function setAttr(el, name, val) { if (el && el.getAttribute(name) !== val) { if (val === null) el.removeAttribute(name); else el.setAttribute(name, val); } }
+
+      function portfolio() {
+        var box = refs.port;
+        if (!box) return;
+        var parts = [{ id: "cash", name: "Pocket cash", v: state.cash }].concat(Engine.ASSETS.map(function (a) { return { id: a.id, name: a.name, v: Engine.value(state, a.id) }; }))
+          .filter(function (p) { return p.v > 0.005; });
+        var total = parts.reduce(function (s, p) { return s + p.v; }, 0) || 1, at = 0;
+        var rings = [svg("circle", { cx: 21, cy: 21, r: 15.915, fill: "none", stroke: "rgba(255,255,255,.15)", "stroke-width": 6 })];
+        parts.forEach(function (p) {
+          var share = p.v / total * 100;
+          rings.push(svg("circle", { cx: 21, cy: 21, r: 15.915, fill: "none", stroke: COLORS[p.id], "stroke-width": 6, "stroke-dasharray": share.toFixed(2) + " " + (100 - share).toFixed(2), "stroke-dashoffset": (25 - at).toFixed(2) }));
+          at += share;
+        });
+        box.textContent = "";
+        box.appendChild(svg("svg", { "class": "donut", viewBox: "0 0 42 42", role: "img", "aria-label": "Chart of how your money is split" }, rings));
+        box.appendChild(h("ul", { "class": "legend", role: "list" }, parts.map(function (p) {
+          return h("li", {}, [h("span", {}, [h("i", { style: "background:" + COLORS[p.id] }), p.name]), h("span", { "class": "v", text: Math.round(p.v / total * 100) + "%" })]);
+        })));
+      }
+
+      function paint() {
+        if (screen !== "play") return;
+        var month = Math.floor(state.t), year = Math.min(20, Math.floor(state.t / 12)), fresh = month !== paintedMonth;
+        var me = Engine.netWorth(state);
+        set(refs.cash, money(state.cash));
+        set(refs.cash2, money(state.cash));
+        set(refs.net, money(me));
+        set(refs.status, statusText());
+        if (refs.bar) refs.bar.style.width = (Engine.finished(state) ? 100 : (state.t % 12) / 12 * 100).toFixed(1) + "%";
+        Engine.ASSETS.forEach(function (a) {
+          var bal = refs["bal:" + a.id];
+          if (!bal) return;
+          var v = Engine.value(state, a.id), gain = v - state.cost[a.id];
+          set(bal, money(v));
+          set(refs["profit:" + a.id], v > 0.005 ? (gain < -0.004 ? "Loss " : "Profit ") + money(Math.abs(gain)) : "Nothing in yet");
+          setAttr(refs["@withdraw:" + a.id], "aria-disabled", v > 0.005 ? null : "true");
+          setAttr(refs["@deposit:" + a.id], "aria-disabled", state.cash >= 0.01 ? null : "true");
+        });
+        var racers = [["me", me], ["sam", Engine.worth(state, "sam")], ["indy", Engine.worth(state, "indy")]];
+        racers.forEach(function (r) { set(refs["w:" + r[0]], money(r[1])); });
+
+        if (!fresh) return;
+        paintedMonth = month;
+        set(refs.year, String(year));
+        setAttr(refs.prog, "aria-valuenow", String(year));
+        setAttr(refs.prog, "aria-valuetext", "Year " + year + " of 20");
+        racers.sort(function (a, b) { return b[1] - a[1]; });
+        set(refs.rank, String(racers.map(function (r) { return r[0]; }).indexOf("me") + 1));
+        if (refs.board) racers.forEach(function (r) { refs.board.appendChild(refs["row:" + r[0]]); });
+        set(refs.achcount, String(Engine.ACHIEVEMENTS.filter(function (a) { return state.earned[a.id]; }).length));
+        Engine.ASSETS.forEach(function (a) {
+          var line = refs["spark:" + a.id];
+          if (!line) return;
+          var p = state.prices[a.id], from = Math.max(a.unlock, month - 24), pts = p.slice(from, month + 1);
+          var lo = Math.min.apply(null, pts), hi = Math.max.apply(null, pts), span = hi - lo || 1;
+          setAttr(line, "points", pts.length < 2 ? "0,36 100,36" : pts.map(function (v, i) {
+            return (i / (pts.length - 1) * 100).toFixed(1) + "," + (36 - (v - lo) / span * 32).toFixed(1);
+          }).join(" "));
+          var back = Math.max(a.unlock, month - 12), chg = month > back ? p[month] / p[back] - 1 : null, el = refs["chg:" + a.id];
+          set(el, chg === null ? "Just unlocked" : chg > 0.0005 ? "Up " + percent(chg).slice(1) + " past year" : chg < -0.0005 ? "Down " + percent(chg).slice(1) + " past year" : "Flat past year");
+          setAttr(el, "class", chg === null ? null : chg > 0.0005 ? "up" : chg < -0.0005 ? "down" : null);
+        });
+        portfolio();
+      }
+
+      function build(focus) {
+        var active = document.activeElement, act = active && active.getAttribute ? active.getAttribute("data-act") : null;
+        root.textContent = "";
+        refs = {};
+        root.appendChild(screen === "intro" ? viewIntro() : screen === "play" ? viewPlay() : viewEnd());
+        Array.prototype.forEach.call(root.querySelectorAll("[data-live]"), function (el) { refs[el.getAttribute("data-live")] = el; });
+        Array.prototype.forEach.call(root.querySelectorAll("button[data-act]"), function (el) { refs["@" + el.getAttribute("data-act")] = el; });
+        paintedMonth = -1;
+        paint();
+        var target = focus ? root.querySelector(focus) : act ? refs["@" + act] : null;
+        if (target) target.focus();
+      }
+
+      /* ---------- The clock ---------- */
+
+      function showToast(text) { toast = text; set(refs.toast, text); }
+
+      function handle(list) {
+        var rebuild = false, ended = false;
+        list.forEach(function (e) {
+          if (e.kind === "income") {
+            if (refs.cash) { refs.cash.classList.remove("pulse"); void refs.cash.offsetWidth; refs.cash.classList.add("pulse"); }
+            clearTimeout(pulseTimer);
+            pulseTimer = setTimeout(function () { if (refs.cash) refs.cash.classList.remove("pulse"); }, 800);
+          } else if (e.kind === "unlock") {
+            queue.push(e.asset.id);
+          } else if (e.kind === "news") {
+            news = e.news.title + ". " + e.news.text;
+            set(refs.news, news);
+            say("News: " + news);
+          } else if (e.kind === "achievement") {
+            showToast("Achievement: " + e.achievement.name);
+            var li = refs["ach:" + e.achievement.id];
+            if (li) { li.className = "got"; set(li.querySelector(".mark"), "✓"); set(li.querySelector(".sr-only"), " Earned."); }
+            paintedMonth = -1;
+            say("Achievement earned: " + e.achievement.name + ". " + e.achievement.desc);
+          } else if (e.kind === "end") {
+            ended = true;
+          }
+        });
+        if (ended) {
+          cancelAnimationFrame(raf); raf = 0;
+          screen = "end"; overlay = null; queue = [];
+          build("#focus");
+          say("20 years are up. You finished with " + money(Engine.netWorth(state)) + ".");
+          return;
+        }
+        if (queue.length && !overlay) {
+          overlay = { type: "lesson", id: queue.shift(), fresh: true };
+          rebuild = true;
+        }
+        if (rebuild) {
+          build("#focus");
+          say("New investment unlocked: " + assetById(overlay.id).name + ". The clock is paused while you read.");
+        }
+      }
+
+      function frame(ts) {
+        raf = requestAnimationFrame(frame);
+        var dt = Math.min(250, Math.max(0, ts - lastTs));
+        lastTs = ts;
+        if (screen !== "play") return;
+        if (running()) {
+          var happened = Engine.advance(state, dt / 1000 * speed / SECONDS_PER_MONTH);
+          if (happened.length) handle(happened);
+        }
+        if (screen === "play" && ts - lastPaint >= 100) { lastPaint = ts; paint(); }
+      }
+
+      function startGame() {
+        state = Engine.createGame((Math.random() * 4294967296) >>> 0);
+        screen = "play"; paused = false; queue = []; news = WELCOME; toast = ""; amount = 500; confirmQuit = false; tab = "savings";
+        overlay = { type: "lesson", id: "savings", fresh: true };
+        build("#focus");
+        say("The game has started. You have $1,000 in pocket cash. First, read how a savings account works.");
+        cancelAnimationFrame(raf);
+        lastTs = performance.now();
+        raf = requestAnimationFrame(frame);
+      }
+
+      root.addEventListener("click", function (e) {
+        var b = e.target.closest ? e.target.closest("button[data-act]") : null;
+        if (!b || b.getAttribute("aria-disabled") === "true") return;
+        var p = b.getAttribute("data-act").split(":"), a = p[1] ? assetById(p[1]) : null, res;
+        if (confirmQuit && p[0] !== "quit") { confirmQuit = false; if (refs["@quit"]) set(refs["@quit"], "Start over"); }
+        switch (p[0]) {
+          case "play": startGame(); break;
+          case "quit":
+            if (!confirmQuit) { confirmQuit = true; build(); say("Tap Start over again to erase this game."); break; }
+            confirmQuit = false;
+            cancelAnimationFrame(raf); raf = 0;
+            state = null; screen = "intro"; overlay = null; queue = [];
+            build("#focus");
+            break;
+          case "about": overlay = { type: "about" }; build("#focus"); break;
+          case "lesson": overlay = { type: "lesson", id: p[1], fresh: false }; build("#focus"); break;
+          case "resume":
+            var was = overlay;
+            if (was && was.type === "lesson" && was.fresh) tab = was.id;
+            overlay = queue.length ? { type: "lesson", id: queue.shift(), fresh: true } : null;
+            if (overlay) build("#focus");
+            else if (screen === "intro") build("#focus");
+            else build(was && was.type === "lesson" ? 'button[data-act="deposit:' + was.id + '"]' : 'button[data-act="about"]');
+            if (screen === "play" && !overlay) say(paused ? "The game is paused." : "The clock is running again.");
+            break;
+          case "pause":
+            paused = !paused;
+            build();
+            say(paused ? "Paused." : "The clock is running again.");
+            break;
+          case "speed": speed = Number(p[1]); build(); break;
+          case "tab": tab = p[1]; build(); break;
+          case "amt": amount = p[1] === "all" ? Infinity : Number(p[1]); build(); break;
+          case "drawer": drawers[p[1]] = !drawers[p[1]]; build(); break;
+          case "deposit":
+            res = Engine.deposit(state, p[1], amount);
+            paintedMonth = -1; paint();
+            if (res.moved) say("Deposited " + money(res.moved) + " into " + a.name + ". Pocket cash " + money(state.cash) + ".");
+            handle(res.happened);
+            break;
+          case "withdraw":
+            res = Engine.withdraw(state, p[1], amount);
+            paintedMonth = -1; paint();
+            if (res.moved) say("Withdrew " + money(res.moved) + " from " + a.name + ". Pocket cash " + money(state.cash) + ".");
+            handle(res.happened);
+            break;
+        }
+      });
+
+      // The clock stops whenever the game can't be seen.
+      document.addEventListener("visibilitychange", function () { hidden = document.hidden; });
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (entries) { offscreen = !entries[entries.length - 1].isIntersecting; }).observe(root);
+      }
+
+      build();
+    })();
+  </script>
+</body>
+</html>

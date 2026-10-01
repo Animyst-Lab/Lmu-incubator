@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    /* Starter styles that match the Lion Share site. Reuse these classes. */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+    h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 16px; color: var(--muted); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* Small uppercase label above a heading */
+    .eyebrow { display: block; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+
+    /* Cards: .card on light, .card-dark for one standout card */
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark { background: var(--ink-card); color: #fff; border-radius: var(--radius-card-sm); padding: 24px; }
+    .card-dark p { color: #d6d6d6; }
+    .card-dark .eyebrow { color: var(--accent-from); }
+
+    /* Pill buttons: .btn for the main action, .btn-light for the rest */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 0; border-radius: var(--radius-pill); padding: 14px 28px;
+      background: var(--ink-card); color: #fff; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: transform 0.3s var(--ease-snap);
+    }
+    .btn:hover { transform: scale(1.04); }
+    .btn-light { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+
+    /* Chips and toggles: add aria-pressed="true" for the selected state */
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 6px 14px;
+      background: var(--bg); color: var(--ink); font-size: 0.875rem; font-weight: 500; cursor: pointer;
+    }
+    .chip[aria-pressed="true"] { background: var(--ink-card); border-color: var(--ink-card); color: #fff; }
+
+    /* ── Code a Mini Game ── */
+
+    /* The frog's colors are part of the drawing, not the page design. */
+    :root { --frog-green: #6FA33A; --frog-belly: #B9D98A; }
+
+    .intro { max-width: 40rem; margin-bottom: 20px; }
+    .layout { display: grid; gap: 16px; }
+    @media (min-width: 760px) { .layout { grid-template-columns: 5fr 7fr; align-items: start; } }
+
+    /* Code editor */
+    .editor { display: grid; gap: 4px; }
+    .file { font-size: 0.75rem; color: #bdbdbd; margin-bottom: 8px; }
+    .line {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      padding: 10px 12px; border-radius: var(--radius-control);
+      transition: background 0.6s var(--ease-spring);
+    }
+    .line.flash { background: rgba(255, 255, 255, 0.12); transition: none; }
+    .code { font-size: 0.95rem; font-weight: 500; white-space: nowrap; }
+    .obj { color: var(--accent-from); }
+    .note { width: 100%; font-size: 0.8rem; color: #bdbdbd; }
+    .stepper { display: inline-flex; align-items: center; gap: 4px; }
+    .step {
+      width: 32px; height: 32px; border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.25); background: transparent; color: #fff;
+      font-size: 1.1rem; line-height: 1; cursor: pointer;
+      transition: transform 0.3s var(--ease-snap);
+    }
+    .step:hover { transform: scale(1.08); }
+    .step:disabled { opacity: 0.35; cursor: default; transform: none; }
+    .value { min-width: 2.2ch; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; color: #fff; }
+    .colors { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+    .card-dark .chip { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.25); padding: 4px 12px; }
+    .card-dark .chip[aria-pressed="true"] { background: #fff; color: var(--ink); border-color: #fff; }
+    .card-dark :focus-visible { outline-color: var(--accent-from); }
+    .editor-actions { margin-top: 12px; }
+    .editor-actions .btn-light { padding: 10px 20px; background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.25); }
+
+    /* Game */
+    .game { padding: 16px; }
+    .hud { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+    .score { font-size: 0.875rem; color: var(--muted); }
+    .score strong { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; color: var(--accent); font-variant-numeric: tabular-nums; margin-left: 4px; }
+    canvas {
+      display: block; width: 100%; height: auto; aspect-ratio: 640 / 300;
+      border-radius: var(--radius-control); background: var(--surface); touch-action: none;
+    }
+    .pad { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+    .pad .btn { padding: 14px 22px; user-select: none; -webkit-user-select: none; }
+    .hint { font-size: 0.8rem; margin: 10px 0 0; text-align: center; }
+
+    /* Challenges */
+    .challenges { margin-top: 16px; }
+    .list { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+    .list li { display: flex; gap: 10px; align-items: flex-start; color: var(--muted); font-size: 0.9rem; }
+    .check {
+      flex: none; width: 22px; height: 22px; border-radius: var(--radius-pill);
+      border: 1px solid var(--border); display: grid; place-items: center;
+      font-size: 0.75rem; color: transparent; background: var(--bg);
+      transition: transform 0.4s var(--ease-spring), background 0.3s;
+    }
+    .list li.done { color: var(--ink); }
+    .list li.done .check { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); transform: scale(1.1); }
+
+    .win {
+      display: none; margin-top: 16px; padding: 24px; border-radius: var(--radius-card-sm);
+      background: var(--accent-gradient); color: #fff;
+    }
+    .win.show { display: block; animation: pop 0.6s var(--ease-spring); }
+    .win h3 { color: #fff; }
+    .win p { color: #fff; margin: 0; }
+    @keyframes pop { from { transform: scale(0.96); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="intro">
+    <span class="eyebrow">Code a mini game</span>
+    <h2>Be an engineer for a day</h2>
+    <p>Change the frog's code, then play. Every change shows up in the game right away, so try anything and see what happens.</p>
+  </div>
+
+  <div class="layout">
+    <section class="card-dark" aria-labelledby="code-title">
+      <span class="eyebrow" id="code-title">Your code</span>
+      <div class="file">frog-game.js</div>
+      <div class="editor">
+        <div class="line" data-line="speed">
+          <span class="code"><span class="obj">frog</span>.speed =</span>
+          <span class="stepper">
+            <button class="step" data-key="speed" data-dir="-1" aria-label="Lower frog speed">−</button>
+            <span class="value" id="v-speed">4</span>
+            <button class="step" data-key="speed" data-dir="1" aria-label="Raise frog speed">+</button>
+          </span>
+          <span class="note">// how fast the frog hops left and right</span>
+        </div>
+        <div class="line" data-line="jump">
+          <span class="code"><span class="obj">frog</span>.jump =</span>
+          <span class="stepper">
+            <button class="step" data-key="jump" data-dir="-1" aria-label="Lower jump height">−</button>
+            <span class="value" id="v-jump">4</span>
+            <button class="step" data-key="jump" data-dir="1" aria-label="Raise jump height">+</button>
+          </span>
+          <span class="note">// how high the frog jumps</span>
+        </div>
+        <div class="line" data-line="points">
+          <span class="code"><span class="obj">fly</span>.points =</span>
+          <span class="stepper">
+            <button class="step" data-key="points" data-dir="-1" aria-label="Lower points per fly">−</button>
+            <span class="value" id="v-points">1</span>
+            <button class="step" data-key="points" data-dir="1" aria-label="Raise points per fly">+</button>
+          </span>
+          <span class="note">// score for each fly caught</span>
+        </div>
+        <div class="line" data-line="color">
+          <span class="code"><span class="obj">frog</span>.color =</span>
+          <span class="colors" role="group" aria-label="Frog color">
+            <button class="chip" data-color="green" aria-pressed="true">"green"</button>
+            <button class="chip" data-color="orange" aria-pressed="false">"orange"</button>
+            <button class="chip" data-color="midnight" aria-pressed="false">"midnight"</button>
+          </span>
+          <span class="note">// what the frog looks like</span>
+        </div>
+      </div>
+      <div class="editor-actions">
+        <button class="btn btn-light" id="reset-code">Reset code</button>
+      </div>
+    </section>
+
+    <div>
+      <section class="card game" aria-labelledby="game-title">
+        <div class="hud">
+          <h3 id="game-title">Catch the flies</h3>
+          <div class="score">Score <strong id="score">0</strong></div>
+        </div>
+        <canvas id="stage" width="640" height="300" tabindex="0"
+          aria-label="Frog game. Use the left and right arrow keys to move and the up arrow or space bar to jump."></canvas>
+        <div class="pad">
+          <button class="btn btn-light" data-hold="left" aria-label="Move left">◀</button>
+          <button class="btn" data-hold="jump">Jump</button>
+          <button class="btn btn-light" data-hold="right" aria-label="Move right">▶</button>
+        </div>
+        <p class="hint">On a keyboard: click the game, then use the arrow keys and space bar.</p>
+        <p class="sr-only" aria-live="polite" id="announce"></p>
+      </section>
+
+      <section class="card challenges" aria-labelledby="challenge-title">
+        <span class="eyebrow">Challenges</span>
+        <h3 id="challenge-title">Can you code your way through?</h3>
+        <ul class="list">
+          <li data-goal="high"><span class="check" aria-hidden="true">✓</span><span>Catch a fly near the top. <em>Hint: raise <strong>frog.jump</strong>.</em></span></li>
+          <li data-goal="points"><span class="check" aria-hidden="true">✓</span><span>Make every fly worth 5 points or more.</span></li>
+          <li data-goal="color"><span class="check" aria-hidden="true">✓</span><span>Give your frog a new color.</span></li>
+          <li data-goal="score"><span class="check" aria-hidden="true">✓</span><span>Reach a score of 50.</span></li>
+        </ul>
+        <div class="win" id="win" role="status">
+          <h3>You just engineered a game!</h3>
+          <p>Changing a few numbers changed how the whole game works. That's coding. LA Makerspace teaches kids these skills through hands-on workshops at library branches across LA County.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var W = 640, H = 300, GROUND = 260, HIGH_LINE = 100;
+      var DEFAULTS = { speed: 4, jump: 4, points: 1, color: "green" };
+      var LIMITS = { speed: [1, 10], jump: [1, 10], points: [1, 10] };
+      var code = Object.assign({}, DEFAULTS);
+
+      var canvas = document.getElementById("stage");
+      var ctx = canvas.getContext("2d");
+      var scoreEl = document.getElementById("score");
+      var announce = document.getElementById("announce");
+
+      function token(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+      var palette = {};
+      function readPalette() {
+        palette = {
+          sky: token("--bg") || "#fff",
+          ground: token("--surface-2") || "#ddd",
+          line: token("--border") || "#eee",
+          ink: token("--ink") || "#111",
+          muted: token("--muted") || "#666",
+          accent: token("--accent") || "#b15f2c",
+          frog: {
+            green: [token("--frog-green"), token("--frog-belly")],
+            orange: [token("--accent-from"), token("--surface")],
+            midnight: [token("--ink-card"), token("--muted")]
+          }
+        };
+      }
+      readPalette();
+
+      // ── Code editor ──
+      function flash(key) {
+        var line = document.querySelector('[data-line="' + key + '"]');
+        line.classList.add("flash");
+        requestAnimationFrame(function () { requestAnimationFrame(function () { line.classList.remove("flash"); }); });
+      }
+      function renderCode() {
+        ["speed", "jump", "points"].forEach(function (k) {
+          document.getElementById("v-" + k).textContent = code[k];
+          document.querySelectorAll('.step[data-key="' + k + '"]').forEach(function (b) {
+            var dir = Number(b.dataset.dir);
+            b.disabled = dir < 0 ? code[k] <= LIMITS[k][0] : code[k] >= LIMITS[k][1];
+          });
+        });
+        document.querySelectorAll("[data-color]").forEach(function (b) {
+          b.setAttribute("aria-pressed", String(b.dataset.color === code.color));
+        });
+      }
+      document.querySelectorAll(".step").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var k = b.dataset.key, lim = LIMITS[k];
+          code[k] = Math.min(lim[1], Math.max(lim[0], code[k] + Number(b.dataset.dir)));
+          renderCode(); flash(k); checkGoals();
+          announce.textContent = (k === "points" ? "fly.points" : "frog." + k) + " is now " + code[k];
+        });
+      });
+      document.querySelectorAll("[data-color]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          code.color = b.dataset.color;
+          renderCode(); flash("color"); checkGoals();
+          announce.textContent = "frog.color is now " + code.color;
+        });
+      });
+      document.getElementById("reset-code").addEventListener("click", function () {
+        code = Object.assign({}, DEFAULTS);
+        renderCode(); ["speed", "jump", "points", "color"].forEach(flash);
+        announce.textContent = "Code reset";
+      });
+
+      // ── Challenges ──
+      var goals = { high: false, points: false, color: false, score: false };
+      function checkGoals() {
+        if (code.points >= 5) goals.points = true;
+        if (code.color !== "green") goals.color = true;
+        if (score >= 50) goals.score = true;
+        var all = true;
+        Object.keys(goals).forEach(function (g) {
+          document.querySelector('[data-goal="' + g + '"]').classList.toggle("done", goals[g]);
+          if (!goals[g]) all = false;
+        });
+        var win = document.getElementById("win");
+        if (all && !win.classList.contains("show")) win.classList.add("show");
+      }
+
+      // ── Game ──
+      var frog = { x: W / 2, y: GROUND, vy: 0, face: 1, onGround: true, tongue: 0 };
+      var keys = { left: false, right: false, jump: false };
+      var score = 0, flies = [], t = 0;
+
+      function newFly() {
+        return {
+          x: 40 + Math.random() * (W - 80),
+          y: 40 + Math.random() * (GROUND - 110),
+          phase: Math.random() * Math.PI * 2,
+          drift: (Math.random() < 0.5 ? -1 : 1) * (0.3 + Math.random() * 0.5)
+        };
+      }
+      // Always start with one fly up high and one low, so both are visible.
+      flies = [newFly(), newFly(), newFly()];
+      flies[0].y = 60; flies[1].y = GROUND - 60;
+
+      function update(dt) {
+        t += dt;
+        var step = (0.8 + code.speed * 0.7) * dt;
+        if (keys.left) { frog.x -= step; frog.face = -1; }
+        if (keys.right) { frog.x += step; frog.face = 1; }
+        frog.x = Math.max(28, Math.min(W - 28, frog.x));
+
+        var g = 0.55;
+        if (keys.jump && frog.onGround) {
+          var height = 30 + code.jump * 17;
+          frog.vy = -Math.sqrt(2 * g * height);
+          frog.onGround = false;
+        }
+        if (!frog.onGround) {
+          frog.vy += g * dt;
+          frog.y += frog.vy * dt;
+          if (frog.y >= GROUND) { frog.y = GROUND; frog.vy = 0; frog.onGround = true; }
+        }
+        if (frog.tongue > 0) frog.tongue -= dt;
+
+        flies.forEach(function (f, i) {
+          f.phase += 0.05 * dt;
+          f.x += f.drift * dt;
+          if (f.x < 30 || f.x > W - 30) f.drift *= -1;
+          var fy = f.y + Math.sin(f.phase) * 8;
+          var dx = f.x - frog.x, dy = fy - (frog.y - 26);
+          if (dx * dx + dy * dy < 34 * 34) {
+            score += code.points;
+            scoreEl.textContent = score;
+            if (fy < HIGH_LINE) goals.high = true;
+            frog.tongue = 10;
+            flies[i] = newFly();
+            checkGoals();
+          }
+        });
+      }
+
+      function drawFly(f) {
+        var fy = f.y + Math.sin(f.phase) * 8;
+        var flap = Math.sin(t * 0.8 + f.phase) * 0.5 + 0.5;
+        ctx.fillStyle = palette.line;
+        ctx.globalAlpha = 0.9;
+        ctx.beginPath(); ctx.ellipse(f.x - 5, fy - 6, 6, 3 + flap * 3, -0.5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(f.x + 5, fy - 6, 6, 3 + flap * 3, 0.5, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = palette.muted; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.ellipse(f.x - 5, fy - 6, 6, 3 + flap * 3, -0.5, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.ellipse(f.x + 5, fy - 6, 6, 3 + flap * 3, 0.5, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = palette.ink;
+        ctx.beginPath(); ctx.arc(f.x, fy, 5, 0, Math.PI * 2); ctx.fill();
+      }
+
+      function drawFrog() {
+        var colors = palette.frog[code.color];
+        var x = frog.x, y = frog.y;
+        var squash = frog.onGround ? 1 : 1.08;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(frog.face, 1);
+        // legs
+        ctx.fillStyle = colors[0];
+        ctx.beginPath(); ctx.ellipse(-16, -6, 12, 7, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(16, -6, 12, 7, 0, 0, Math.PI * 2); ctx.fill();
+        // body
+        ctx.beginPath(); ctx.ellipse(0, -24 * squash, 24, 22 * squash, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = colors[1];
+        ctx.beginPath(); ctx.ellipse(0, -16 * squash, 14, 11, 0, 0, Math.PI * 2); ctx.fill();
+        // eyes
+        [-11, 11].forEach(function (ex) {
+          ctx.fillStyle = colors[0];
+          ctx.beginPath(); ctx.arc(ex, -46 * squash, 10, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = palette.sky;
+          ctx.beginPath(); ctx.arc(ex, -46 * squash, 7, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = palette.ink;
+          ctx.beginPath(); ctx.arc(ex + 2, -46 * squash, 3.5, 0, Math.PI * 2); ctx.fill();
+        });
+        // smile
+        ctx.strokeStyle = palette.ink; ctx.lineWidth = 2; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.arc(2, -30 * squash, 10, 0.25 * Math.PI, 0.75 * Math.PI); ctx.stroke();
+        // tongue after a catch
+        if (frog.tongue > 0) {
+          ctx.strokeStyle = palette.accent; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(8, -24 * squash); ctx.lineTo(22, -34 * squash); ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function draw() {
+        ctx.fillStyle = palette.sky;
+        ctx.fillRect(0, 0, W, H);
+        // "high fly" zone line
+        ctx.strokeStyle = palette.line; ctx.lineWidth = 2; ctx.setLineDash([6, 8]);
+        ctx.beginPath(); ctx.moveTo(0, HIGH_LINE); ctx.lineTo(W, HIGH_LINE); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = palette.muted; ctx.font = "500 13px " + (token("--font-sans") || "sans-serif");
+        ctx.fillText("high flies", 12, HIGH_LINE - 8);
+        // ground
+        ctx.fillStyle = palette.ground;
+        ctx.fillRect(0, GROUND, W, H - GROUND);
+        flies.forEach(drawFly);
+        drawFrog();
+      }
+
+      var last = performance.now();
+      function loop(now) {
+        var dt = Math.min(3, (now - last) / (1000 / 60));
+        last = now;
+        update(dt);
+        draw();
+        requestAnimationFrame(loop);
+      }
+
+      // ── Controls ──
+      var keyMap = { ArrowLeft: "left", ArrowRight: "right", ArrowUp: "jump", " ": "jump", a: "left", d: "right", w: "jump" };
+      canvas.addEventListener("keydown", function (e) {
+        var k = keyMap[e.key];
+        if (k) { keys[k] = true; e.preventDefault(); }
+      });
+      canvas.addEventListener("keyup", function (e) {
+        var k = keyMap[e.key];
+        if (k) { keys[k] = false; e.preventDefault(); }
+      });
+      canvas.addEventListener("blur", function () { keys.left = keys.right = keys.jump = false; });
+      canvas.addEventListener("pointerdown", function () { canvas.focus(); });
+
+      document.querySelectorAll("[data-hold]").forEach(function (b) {
+        var k = b.dataset.hold;
+        function on(e) { e.preventDefault(); keys[k] = true; }
+        function off() { keys[k] = false; }
+        b.addEventListener("pointerdown", on);
+        b.addEventListener("pointerup", off);
+        b.addEventListener("pointerleave", off);
+        b.addEventListener("pointercancel", off);
+        b.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+        // Keyboard users: Enter or Space on a pad button does a short press.
+        b.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); keys[k] = true; }
+        });
+        b.addEventListener("keyup", function (e) {
+          if (e.key === "Enter" || e.key === " ") { keys[k] = false; }
+        });
+      });
+
+      renderCode();
+      checkGoals();
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(readPalette);
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>

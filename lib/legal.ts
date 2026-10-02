@@ -1,11 +1,10 @@
 /**
  * Details the legal pages (privacy, terms, disclaimer, accessibility) share.
- * `operator` is intentionally blank until it's decided;
- * a blank value renders as a visible "to be added" placeholder.
+ * A blank `operator` or `contactEmail` renders as a visible "to be added" placeholder.
  */
 export const LEGAL = {
   /** Who runs Lion Share, as it should appear in the legal pages. */
-  operator: "",
+  operator: "Dr. Jason D'Mello",
   /** Where people send privacy, takedown, and accessibility requests. */
   contactEmail: "Jason.D'Mello@lmu.edu",
   effectiveDate: "October 1, 2026",

@@ -84,7 +84,7 @@ export default function Hero({ causes, newest }: Props) {
       <div
         {...reveal({ y: 0, delay: 900, intro: true, className: "shell relative z-20 flex items-center justify-between gap-3 border-t border-ink/10 py-5 text-xs font-medium uppercase tracking-wide text-ink/65" })}
       >
-        <span>Loyola Marymount University</span>
+        <span>Made by LMU students</span>
         <span className="hidden sm:inline">Los Angeles, California</span>
         <a href="#how" className="inline-flex items-center gap-2 hover:text-ink">
           Scroll to explore <span aria-hidden="true">↓</span>

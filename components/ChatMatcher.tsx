@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { CauseSummary } from "@/lib/causes";
 import type { ChatMessage, MatchResponse } from "@/lib/match";
+import { LEGAL } from "@/lib/legal";
 import { MAX_MESSAGE_CHARS, OPENING_QUESTION } from "@/lib/matchPrompt";
 import { ArrowRight, LogoMark } from "./icons";
 import MatchResult from "./MatchResult";
@@ -99,7 +101,7 @@ export default function ChatMatcher({ causes }: Props) {
           <LogoMark className="text-base text-accent-from" />
         </span>
         <div className="leading-tight">
-          <p className="text-sm font-semibold">Cause matcher</p>
+          <p className="text-sm font-semibold">AI cause matcher</p>
           <p className="text-xs text-white/60">A few questions, then a match</p>
         </div>
       </div>
@@ -111,6 +113,10 @@ export default function ChatMatcher({ causes }: Props) {
         aria-live="polite"
         aria-label="Chat with the cause matcher"
       >
+        <p className="px-1 text-xs text-ink/60">
+          You&apos;re chatting with an AI, not a person. It can make mistakes, so check details on the nonprofit&apos;s site.
+          For ages {LEGAL.chatMinimumAge}+.
+        </p>
         <Bubble role="assistant">{OPENING_QUESTION}</Bubble>
         {messages.length === 0 && (
           <div className="mt-1 flex flex-wrap gap-2">
@@ -176,7 +182,12 @@ export default function ChatMatcher({ causes }: Props) {
           <ArrowRight />
         </button>
       </form>
-      <p className="px-2 pb-1 pt-2 text-xs text-ink/60">Don&apos;t share personal info. Chats aren&apos;t saved.</p>
+      <p className="px-2 pb-1 pt-2 text-xs text-ink/60">
+        Don&apos;t share personal info. Chats aren&apos;t saved.{" "}
+        <Link href="/privacy" className="underline underline-offset-2 hover:text-ink">
+          Privacy
+        </Link>
+      </p>
     </div>
   );
 }

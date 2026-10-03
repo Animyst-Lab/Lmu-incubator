@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CauseList } from "@/components/CauseGrid";
 import CauseTemplate from "@/components/CauseTemplate";
@@ -57,8 +58,9 @@ export default async function CausePage({ params }: PageProps<"/causes/[slug]">)
         )}
 
         <p className="border-t border-line pt-6 text-sm text-muted">
-          Lion Share is a student project and is not affiliated with the nonprofits listed. Always confirm details on
-          the nonprofit&apos;s official site.
+          Lion Share is a student project, not affiliated with Loyola Marymount University or the nonprofits listed.
+          Pages are written by students, often with help from AI. Always confirm details on the nonprofit&apos;s official
+          site. <Link href="/disclaimer" className="underline underline-offset-2 hover:text-ink">Disclaimer</Link>
         </p>
       </main>
       <SiteFooter />

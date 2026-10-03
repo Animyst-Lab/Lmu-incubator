@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LEGAL_PAGES } from "@/lib/legal";
 import { NAV_ITEMS, REPO_URL } from "@/lib/nav";
 import { LogoMark } from "./icons";
 import RevealText from "./RevealText";
@@ -61,11 +62,23 @@ export default function SiteFooter() {
         </div>
 
         <div className="flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-white/55 sm:flex-row">
-          <p>© {new Date().getFullYear()} Lion Share. A student project at LMU.</p>
-          <p className="text-center sm:text-right">
-            Not affiliated with the nonprofits listed. Always confirm details on their official sites.
-          </p>
+          <p>© {new Date().getFullYear()} Lion Share. A student project by LMU students.</p>
+          <nav aria-label="Legal">
+            <ul className="flex flex-wrap justify-center gap-x-5">
+              {LEGAL_PAGES.map((page) => (
+                <li key={page.href}>
+                  <Link href={page.href} className="inline-flex py-2 hover:text-white">
+                    {page.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
+        <p className="mt-4 text-center text-xs text-white/55 sm:text-left">
+          Not affiliated with Loyola Marymount University or the nonprofits listed. Always confirm details on their
+          official sites.
+        </p>
       </div>
       <p
         aria-hidden="true"
